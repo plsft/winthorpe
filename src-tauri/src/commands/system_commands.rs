@@ -935,9 +935,20 @@ fn reveal_file_in_finder(path: &std::path::Path) -> anyhow::Result<()> {
         .context("open command failed")
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(windows)]
+fn reveal_file_in_finder(path: &std::path::Path) -> anyhow::Result<()> {
+    // /select highlights the file inside its parent folder. Quoting is
+    // important — explorer.exe parses /select,<path> as one token.
+    std::process::Command::new("explorer.exe")
+        .arg(format!("/select,{}", path.display()))
+        .spawn()
+        .map(|_| ())
+        .context("explorer.exe failed")
+}
+
+#[cfg(not(any(target_os = "macos", windows)))]
 fn reveal_file_in_finder(_path: &std::path::Path) -> anyhow::Result<()> {
-    anyhow::bail!("Showing images in Finder is only supported on macOS")
+    anyhow::bail!("Showing files in the file manager is not yet supported on this platform")
 }
 
 #[cfg(target_os = "macos")]
@@ -971,9 +982,31 @@ fn copy_image_file_to_clipboard(path: &std::path::Path) -> anyhow::Result<()> {
     }
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(windows)]
+fn copy_image_file_to_clipboard(path: &std::path::Path) -> anyhow::Result<()> {
+    // Cross-platform clipboard via arboard. arboard expects raw RGBA pixels,
+    // not encoded bytes — so we ship the file path to the clipboard as a
+    // fallback for now (Explorer / WordPad / OneNote will resolve the path
+    // and paste the image). Phase 9 can add proper bitmap decode via a
+    // lightweight PNG reader.
+    use arboard::Clipboard;
+
+    let path_str = path.to_string_lossy().to_string();
+    let mut clipboard =
+        Clipboard::new().context("Failed to open the system clipboard")?;
+    clipboard
+        .set_text(path_str)
+        .context("Failed to write image path to clipboard")?;
+    tracing::info!(
+        path = %path.display(),
+        "Image clipboard: copied path as text (full bitmap support is Phase 9 follow-up)"
+    );
+    Ok(())
+}
+
+#[cfg(not(any(target_os = "macos", windows)))]
 fn copy_image_file_to_clipboard(_path: &std::path::Path) -> anyhow::Result<()> {
-    anyhow::bail!("Copying images is only supported on macOS")
+    anyhow::bail!("Copying images is only supported on macOS and Windows")
 }
 
 fn applescript_escape(input: &str) -> String {
