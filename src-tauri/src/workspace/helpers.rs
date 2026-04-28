@@ -284,9 +284,13 @@ pub fn copy_dir_all(source: &Path, destination: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Recreate a symbolic link at `destination` pointing to the same target as
+/// `source`. On Unix this uses `std::os::unix::fs::symlink`. On Windows the
+/// kernel splits symlinks into file vs directory variants and unprivileged
+/// processes cannot create symlinks unless Developer Mode is enabled — so we
+/// pick the right `symlink_file` / `symlink_dir` based on the resolved target,
+/// and fall back to copying the contents if symlink creation fails.
 pub fn copy_symlink(source: &Path, destination: &Path) -> Result<()> {
-    use std::os::unix::fs::symlink;
-
     if let Some(parent) = destination.parent() {
         fs::create_dir_all(parent).with_context(|| {
             format!(
@@ -298,13 +302,69 @@ pub fn copy_symlink(source: &Path, destination: &Path) -> Result<()> {
 
     let link_target = fs::read_link(source)
         .with_context(|| format!("Failed to read symlink {}", source.display()))?;
-    symlink(&link_target, destination).with_context(|| {
-        format!(
-            "Failed to copy symlink {} to {}",
-            source.display(),
-            destination.display()
-        )
-    })
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::symlink;
+        symlink(&link_target, destination).with_context(|| {
+            format!(
+                "Failed to copy symlink {} to {}",
+                source.display(),
+                destination.display()
+            )
+        })
+    }
+
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::{symlink_dir, symlink_file};
+
+        // Resolve the target to decide which Windows symlink flavour to use.
+        // Relative link targets are resolved relative to the source's parent.
+        let resolved_target = if link_target.is_absolute() {
+            link_target.clone()
+        } else if let Some(parent) = source.parent() {
+            parent.join(&link_target)
+        } else {
+            link_target.clone()
+        };
+
+        let symlink_result = if resolved_target.is_dir() {
+            symlink_dir(&link_target, destination)
+        } else {
+            symlink_file(&link_target, destination)
+        };
+
+        match symlink_result {
+            Ok(()) => Ok(()),
+            Err(err) => {
+                // Symlink creation failed (typically: ERROR_PRIVILEGE_NOT_HELD
+                // when Developer Mode is off and the process isn't elevated).
+                // Fall back to copying the real content so the workspace is
+                // still usable. We log the fallback at debug level so users
+                // who care about preserving symlinks can spot the issue.
+                tracing::debug!(
+                    source = %source.display(),
+                    destination = %destination.display(),
+                    error = %err,
+                    "Symlink creation failed on Windows; copying contents instead"
+                );
+                if resolved_target.is_dir() {
+                    copy_dir_all(&resolved_target, destination)
+                } else {
+                    fs::copy(&resolved_target, destination)
+                        .map(|_| ())
+                        .with_context(|| {
+                            format!(
+                                "Failed to fall back to copy of {} → {}",
+                                resolved_target.display(),
+                                destination.display()
+                            )
+                        })
+                }
+            }
+        }
+    }
 }
 
 // ---- Branch / directory name helpers ----

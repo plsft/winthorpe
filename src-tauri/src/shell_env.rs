@@ -8,6 +8,12 @@
 //! spawns a one-shot login shell, captures its `env` output, and merges
 //! the interesting variables into the current process so every child
 //! (sidecar, git, workspace scripts) inherits them automatically.
+//!
+//! On Windows this is a no-op: GUI processes already inherit the merged
+//! User+System PATH from the registry-broadcast environment block, and there
+//! is no concept of "login-only PATH entries" the way macOS dotfiles work.
+//! The Winthorpe entry point still calls `inherit_login_shell_env()` so the
+//! call site stays unchanged.
 
 /// Merge the user's login-shell environment into the current process.
 ///
@@ -15,9 +21,16 @@
 /// spawned. It is intentionally infallible — on failure it logs and
 /// returns, leaving the existing (minimal) environment in place.
 pub fn inherit_login_shell_env() {
+    #[cfg(unix)]
     unix::inherit();
+    #[cfg(windows)]
+    {
+        // No-op. See module doc comment for rationale.
+        tracing::debug!("Windows: skipping login-shell env capture (not needed)");
+    }
 }
 
+#[cfg(unix)]
 mod unix {
     use std::collections::HashMap;
     use std::process::Command;

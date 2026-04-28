@@ -38,13 +38,18 @@ fn ensure_external_bin_placeholders() {
         return;
     };
 
+    // Tauri's bundler appends `.exe` to externalBin entries when targeting
+    // Windows. Mirror that here so `cargo check`/`cargo build` finds the
+    // placeholder before the real artifacts have been staged.
+    let exe_suffix = if target.contains("windows") { ".exe" } else { "" };
+
     let manifest_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR should be set"));
     ensure_executable_placeholder(
         manifest_dir
             .join("target")
             .join("bundled")
-            .join(format!("winthorpe-cli-{target}")),
+            .join(format!("winthorpe-cli-{target}{exe_suffix}")),
     );
 
     if let Some(repo_root) = manifest_dir.parent() {
@@ -52,8 +57,15 @@ fn ensure_external_bin_placeholders() {
             repo_root
                 .join("sidecar")
                 .join("dist")
-                .join(format!("winthorpe-sidecar-{target}")),
+                .join(format!("winthorpe-sidecar-{target}{exe_suffix}")),
         );
+
+        // tauri.conf.json's `bundle.resources` references `../sidecar/dist/vendor/`.
+        // Tauri checks this exists at build time. Create an empty directory so
+        // `cargo check` succeeds before the sidecar's vendor staging script
+        // has run (Phase 3 fills it on Windows).
+        let vendor_dir = repo_root.join("sidecar").join("dist").join("vendor");
+        let _ = fs::create_dir_all(&vendor_dir);
     }
 }
 
@@ -65,12 +77,18 @@ fn ensure_executable_placeholder(path: PathBuf) {
     if let Some(parent) = path.parent() {
         let _ = fs::create_dir_all(parent);
     }
-    let _ = fs::write(&path, "#!/bin/sh\nexit 0\n");
-
+    // The body is irrelevant — Tauri only checks for existence at build time.
+    // We use a shebang on Unix and a tiny no-op MZ stub on Windows so the file
+    // doesn't trip antivirus scanners that flag zero-byte executables.
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
+        let _ = fs::write(&path, "#!/bin/sh\nexit 0\n");
         let _ = fs::set_permissions(&path, fs::Permissions::from_mode(0o755));
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = fs::write(&path, "MZ");
     }
 }
 

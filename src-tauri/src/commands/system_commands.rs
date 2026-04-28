@@ -66,9 +66,29 @@ pub struct WinthorpeSkillsStatus {
     pub command: String,
 }
 
-/// Where Winthorpe installs its managed CLI entrypoint on macOS.
+/// Where Winthorpe installs its managed CLI entrypoint.
+///
+/// Unix: `/usr/local/bin/winthorpe[-dev]` (symlink). Windows: a per-user
+/// install under `%LOCALAPPDATA%\Programs\Winthorpe\bin\winthorpe[-dev].exe`
+/// — Phase 7 wires the actual install logic (drop a `.cmd` shim, append the
+/// dir to user PATH via `HKCU\Environment` + `WM_SETTINGCHANGE` broadcast).
+/// Until then, the path is stable so status reads work and the UI can show
+/// "not installed yet" without crashing.
 fn cli_install_target() -> std::path::PathBuf {
-    std::path::PathBuf::from(format!("/usr/local/bin/{}", installed_cli_name()))
+    #[cfg(unix)]
+    {
+        std::path::PathBuf::from(format!("/usr/local/bin/{}", installed_cli_name()))
+    }
+    #[cfg(windows)]
+    {
+        let base = std::env::var_os("LOCALAPPDATA")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| std::path::PathBuf::from(r"C:\Users\Default\AppData\Local"));
+        base.join("Programs")
+            .join("Winthorpe")
+            .join("bin")
+            .join(format!("{}.exe", installed_cli_name()))
+    }
 }
 
 fn installed_cli_name() -> &'static str {
@@ -81,7 +101,11 @@ fn installed_cli_name() -> &'static str {
 
 /// Name of the compiled CLI binary produced by `cargo build --bin winthorpe-cli`.
 fn cli_source_binary_name() -> &'static str {
-    "winthorpe-cli"
+    if cfg!(windows) {
+        "winthorpe-cli.exe"
+    } else {
+        "winthorpe-cli"
+    }
 }
 
 fn bundled_cli_binary(app_exe: &std::path::Path) -> anyhow::Result<std::path::PathBuf> {
@@ -92,11 +116,35 @@ fn bundled_cli_binary(app_exe: &std::path::Path) -> anyhow::Result<std::path::Pa
 }
 
 fn cli_install_remediation(cli_binary: &std::path::Path, install_path: &std::path::Path) -> String {
-    format!(
-        "sudo ln -sfn {} {}",
-        shell_quote(cli_binary),
-        shell_quote(install_path),
-    )
+    #[cfg(unix)]
+    {
+        format!(
+            "sudo ln -sfn {} {}",
+            shell_quote(cli_binary),
+            shell_quote(install_path),
+        )
+    }
+    #[cfg(windows)]
+    {
+        // PowerShell one-liner: ensure dir, copy the bundled exe, and add
+        // the parent dir to user PATH if it isn't already there. Phase 7
+        // replaces this with an in-process flow that doesn't require the
+        // user to copy/paste anything.
+        let dir = install_path
+            .parent()
+            .unwrap_or_else(|| std::path::Path::new("."));
+        format!(
+            "powershell -NoProfile -Command \"New-Item -ItemType Directory -Force -Path '{dir}' | Out-Null; \
+Copy-Item -Force -Path '{src}' -Destination '{target}'; \
+$cur = [Environment]::GetEnvironmentVariable('Path', 'User'); \
+if (-not ($cur -split ';' -contains '{dir}')) {{ \
+[Environment]::SetEnvironmentVariable('Path', $cur + ';{dir}', 'User') \
+}}\"",
+            dir = dir.display(),
+            src = cli_binary.display(),
+            target = install_path.display(),
+        )
+    }
 }
 
 fn shell_quote(path: &std::path::Path) -> String {
@@ -318,9 +366,19 @@ fn applescript_shell_arg(path: &std::path::Path) -> String {
 }
 
 fn home_dir() -> PathBuf {
-    std::env::var_os("HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("."))
+    #[cfg(windows)]
+    {
+        std::env::var_os("USERPROFILE")
+            .map(PathBuf::from)
+            .or_else(|| std::env::var_os("HOME").map(PathBuf::from))
+            .unwrap_or_else(|| PathBuf::from("."))
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var_os("HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from("."))
+    }
 }
 
 fn claude_skills_dir() -> PathBuf {
@@ -1100,6 +1158,9 @@ mod tests {
         );
     }
 
+    // Symlink-based install tests are Unix-only — Windows uses a copy-based
+    // install flow (Phase 7) that gets its own test coverage.
+    #[cfg(unix)]
     #[test]
     fn classify_cli_install_reports_managed_for_matching_symlink() {
         let tmp = tempdir().unwrap();
@@ -1132,6 +1193,7 @@ mod tests {
         );
     }
 
+    #[cfg(unix)]
     #[test]
     fn install_cli_symlink_replaces_stale_copy_with_managed_symlink() {
         let tmp = tempdir().unwrap();
@@ -1150,6 +1212,7 @@ mod tests {
         );
     }
 
+    #[cfg(unix)]
     #[test]
     fn cli_install_remediation_uses_force_replace_symlink_command() {
         let command = cli_install_remediation(

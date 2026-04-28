@@ -131,11 +131,27 @@ impl SidecarProcess {
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit());
 
-        // Put the sidecar in its own process group so SIGTERM/SIGKILL
-        // reaches all child processes (Claude CLI, Codex CLI) instead
-        // of only hitting the Bun parent.
-        use std::os::unix::process::CommandExt;
-        cmd.process_group(0);
+        // Group the sidecar with its descendants so a single signal/kill
+        // tears down Bun **and** every child CLI (Claude, Codex) it spawned.
+        //
+        // Unix: put the sidecar in its own process group, then signal the
+        // whole group via the negative-PID kill convention. Windows: Phase 2
+        // upgrades this to a Job Object with KILL_ON_JOB_CLOSE; until then
+        // we rely on `taskkill /T /F` (recursive force-kill via PID).
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::CommandExt;
+            cmd.process_group(0);
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::process::CommandExt;
+            // CREATE_NEW_PROCESS_GROUP lets us send Ctrl+Break-equivalent
+            // signals to the group later; without it, Win32 routes Ctrl
+            // events to our own process and we deadlock.
+            const CREATE_NEW_PROCESS_GROUP: u32 = 0x00000200;
+            cmd.creation_flags(CREATE_NEW_PROCESS_GROUP);
+        }
 
         // Pass log config to the sidecar process
         if let Ok(dir) = crate::data_dir::logs_dir() {
@@ -240,13 +256,29 @@ impl SidecarProcess {
         self.child.id()
     }
 
-    /// Force-kill (SIGKILL) the sidecar and its entire process group.
+    /// Force-kill the sidecar and its entire descendant tree.
+    ///
     /// Last-resort cleanup; the cooperative shutdown ladder lives in
-    /// `ManagedSidecar::shutdown`. Kill the whole process group first so
-    /// child CLIs don't get reparented to launchd as orphans.
+    /// `ManagedSidecar::shutdown`. We kill descendants first so child CLIs
+    /// don't get reparented as orphans (launchd on macOS, services.exe on
+    /// Windows).
+    ///
+    /// Phase 2 will replace the Windows path with `TerminateJobObject` once
+    /// the sidecar is assigned to a Job Object at spawn time. Until then,
+    /// `taskkill /T /F` does the recursive descendant kill.
     fn kill(&mut self) {
+        let pid = self.pid();
+        #[cfg(unix)]
         unsafe {
-            libc::kill(-(self.pid() as libc::pid_t), libc::SIGKILL);
+            libc::kill(-(pid as libc::pid_t), libc::SIGKILL);
+        }
+        #[cfg(windows)]
+        {
+            let _ = std::process::Command::new("taskkill")
+                .args(["/PID", &pid.to_string(), "/T", "/F"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status();
         }
         let _ = self.child.kill();
         let _ = self.child.wait();
@@ -270,14 +302,28 @@ impl SidecarProcess {
         }
     }
 
-    /// Send SIGTERM to the sidecar's process group. Targeting the group
-    /// (negative PID) ensures child CLIs spawned by Bun also receive the
-    /// signal.
+    /// Cooperative shutdown signal — SIGTERM on Unix, Ctrl+Break on Windows.
+    ///
+    /// Unix: targets the whole process group via the negative-PID convention,
+    /// so child CLIs spawned by Bun also receive the signal.
+    ///
+    /// Windows: `GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid)` is the
+    /// closest analog — it delivers a Ctrl+Break to every process attached
+    /// to the same console, which is how the CREATE_NEW_PROCESS_GROUP we
+    /// set at spawn time scopes the signal. Bun's signal handlers translate
+    /// it into a graceful shutdown the same way SIGTERM does on Unix.
     fn send_sigterm(&self) {
-        // SAFETY: `pid()` is the live child's PID (== PGID since we set
-        // process_group(0) at spawn). Negative PID targets the whole group.
-        unsafe {
-            libc::kill(-(self.pid() as libc::pid_t), libc::SIGTERM);
+        #[cfg(unix)]
+        {
+            // SAFETY: `pid()` is the live child's PID (== PGID since we set
+            // process_group(0) at spawn). Negative PID targets the whole group.
+            unsafe {
+                libc::kill(-(self.pid() as libc::pid_t), libc::SIGTERM);
+            }
+        }
+        #[cfg(windows)]
+        {
+            send_ctrl_break(self.pid());
         }
     }
 }
@@ -292,6 +338,25 @@ impl Drop for SidecarProcess {
             self.kill();
         }
     }
+}
+
+/// Best-effort Ctrl+Break delivery to a Windows process group.
+///
+/// Returns silently on failure (process gone, console detached, etc.) — the
+/// shutdown ladder always escalates to a hard kill if the cooperative path
+/// doesn't reap within the grace period.
+#[cfg(windows)]
+fn send_ctrl_break(pid: u32) {
+    // We use `taskkill` (no /F flag) instead of FFI'ing
+    // GenerateConsoleCtrlEvent because: (a) this avoids a windows-rs link
+    // for one call and (b) `taskkill` already handles the cross-console
+    // delivery that GenerateConsoleCtrlEvent botches when the target lives
+    // in a different console session than ours.
+    let _ = std::process::Command::new("taskkill")
+        .args(["/PID", &pid.to_string()])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
 }
 
 // ---------------------------------------------------------------------------

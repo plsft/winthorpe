@@ -81,12 +81,22 @@ pub fn generated_images_dir() -> Result<PathBuf> {
 
 /// Returns the Conductor source database path for import.
 /// This is the real Conductor database on the local machine.
+///
+/// Conductor is a macOS-only product. On Windows the import path returns
+/// `None` so the UI hides the import option without erroring.
 pub fn conductor_source_db_path() -> Option<PathBuf> {
-    let home = dirs_home()?;
-    let path = home.join("Library/Application Support/com.conductor.app/conductor.db");
-    if path.is_file() {
-        Some(path)
-    } else {
+    #[cfg(target_os = "macos")]
+    {
+        let home = dirs_home()?;
+        let path = home.join("Library/Application Support/com.conductor.app/conductor.db");
+        if path.is_file() {
+            Some(path)
+        } else {
+            None
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
         None
     }
 }
@@ -141,8 +151,22 @@ fn resolve_data_dir() -> Result<PathBuf> {
     Ok(home.join(default_data_dir_name()))
 }
 
+/// Cross-platform home directory resolution.
+///
+/// Unix uses `$HOME`; Windows uses `%USERPROFILE%` (preferred over the
+/// `HOMEDRIVE`+`HOMEPATH` pair because it's set in every modern Windows
+/// session and matches what `dirs::home_dir()` resolves to).
 fn dirs_home() -> Option<PathBuf> {
-    std::env::var_os("HOME").map(PathBuf::from)
+    #[cfg(windows)]
+    {
+        std::env::var_os("USERPROFILE")
+            .map(PathBuf::from)
+            .or_else(|| std::env::var_os("HOME").map(PathBuf::from))
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var_os("HOME").map(PathBuf::from)
+    }
 }
 
 /// Ensure all required subdirectories exist.
@@ -211,7 +235,7 @@ mod tests {
 
     #[test]
     fn dirs_home_returns_some() {
-        // HOME should be set in any normal test environment
+        // HOME (Unix) or USERPROFILE (Windows) should be set in any normal test environment
         assert!(dirs_home().is_some());
     }
 }

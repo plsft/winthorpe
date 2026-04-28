@@ -134,8 +134,20 @@ where
     );
     command.stdout(Stdio::piped());
     command.stderr(Stdio::piped());
-    use std::os::unix::process::CommandExt;
-    command.process_group(0);
+    // Group `git` with anything it spawns (ssh, helpers, GCM) so that a
+    // timeout kill reaps the whole tree atomically. Unix uses process groups;
+    // Windows uses CREATE_NEW_PROCESS_GROUP with a follow-up `taskkill /T /F`.
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        command.process_group(0);
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NEW_PROCESS_GROUP: u32 = 0x00000200;
+        command.creation_flags(CREATE_NEW_PROCESS_GROUP);
+    }
 
     let child = command.spawn().context("Failed to spawn git")?;
     let child_pid = child.id();
@@ -167,15 +179,23 @@ where
         Err(mpsc::RecvTimeoutError::Timeout) => {
             // Kill the child's entire process group so the waiter thread
             // observes the death and exits — otherwise we'd leak the OS
-            // thread until git decided to give up on its own. Using the
-            // negative PGID (== child PID because we set process_group(0)
-            // at spawn) ensures child processes like ssh are also killed.
+            // thread until git decided to give up on its own.
             //
-            // SAFETY: `child_pid` == PGID (we set process_group(0) at
-            // spawn). Negative PID targets the whole group. If the group
-            // has already exited, `libc::kill` returns ESRCH harmlessly.
+            // Unix: negative PID targets the whole group (== child PID
+            // because we set process_group(0) at spawn). If the group has
+            // already exited, `libc::kill` returns ESRCH harmlessly.
+            // Windows: `taskkill /T /F` does the recursive descendant kill.
+            #[cfg(unix)]
             unsafe {
                 libc::kill(-(child_pid as libc::pid_t), libc::SIGKILL);
+            }
+            #[cfg(windows)]
+            {
+                let _ = Command::new("taskkill")
+                    .args(["/PID", &child_pid.to_string(), "/T", "/F"])
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .status();
             }
             let _ = waiter.join();
             bail!(

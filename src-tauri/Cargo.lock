@@ -1819,46 +1819,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
-name = "helmor"
-version = "0.11.4"
-dependencies = [
- "anyhow",
- "base64 0.22.1",
- "chrono",
- "clap",
- "clap_complete",
- "core-foundation",
- "dotenvy",
- "insta",
- "libc",
- "notify",
- "notify-debouncer-full",
- "r2d2",
- "r2d2_sqlite",
- "rand 0.10.0",
- "reqwest 0.12.28",
- "rusqlite",
- "security-framework",
- "security-framework-sys",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-deep-link",
- "tauri-plugin-dialog",
- "tauri-plugin-global-shortcut",
- "tauri-plugin-mcp-bridge",
- "tauri-plugin-notification",
- "tauri-plugin-opener",
- "tauri-plugin-updater",
- "tempfile",
- "tracing",
- "tracing-subscriber",
- "url",
- "uuid",
-]
-
-[[package]]
 name = "hermit-abi"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6800,6 +6760,46 @@ checksum = "cb5a765337c50e9ec252c2069be9bf91c7df47afb103b642ba3a53bf8101be97"
 dependencies = [
  "cfg-if",
  "windows-sys 0.59.0",
+]
+
+[[package]]
+name = "winthorpe"
+version = "0.11.4"
+dependencies = [
+ "anyhow",
+ "base64 0.22.1",
+ "chrono",
+ "clap",
+ "clap_complete",
+ "core-foundation",
+ "dotenvy",
+ "insta",
+ "libc",
+ "notify",
+ "notify-debouncer-full",
+ "r2d2",
+ "r2d2_sqlite",
+ "rand 0.10.0",
+ "reqwest 0.12.28",
+ "rusqlite",
+ "security-framework",
+ "security-framework-sys",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-deep-link",
+ "tauri-plugin-dialog",
+ "tauri-plugin-global-shortcut",
+ "tauri-plugin-mcp-bridge",
+ "tauri-plugin-notification",
+ "tauri-plugin-opener",
+ "tauri-plugin-updater",
+ "tempfile",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+ "uuid",
 ]
 
 [[package]]
