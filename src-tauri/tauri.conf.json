@@ -59,7 +59,7 @@
 	"bundle": {
 		"active": true,
 		"createUpdaterArtifacts": true,
-		"targets": "all",
+		"targets": ["app", "dmg", "nsis", "msi", "appimage"],
 		"externalBin": [
 			"../sidecar/dist/winthorpe-sidecar",
 			"./target/bundled/winthorpe-cli"
@@ -76,6 +76,17 @@
 		],
 		"macOS": {
 			"entitlements": "Entitlements.plist"
+		},
+		"windows": {
+			"nsis": {
+				"installerIcon": "icons/icon.ico",
+				"installMode": "currentUser",
+				"languages": ["English"]
+			},
+			"webviewInstallMode": {
+				"type": "downloadBootstrapper",
+				"silent": true
+			}
 		}
 	}
 }

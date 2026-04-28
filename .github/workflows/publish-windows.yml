@@ -1,0 +1,111 @@
+name: Publish (Windows)
+
+# Windows-only publish workflow. Produces an NSIS installer + MSI for
+# x86_64-pc-windows-msvc and uploads them to the GitHub release at the
+# pushed tag. Code signing is intentionally NOT wired here yet — the
+# maintainer plans to add Authenticode separately. Until then, releases
+# ship unsigned (Windows SmartScreen will warn first-time users).
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: "Create the GitHub release as a draft"
+        required: false
+        default: true
+        type: boolean
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: publish-windows-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  CI: true
+
+jobs:
+  build-and-publish:
+    name: Build and Publish (windows-x86_64)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate pushed tag matches app version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          expected="v${{ steps.version.outputs.version }}"
+          if [ "${GITHUB_REF_NAME}" != "${expected}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match app version ${expected}"
+            exit 1
+          fi
+
+      - name: Install sidecar deps
+        working-directory: sidecar
+        run: bun install --frozen-lockfile
+
+      - name: Install root deps
+        run: bun install --frozen-lockfile
+
+      - name: Cache Cargo registry + build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-publish-${{ hashFiles('src-tauri/Cargo.lock') }}
+
+      - name: Tauri build (NSIS + MSI)
+        uses: tauri-apps/tauri-action@v0.6
+        env:
+          TAURI_TARGET_TRIPLE: x86_64-pc-windows-msvc
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          WINTHORPE_UPDATER_PUBKEY: ${{ secrets.WINTHORPE_UPDATER_PUBKEY }}
+          WINTHORPE_UPDATER_ENDPOINTS: ${{ secrets.WINTHORPE_UPDATER_ENDPOINTS }}
+          # Bootstrap mode for vendor staging until SHA256s for Windows gh+glab
+          # zips are filled in. Remove once stage-vendor.ts has real SHAs.
+          WINTHORPE_VENDOR_SKIP_SHA_CHECK: "1"
+          # Phase 8: code signing TBD by the maintainer.
+          CARGO_BUILD_RUSTC_WRAPPER: ""
+        with:
+          tagName: v__VERSION__
+          releaseName: Winthorpe v__VERSION__
+          releaseDraft: ${{ github.event.inputs.draft != 'false' }}
+          prerelease: false
+          includeUpdaterJson: true
+          args: --target x86_64-pc-windows-msvc --bundles nsis,msi
+          tauriScript: bun run tauri
