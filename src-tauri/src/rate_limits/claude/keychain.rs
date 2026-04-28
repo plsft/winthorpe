@@ -65,6 +65,18 @@ fn load_keychain_credentials() -> Result<Vec<ClaudeOAuthCredentials>> {
 
 #[cfg(not(target_os = "macos"))]
 fn load_keychain_credentials() -> Result<Vec<ClaudeOAuthCredentials>> {
+    // Windows: Claude Code stores OAuth credentials via keytar, which on
+    // Windows backs onto the Windows Credential Manager. Reading them
+    // requires either the `wincred` Win32 API or a credential-name probe.
+    // Once we verify Claude's exact service/account naming against a real
+    // Windows install, plug a `wincred`-based reader here that mirrors
+    // load_keychain_credentials_macos().
+    //
+    // Until then the rate-limit feature gracefully degrades to "no rate
+    // limit info" — the UI still works, it just doesn't show the
+    // "X messages remaining today" indicator.
+    //
+    // Tracking issue: docs/winthorpe-port.md → Phase 4 follow-up.
     Ok(Vec::new())
 }
 

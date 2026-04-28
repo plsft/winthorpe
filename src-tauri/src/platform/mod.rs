@@ -15,4 +15,5 @@
 //!   - `shell_env` — Phase 1 already lives at the crate root; will move here
 //!                    when the platform module gets richer
 
+pub mod credentials;
 pub mod process;
