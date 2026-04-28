@@ -122,3 +122,18 @@ codegen-units = 256
 debug = false                # build scripts & proc-macros: fastest possible
 opt-level = 0
 codegen-units = 256
+
+# Release profile — performance is a stated headline feature for Winthorpe.
+# Trade ~3x build time for measurably better runtime (PTY throughput,
+# event-loop latency, Job Object teardown). lto=thin keeps the gain without
+# the full-LTO pause; codegen-units=1 lets the optimizer see the whole crate
+# in one pass.
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "debuginfo"           # smaller exe, no stack symbol loss
+panic = "abort"               # smaller + faster; exec spawn paths catch the rest
+
+[profile.release.package."*"]
+opt-level = 3

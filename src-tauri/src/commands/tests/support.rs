@@ -554,13 +554,21 @@ fn init_create_git_repo(repo_root: &Path) {
 }
 
 fn make_executable_if_script(path: &Path) {
-    use std::os::unix::fs::PermissionsExt;
-
-    if path.extension().and_then(|value| value.to_str()) == Some("sh") {
-        let metadata = fs::metadata(path).unwrap();
-        let mut permissions = metadata.permissions();
-        permissions.set_mode(0o755);
-        fs::set_permissions(path, permissions).unwrap();
+    // Windows uses file extension (.exe / .cmd / .bat) for executable bit;
+    // chmod is a no-op. Unix needs the +x bit explicitly for shell scripts.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if path.extension().and_then(|value| value.to_str()) == Some("sh") {
+            let metadata = fs::metadata(path).unwrap();
+            let mut permissions = metadata.permissions();
+            permissions.set_mode(0o755);
+            fs::set_permissions(path, permissions).unwrap();
+        }
+    }
+    #[cfg(windows)]
+    {
+        let _ = path;
     }
 }
 

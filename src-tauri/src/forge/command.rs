@@ -136,15 +136,35 @@ pub(crate) fn command_detail(output: &CommandOutput) -> String {
 mod tests {
     use super::*;
 
-    #[cfg(unix)]
+    /// Cross-platform timeout test: spawn a process that sleeps 2s, time it
+    /// out at 200ms, verify TimedOut surfaces and we didn't actually wait
+    /// the full 2s. Unix uses `/bin/sh`, Windows uses pwsh.exe.
     #[test]
     fn run_command_with_timeout_kills_stalled_command() {
+        #[cfg(unix)]
+        let (program, args): (&str, Vec<String>) =
+            ("/bin/sh", vec!["-c".into(), "sleep 2".into()]);
+        #[cfg(windows)]
+        let (program, args): (&str, Vec<String>) = (
+            "pwsh.exe",
+            vec![
+                "-NoProfile".into(),
+                "-Command".into(),
+                "Start-Sleep -Seconds 2".into(),
+            ],
+        );
+
         let started_at = std::time::Instant::now();
-        let error =
-            run_command_with_timeout("/bin/sh", ["-c", "sleep 2"], Duration::from_millis(100))
-                .unwrap_err();
+        let error = run_command_with_timeout(program, args, Duration::from_millis(200))
+            .unwrap_err();
 
         assert_eq!(error.kind(), std::io::ErrorKind::TimedOut);
-        assert!(started_at.elapsed() < Duration::from_secs(1));
+        // Generous bound for slow CI runners; the real signal is "much less
+        // than 2 seconds" — the actual sleep duration.
+        assert!(
+            started_at.elapsed() < Duration::from_secs(1),
+            "elapsed {:?} should be < 1s",
+            started_at.elapsed()
+        );
     }
 }
