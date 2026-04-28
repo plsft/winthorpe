@@ -74,6 +74,11 @@ impl SidecarEvent {
 struct SidecarProcess {
     child: Child,
     stdin: Arc<Mutex<std::process::ChildStdin>>,
+    /// Windows Job Object pinning the sidecar + every CLI it spawns. Drop
+    /// kills the entire descendant tree atomically (KILL_ON_JOB_CLOSE).
+    /// Unused on Unix (process groups already do this).
+    #[cfg(windows)]
+    _job: Option<crate::platform::process::JobObject>,
 }
 
 #[derive(Debug, Default)]
@@ -201,6 +206,26 @@ impl SidecarProcess {
             }
         })?;
 
+        // Windows: assign the freshly-spawned sidecar to a Job Object with
+        // KILL_ON_JOB_CLOSE. Every CLI Bun spawns inherits the assignment, so
+        // dropping the job (or the SidecarProcess wrapping it) atomically
+        // tears down the whole tree. Unix: no-op — we already isolated the
+        // process group at spawn time via process_group(0).
+        #[cfg(windows)]
+        let _job = match crate::platform::process::JobObject::new() {
+            Ok(job) => match job.assign(&child) {
+                Ok(()) => Some(job),
+                Err(e) => {
+                    tracing::warn!(error = %e, "Job Object assign failed; falling back to taskkill");
+                    None
+                }
+            },
+            Err(e) => {
+                tracing::warn!(error = %e, "Job Object create failed; falling back to taskkill");
+                None
+            }
+        };
+
         let stdin = child
             .stdin
             .take()
@@ -230,6 +255,8 @@ impl SidecarProcess {
         let process = Self {
             child,
             stdin: Arc::new(Mutex::new(stdin)),
+            #[cfg(windows)]
+            _job,
         };
         Ok((process, reader))
     }

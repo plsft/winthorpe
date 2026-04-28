@@ -47,15 +47,46 @@ tracing-subscriber = { version = "0.3", features = ["json", "env-filter", "chron
 url = "2"
 uuid = { version = "1", features = ["v4"] }
 
-# libc backs Unix process groups, signals, and PTY handling.
-# Windows support will need platform-specific replacements before this can be gated.
+# libc still ships on every target — Unix uses it for signals/process groups,
+# Windows now goes through windows-rs Job Objects (see target-specific deps
+# below) so libc on Windows is unused but harmless.
 [dependencies.libc]
 version = "0.2"
+
+# `portable-pty` abstracts ConPTY on Windows and POSIX PTYs on Unix behind
+# a single API. It's the maintainer's established choice (Kismet uses 0.8).
+# `arboard` is the cross-platform clipboard backend that replaces macOS-only
+# osascript in Phase 5; Phase 1 doesn't use it yet but pulling it now keeps
+# Cargo.lock stable across phases.
+[dependencies.portable-pty]
+version = "0.8"
+
+[dependencies.arboard]
+version = "3"
+default-features = false
+features = ["wayland-data-control"]
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "0.10"
 security-framework = "3"
 security-framework-sys = "2"
+
+# Windows-only deps:
+#   - `windows` for Job Objects (Phase 2), DPAPI (Phase 4), Registry walk
+#     (Phase 5), shell PATH update (Phase 7). One crate, feature-gated.
+#   - `winreg` is the high-level wrapper around HKEY operations the registry
+#     editor uses — easier than raw windows-rs for nested key walks.
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+    "Win32_System_Console",
+    "Win32_Security_Cryptography",
+    "Win32_UI_Shell",
+] }
+winreg = "0.55"
 
 [[bin]]
 name = "winthorpe-cli"
