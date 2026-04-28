@@ -102,6 +102,16 @@ pub fn run() {
                 "Winthorpe started"
             );
 
+            // Windows: register URL schemes (winthorpe://, winthorpe-dev://)
+            // under HKCU so the OS routes deep links to us. Per-user, no
+            // admin needed. Idempotent — safe to run on every launch.
+            #[cfg(windows)]
+            if let Ok(exe) = std::env::current_exe() {
+                if let Err(e) = platform::deep_link::register_url_schemes(&exe) {
+                    tracing::warn!(error = %e, "Failed to register Windows URL schemes");
+                }
+            }
+
             // Reconcile workspaces whose directory was deleted outside the
             // app: degrade them to `archived` so chat history is preserved
             // (users can find the messages in the archive list and choose

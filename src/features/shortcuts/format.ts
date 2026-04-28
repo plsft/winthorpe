@@ -1,3 +1,5 @@
+import { isMac } from "@/lib/platform";
+
 const KEY_LABELS: Record<string, string> = {
 	Mod: "command",
 	Meta: "command",
@@ -27,7 +29,13 @@ const KEY_LABELS: Record<string, string> = {
 	"¬": "L",
 };
 
-const INLINE_KEY_LABELS: Record<string, string> = {
+/**
+ * macOS uses native modifier glyphs (⌘ ⌥ ⌃ ⇧). Windows + Linux render
+ * "Ctrl" / "Alt" text — that's what users actually type and what every
+ * Microsoft-published shortcut convention shows. Backspace stays as
+ * "Backspace" on Windows because nobody writes ⌫ on a Windows keycap.
+ */
+const INLINE_KEY_LABELS_MAC: Record<string, string> = {
 	Mod: "⌘",
 	Meta: "⌘",
 	Command: "⌘",
@@ -55,6 +63,37 @@ const INLINE_KEY_LABELS: Record<string, string> = {
 	"˙": "H",
 	"¬": "L",
 };
+
+const INLINE_KEY_LABELS_WIN: Record<string, string> = {
+	Mod: "Ctrl",
+	Meta: "Ctrl",
+	Command: "Ctrl",
+	Cmd: "Ctrl",
+	Alt: "Alt",
+	Option: "Alt",
+	Control: "Ctrl",
+	Ctrl: "Ctrl",
+	Shift: "Shift",
+	Escape: "Esc",
+	Enter: "Enter",
+	Return: "Enter",
+	Backspace: "Backspace",
+	Delete: "Delete",
+	Space: "Space",
+	ArrowUp: "↑",
+	ArrowDown: "↓",
+	ArrowLeft: "←",
+	ArrowRight: "→",
+	Comma: ",",
+	Period: ".",
+	Slash: "/",
+	Minus: "-",
+	Equal: "=",
+};
+
+function inlineLabels(): Record<string, string> {
+	return isMac() ? INLINE_KEY_LABELS_MAC : INLINE_KEY_LABELS_WIN;
+}
 
 const CODE_KEY_LABELS: Record<string, string> = {
 	Backquote: "`",
@@ -95,11 +134,12 @@ export function shortcutToInlineLabel(hotkey: string | null): string {
 
 export function shortcutToInlineParts(hotkey: string | null): string[] {
 	if (!hotkey) return [];
+	const labels = inlineLabels();
 	return hotkey
 		.split("+")
 		.map((part) => part.trim())
 		.filter(Boolean)
-		.map((part) => INLINE_KEY_LABELS[part] ?? part);
+		.map((part) => labels[part] ?? part);
 }
 
 export function normalizeShortcutEvent(event: KeyboardEvent): string | null {
@@ -107,8 +147,17 @@ export function normalizeShortcutEvent(event: KeyboardEvent): string | null {
 	if (!key) return null;
 
 	const parts: string[] = [];
-	if (event.metaKey) parts.push("Mod");
-	if (event.ctrlKey) parts.push("Control");
+	// On macOS the Cmd key is the primary modifier (event.metaKey).
+	// On Windows the Ctrl key is the primary modifier (event.ctrlKey).
+	// "Mod" is the canonical name we store; render code maps it back to the
+	// platform-correct glyph/label.
+	if (isMac()) {
+		if (event.metaKey) parts.push("Mod");
+		if (event.ctrlKey) parts.push("Control");
+	} else {
+		if (event.ctrlKey) parts.push("Mod");
+		if (event.metaKey) parts.push("Meta"); // Windows key — rare in shortcuts
+	}
 	if (event.altKey) parts.push("Alt");
 	if (event.shiftKey) parts.push("Shift");
 

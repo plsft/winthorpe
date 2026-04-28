@@ -35,7 +35,15 @@
 				},
 				"hiddenTitle": true,
 				"center": true,
-				"backgroundColor": "#0E0E0E"
+				"backgroundColor": "#0E0E0E",
+				"transparent": true,
+				"decorations": true,
+				"shadow": true,
+				"windowEffects": {
+					"effects": ["mica"],
+					"state": "active",
+					"radius": 8.0
+				}
 			}
 		],
 		"security": {

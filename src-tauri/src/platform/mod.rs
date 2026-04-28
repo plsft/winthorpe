@@ -17,3 +17,8 @@
 
 pub mod credentials;
 pub mod process;
+
+#[cfg(windows)]
+pub mod deep_link;
+#[cfg(windows)]
+pub mod install;

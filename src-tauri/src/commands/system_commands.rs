@@ -228,6 +228,22 @@ fn install_cli_symlink(
         }
     }
 
+    #[cfg(windows)]
+    {
+        // Windows: per-user install via copy + .cmd shim + HKCU\Environment
+        // PATH update + WM_SETTINGCHANGE broadcast. No elevation required.
+        let outcome = crate::platform::install::install_cli(bundled_cli, install_path)
+            .with_context(|| format!("Failed to install CLI to {}", install_path.display()))?;
+        if outcome.path_updated {
+            tracing::info!(
+                bin_dir = %outcome.bin_dir.display(),
+                "Appended bin dir to user PATH and broadcast WM_SETTINGCHANGE"
+            );
+        }
+        return Ok(());
+    }
+
+    #[cfg(unix)]
     match try_install_symlink_unprivileged(bundled_cli, install_path) {
         Ok(()) => return Ok(()),
         Err(error) if is_permission_denied(&error) => {
@@ -243,7 +259,7 @@ fn install_cli_symlink(
     {
         install_cli_symlink_elevated(bundled_cli, install_path)
     }
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(all(unix, not(target_os = "macos")))]
     {
         anyhow::bail!(
             "Installing the CLI requires elevated privileges. Run:\n  {}",
