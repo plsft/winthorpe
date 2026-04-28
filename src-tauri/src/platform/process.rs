@@ -101,8 +101,8 @@ mod imp {
         pub fn new() -> Result<Self> {
             // SAFETY: passing None for both args creates an unnamed job with
             // default security; failure is reported as an Err HANDLE.
-            let handle = unsafe { CreateJobObjectW(None, None) }
-                .context("CreateJobObjectW failed")?;
+            let handle =
+                unsafe { CreateJobObjectW(None, None) }.context("CreateJobObjectW failed")?;
 
             // Set the kill-on-close limit. The cast/zeroed pattern is the
             // canonical way to populate JOBOBJECT_EXTENDED_LIMIT_INFORMATION.
@@ -154,7 +154,9 @@ mod imp {
 
             // Always close the process handle we just opened — the job
             // tracks the process by its kernel object, not by this handle.
-            unsafe { let _ = CloseHandle(process_handle); }
+            unsafe {
+                let _ = CloseHandle(process_handle);
+            }
 
             result.with_context(|| format!("AssignProcessToJobObject failed for PID {pid}"))?;
             Ok(())
@@ -199,4 +201,3 @@ mod imp {
 
 #[cfg(windows)]
 pub use imp::JobObject;
-pub use imp::{isolate_process_group, kill_group};

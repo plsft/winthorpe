@@ -61,7 +61,10 @@ pub fn install_cli(bundled_cli: &Path, install_path: &Path) -> Result<InstallOut
     let shim_path = bin_dir.join(shim_name(install_path));
     let shim_body = format!(
         "@echo off\r\n\"%~dp0{}\" %*\r\n",
-        install_path.file_name().unwrap_or_default().to_string_lossy()
+        install_path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
     );
     std::fs::write(&shim_path, shim_body)
         .with_context(|| format!("Failed to write shim at {}", shim_path.display()))?;
@@ -142,7 +145,6 @@ fn ensure_user_path_contains(bin_dir: &Path) -> Result<bool> {
 /// up the new PATH without requiring a logoff/logon. Best-effort; failure is
 /// not surfaced to the user (the install still succeeded).
 fn broadcast_environment_change() {
-    use windows::core::PCWSTR;
     use windows::Win32::Foundation::{LPARAM, WPARAM};
     use windows::Win32::UI::WindowsAndMessaging::{
         SendMessageTimeoutW, HWND_BROADCAST, SMTO_ABORTIFHUNG, WM_SETTINGCHANGE,

@@ -296,7 +296,7 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 		simulateImeSwitchCommit(editor, "he lmor");
 
 		await waitFor(() => {
-			expect(editor.textContent).toBe("winthorpe");
+			expect(editor.textContent).toBe("helmor");
 		});
 	});
 
@@ -368,7 +368,7 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 		simulateImeSwitchCommit(editor, "he lmor");
 
 		await waitFor(() => {
-			expect(editor.textContent).toBe("winthorpe");
+			expect(editor.textContent).toBe("helmor");
 		});
 	});
 
@@ -379,7 +379,7 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 
 		simulateImeSwitchCommit(editor, "he lmor");
 		await waitFor(() => {
-			expect(editor.textContent).toBe("winthorpe");
+			expect(editor.textContent).toBe("helmor");
 		});
 
 		simulateFollowUpComposition(editor, "winthorpe你好", "你好");
@@ -414,13 +414,13 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 
 		simulateImeSwitchCommit(editor, "he lmor");
 		await waitFor(() => {
-			expect(editor.textContent).toBe("winthorpe");
+			expect(editor.textContent).toBe("helmor");
 		});
 
 		getLexicalEditorFromRoot(editor).update(() => {});
 
 		await waitFor(() => {
-			expect(editor.textContent).toBe("winthorpe");
+			expect(editor.textContent).toBe("helmor");
 		});
 	});
 

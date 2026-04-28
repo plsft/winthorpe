@@ -240,7 +240,7 @@ fn install_cli_symlink(
                 "Appended bin dir to user PATH and broadcast WM_SETTINGCHANGE"
             );
         }
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(unix)]
@@ -1008,8 +1008,7 @@ fn copy_image_file_to_clipboard(path: &std::path::Path) -> anyhow::Result<()> {
     use arboard::Clipboard;
 
     let path_str = path.to_string_lossy().to_string();
-    let mut clipboard =
-        Clipboard::new().context("Failed to open the system clipboard")?;
+    let mut clipboard = Clipboard::new().context("Failed to open the system clipboard")?;
     clipboard
         .set_text(path_str)
         .context("Failed to write image path to clipboard")?;
@@ -1196,7 +1195,9 @@ mod tests {
     #[test]
     fn classify_cli_install_reports_missing_when_path_absent() {
         let tmp = tempdir().unwrap();
-        let bundled_cli = tmp.path().join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
+        let bundled_cli = tmp
+            .path()
+            .join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
         fs::create_dir_all(bundled_cli.parent().unwrap()).unwrap();
         fs::write(&bundled_cli, "#!/bin/sh\n").unwrap();
 
@@ -1213,7 +1214,9 @@ mod tests {
     #[test]
     fn classify_cli_install_reports_managed_for_matching_symlink() {
         let tmp = tempdir().unwrap();
-        let bundled_cli = tmp.path().join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
+        let bundled_cli = tmp
+            .path()
+            .join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
         let install_path = tmp.path().join("usr/local/bin/winthorpe");
         fs::create_dir_all(bundled_cli.parent().unwrap()).unwrap();
         fs::create_dir_all(install_path.parent().unwrap()).unwrap();
@@ -1229,7 +1232,9 @@ mod tests {
     #[test]
     fn classify_cli_install_reports_stale_for_regular_file_copy() {
         let tmp = tempdir().unwrap();
-        let bundled_cli = tmp.path().join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
+        let bundled_cli = tmp
+            .path()
+            .join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
         let install_path = tmp.path().join("usr/local/bin/winthorpe");
         fs::create_dir_all(bundled_cli.parent().unwrap()).unwrap();
         fs::create_dir_all(install_path.parent().unwrap()).unwrap();
@@ -1246,7 +1251,9 @@ mod tests {
     #[test]
     fn install_cli_symlink_replaces_stale_copy_with_managed_symlink() {
         let tmp = tempdir().unwrap();
-        let bundled_cli = tmp.path().join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
+        let bundled_cli = tmp
+            .path()
+            .join("Winthorpe.app/Contents/MacOS/winthorpe-cli");
         let install_path = tmp.path().join("usr/local/bin/winthorpe");
         fs::create_dir_all(bundled_cli.parent().unwrap()).unwrap();
         fs::create_dir_all(install_path.parent().unwrap()).unwrap();

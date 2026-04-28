@@ -8,7 +8,9 @@
 
 use anyhow::{anyhow, Result};
 
-use super::credentials::{now_ms, parse_credentials, sort_credentials, ClaudeOAuthCredentials};
+#[cfg(target_os = "macos")]
+use super::credentials::parse_credentials;
+use super::credentials::{now_ms, sort_credentials, ClaudeOAuthCredentials};
 
 pub(super) const CLAUDE_KEYCHAIN_SERVICE: &str = "Claude Code-credentials";
 

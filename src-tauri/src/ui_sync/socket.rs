@@ -1,10 +1,16 @@
-use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
 
-use anyhow::{Context, Result};
-use tauri::{AppHandle, Manager, Runtime};
+use anyhow::Result;
+use tauri::{AppHandle, Runtime};
 
+#[cfg(unix)]
 use super::{events::UiMutationEnvelope, manager::UiSyncManager};
+#[cfg(unix)]
+use anyhow::Context;
+#[cfg(unix)]
+use std::io::{BufRead, BufReader, Write};
+#[cfg(unix)]
+use tauri::Manager;
 
 const SOCKET_FILENAME: &str = "ui-sync.sock";
 
@@ -138,7 +144,7 @@ pub fn is_listener_running() -> bool {
 mod tests {
     use super::*;
     use crate::data_dir::TEST_ENV_LOCK;
-    use crate::ui_sync::events::UiMutationEvent;
+    use crate::ui_sync::events::{UiMutationEnvelope, UiMutationEvent};
 
     #[test]
     fn socket_path_uses_run_dir() {

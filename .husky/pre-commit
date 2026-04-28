@@ -1,1 +1,40 @@
+#!/usr/bin/env bash
+# Pre-commit: format + lint staged files via lint-staged.
+#
+# Windows: cargo's native build scripts (cc-rs / link.exe) need the full
+# MSVC environment. Git Bash strips INCLUDE/LIB/LIBPATH and puts /usr/bin
+# first on PATH (which masks MSVC's link.exe with GNU coreutils' link).
+#
+# scripts/hydrate-msvc-env.bat sources vcvars64.bat (autodetects 2026 / 2022
+# / Community/Pro/Ent) and prints the env. We import INCLUDE/LIB/LIBPATH
+# verbatim and prepend the MSVC HostX64\x64 dir to bash PATH.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    repo_root="$(git rev-parse --show-toplevel)"
+    bat="$repo_root/scripts/hydrate-msvc-env.bat"
+    if [[ -f "$bat" ]]; then
+      while IFS= read -r line; do
+        line="${line%$'\r'}"
+        case "$line" in
+          INCLUDE=*|LIB=*|LIBPATH=*|VCToolsInstallDir=*|WindowsSdkDir=*|UCRTVersion=*|VCINSTALLDIR=*|VCToolsVersion=*|WindowsSDKVersion=*)
+            export "$line"
+            ;;
+          VCINSTALLDIR=*)
+            ;;
+        esac
+      done < <(cmd //c "$(cygpath -w "$bat")")
+
+      # Prepend MSVC bin dir + Windows SDK bin to bash PATH so link.exe and
+      # cl.exe resolve correctly. Use VCToolsInstallDir from vcvars rather
+      # than glob-find so the version we use matches what link.exe expects.
+      if [[ -n "$VCToolsInstallDir" ]]; then
+        # Convert VCToolsInstallDir from C:\... to /c/... and append HostX64\x64
+        msvc_bin_win="${VCToolsInstallDir%\\}\\bin\\HostX64\\x64"
+        msvc_bin=$(cygpath -u "$msvc_bin_win")
+        export PATH="$msvc_bin:$PATH"
+      fi
+    fi
+    ;;
+esac
+
 bunx lint-staged

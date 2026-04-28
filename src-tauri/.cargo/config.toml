@@ -3,3 +3,8 @@ rustc-wrapper = "sccache"
 
 [target.aarch64-apple-darwin]
 rustflags = ["-C", "link-arg=-Wl,-no_deduplicate"]
+
+# Windows linker config intentionally NOT set here — MSVC's link.exe is
+# used (via the host PATH). The husky pre-commit hook (.husky/pre-commit)
+# hydrates the full MSVC environment via scripts/hydrate-msvc-env.bat so
+# Git-Bash-spawned cargo invocations resolve link.exe correctly.

@@ -306,7 +306,7 @@ describe("App", () => {
 		const workspaceAvatar = workspaceRow.querySelector(
 			'[data-slot="workspace-avatar"]',
 		);
-		expect(workspaceAvatar).toHaveAttribute("data-fallback", "HC");
+		expect(workspaceAvatar).toHaveAttribute("data-fallback", "WC");
 	});
 
 	it("calls restore for archived workspaces and shows restore errors", async () => {

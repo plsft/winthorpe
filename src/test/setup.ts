@@ -89,6 +89,19 @@ vi.mock("@tauri-apps/api/event", () => ({
 	listen: vi.fn(async () => () => {}),
 }));
 
+// Default the os plugin to "macos" so upstream test fixtures (which assert
+// ⌘/⌥ glyphs and Cmd-prefixed shortcut routing) keep passing regardless of
+// the host OS. Windows-specific test files can override this with their own
+// vi.mock("@tauri-apps/plugin-os", () => ({ type: () => "windows" })).
+vi.mock("@tauri-apps/plugin-os", () => ({
+	type: vi.fn(() => "macos"),
+	platform: vi.fn(() => "macos"),
+	arch: vi.fn(() => "x86_64"),
+	family: vi.fn(() => "unix"),
+	hostname: vi.fn(async () => "test-host"),
+	version: vi.fn(() => "0.0.0-test"),
+}));
+
 vi.mock("@tauri-apps/api/window", () => ({
 	getCurrentWindow: vi.fn(() => ({
 		onCloseRequested: vi.fn(async () => () => {}),

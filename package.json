@@ -83,6 +83,7 @@
 		"@tauri-apps/plugin-dialog": "2.6.0",
 		"@tauri-apps/plugin-notification": "^2.3.3",
 		"@tauri-apps/plugin-opener": "2.5.3",
+		"@tauri-apps/plugin-os": "^2.3.2",
 		"@testing-library/user-event": "14.6.1",
 		"@xterm/addon-fit": "^0.11.0",
 		"@xterm/xterm": "^6.0.0",
@@ -142,15 +143,7 @@
 		"vite": "8.0.3",
 		"vitest": "4.1.2"
 	},
-	"lint-staged": {
-		"*.{ts,tsx,js,jsx,json,css}": [
-			"biome check --write --error-on-warnings --no-errors-on-unmatched --files-ignore-unknown=true --config-path=./biome.json"
-		],
-		"*.rs": [
-			"bash -c 'cargo fmt --manifest-path src-tauri/Cargo.toml --all'",
-			"bash -c 'cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings'"
-		]
-	},
+	"_lint-staged_inline_config_moved": "lint-staged.config.mjs handles per-file vs whole-crate dispatch",
 	"trustedDependencies": [
 		"@tauri-apps/cli",
 		"playwright",

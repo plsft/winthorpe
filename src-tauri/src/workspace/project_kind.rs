@@ -95,7 +95,9 @@ pub fn detect(workspace_root: &Path) -> ProjectKindDetection {
     if let Ok(entries) = std::fs::read_dir(workspace_root) {
         for entry in entries.flatten() {
             let name = entry.file_name();
-            let Some(name_str) = name.to_str() else { continue };
+            let Some(name_str) = name.to_str() else {
+                continue;
+            };
             if name_str.ends_with(".sln")
                 || name_str.ends_with(".csproj")
                 || name_str.ends_with(".fsproj")
@@ -148,10 +150,7 @@ fn push_kind(kinds: &mut Vec<WorkspaceProjectKind>, kind: WorkspaceProjectKind) 
     }
 }
 
-fn suggested_actions_for(
-    kind: WorkspaceProjectKind,
-    markers: &[String],
-) -> Vec<SuggestedAction> {
+fn suggested_actions_for(kind: WorkspaceProjectKind, markers: &[String]) -> Vec<SuggestedAction> {
     use ActionCategory::*;
     let mut out = Vec::new();
 
@@ -162,9 +161,7 @@ fn suggested_actions_for(
             let project = markers
                 .iter()
                 .find(|m| {
-                    m.ends_with(".csproj")
-                        || m.ends_with(".fsproj")
-                        || m.ends_with(".vbproj")
+                    m.ends_with(".csproj") || m.ends_with(".fsproj") || m.ends_with(".vbproj")
                 })
                 .cloned();
             let target = solution.or(project).unwrap_or_default();
@@ -315,7 +312,10 @@ mod tests {
         fs::write(dir.path().join("bun.lock"), "").unwrap();
         let d = detect(dir.path());
         assert_eq!(d.kind, WorkspaceProjectKind::Bun);
-        assert!(d.suggested_actions.iter().any(|a| a.command == "bun install"));
+        assert!(d
+            .suggested_actions
+            .iter()
+            .any(|a| a.command == "bun install"));
     }
 
     #[test]
@@ -327,9 +327,13 @@ mod tests {
     }
 
     #[test]
-    fn detects_bun_via_packagejson_packageManager_field() {
+    fn detects_bun_via_packagejson_package_manager_field() {
         let dir = tempdir().unwrap();
-        fs::write(dir.path().join("package.json"), r#"{"packageManager":"bun@1.2.0"}"#).unwrap();
+        fs::write(
+            dir.path().join("package.json"),
+            r#"{"packageManager":"bun@1.2.0"}"#,
+        )
+        .unwrap();
         let d = detect(dir.path());
         assert_eq!(d.kind, WorkspaceProjectKind::Bun);
     }
