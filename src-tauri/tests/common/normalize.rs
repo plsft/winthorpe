@@ -4,7 +4,7 @@
 //! exact text content. Strips IDs/timestamps, lowercases the role enum,
 //! truncates long strings, and reports tool args as sorted key sets.
 
-use helmor_lib::pipeline::types::{
+use winthorpe_lib::pipeline::types::{
     ExtendedMessagePart, ImageSource, MessagePart, MessageRole, StreamingStatus, ThreadMessageLike,
 };
 use serde::Serialize;

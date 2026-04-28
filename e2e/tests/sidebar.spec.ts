@@ -1,7 +1,7 @@
 import { expect, test } from "../fixtures/app";
 
 // Smoke test for the Playwright + WebKit harness. Proves that:
-//   1. The Helmor React shell can boot in a plain browser with mocked IPC
+//   1. The Winthorpe React shell can boot in a plain browser with mocked IPC
 //   2. The workspace sidebar renders with zero backend data
 //   3. Collapse / expand round-trip works end-to-end
 

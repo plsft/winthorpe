@@ -63,9 +63,9 @@ const CONTEXT_USAGE_TIMEOUT_MS = 30_000;
  * explicit `pathToClaudeCodeExecutable` for every SDK `query()` call.
  *
  * Resolution order:
- *   1. `HELMOR_CLAUDE_CODE_CLI_PATH` — set by the Tauri host process in
+ *   1. `WINTHORPE_CLAUDE_CODE_CLI_PATH` — set by the Tauri host process in
  *      release builds, pointing at the bundled resource copy inside
- *      `Helmor.app/Contents/Resources/vendor/claude-code/cli.js`.
+ *      `Winthorpe.app/Contents/Resources/vendor/claude-code/cli.js`.
  *   2. `createRequire` lookup against `node_modules` — used in dev
  *      (`bun run src/index.ts`) and in `bun test`, where `@anthropic-ai/
  *      claude-code` is a direct sidecar dep.
@@ -76,7 +76,7 @@ const CONTEXT_USAGE_TIMEOUT_MS = 30_000;
  * install-state problems at sidecar startup instead of mid-conversation.
  */
 function resolveClaudeCliPath(): string {
-	const override = process.env.HELMOR_CLAUDE_CODE_CLI_PATH;
+	const override = process.env.WINTHORPE_CLAUDE_CODE_CLI_PATH;
 	if (override) {
 		return override;
 	}
@@ -96,13 +96,13 @@ const CLAUDE_CLI_PATH = resolveClaudeCliPath();
  * are there, so the spawn fails with ENOENT and the SDK misreports it as
  * "Claude Code executable not found at …/cli.js". To fix this for release
  * builds, Tauri stages the host's bun binary under `vendor/bun/bun` and
- * `lib.rs` exports `HELMOR_BUN_PATH` before spawning us.
+ * `lib.rs` exports `WINTHORPE_BUN_PATH` before spawning us.
  *
  * Dev mode leaves the env unset — `bun run src/index.ts` is already running
  * under a bun instance that's on the developer's PATH, so the SDK's default
  * `"bun"` lookup succeeds.
  */
-const CLAUDE_EXECUTABLE_OVERRIDE = process.env.HELMOR_BUN_PATH || undefined;
+const CLAUDE_EXECUTABLE_OVERRIDE = process.env.WINTHORPE_BUN_PATH || undefined;
 
 /**
  * Build the `executable` / `executableArgs` half of a query() options bag.
@@ -958,7 +958,7 @@ export class ClaudeSessionManager implements SessionManager {
 	/**
 	 * Rich context-usage breakdown for the hover popover. Two paths:
 	 *
-	 *   - **Fast**: a live `Query` is already open for this helmor session
+	 *   - **Fast**: a live `Query` is already open for this winthorpe session
 	 *     (user just sent a turn, the stream is still running). Reuse it;
 	 *     the SDK answers the control call in <100ms.
 	 *   - **Slow**: between turns — spawn a transient `Query` with
@@ -971,16 +971,16 @@ export class ClaudeSessionManager implements SessionManager {
 	 * Returns the slim JSON string ready to ship back over IPC.
 	 */
 	async getContextUsage(params: GetContextUsageParams): Promise<string> {
-		const { helmorSessionId, providerSessionId, model, cwd } = params;
+		const { winthorpeSessionId, providerSessionId, model, cwd } = params;
 
-		const live = this.sessions.get(helmorSessionId);
+		const live = this.sessions.get(winthorpeSessionId);
 		if (live) {
 			const raw = await live.query.getContextUsage();
 			return JSON.stringify(buildClaudeRichMeta(raw, model));
 		}
 
 		// Slow path: spawn a transient Query. `resume` is optional — when
-		// the helmor session hasn't run a turn yet there's no provider
+		// the winthorpe session hasn't run a turn yet there's no provider
 		// session id to resume, but `q.getContextUsage()` still reports
 		// the baseline (system prompt + tools + memory + skills) for the
 		// selected model, which is exactly what the hover popover should

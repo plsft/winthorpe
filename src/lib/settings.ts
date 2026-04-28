@@ -74,7 +74,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 	},
 };
 
-export const THEME_STORAGE_KEY = "helmor-theme";
+export const THEME_STORAGE_KEY = "winthorpe-theme";
 
 // theme is stored in localStorage (sync read for flash-free boot), not SQLite
 const SETTINGS_KEY_MAP: Record<Exclude<keyof AppSettings, "theme">, string> = {
@@ -215,7 +215,7 @@ export async function saveSettings(patch: Partial<AppSettings>): Promise<void> {
 			localStorage.setItem(THEME_STORAGE_KEY, patch.theme);
 		} catch (error) {
 			console.error(
-				`[helmor] theme save failed for "${THEME_STORAGE_KEY}"`,
+				`[winthorpe] theme save failed for "${THEME_STORAGE_KEY}"`,
 				error,
 			);
 		}

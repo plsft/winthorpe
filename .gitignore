@@ -30,7 +30,7 @@ dist-ssr
 sidecar/dist/
 # Bundled forge CLI download cache (gh / glab archives + extracted dirs)
 sidecar/.bundle-cache/
-helmor.db
+winthorpe.db
 *.bun-build
 autoresearch-results.tsv
 # Raw chrome-devtools traces are ~250MB each; keep them local.

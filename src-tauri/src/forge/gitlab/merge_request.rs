@@ -1,5 +1,5 @@
 //! Merge-request-shaped operations: look up the current workspace's MR,
-//! convert a GitLab MR record into Helmor's neutral `ChangeRequestInfo`,
+//! convert a GitLab MR record into Winthorpe's neutral `ChangeRequestInfo`,
 //! and translate GitLab's mergeable/state enums.
 
 use anyhow::{bail, Context, Result};

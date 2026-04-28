@@ -3,8 +3,8 @@
 //! reload. Output is the raw `ThreadMessageLike` / JSON form — the
 //! `stabilize` sibling module converts it to snapshot-stable shape.
 
-use helmor_lib::pipeline::types::{HistoricalRecord, ThreadMessageLike};
-use helmor_lib::pipeline::MessagePipeline;
+use winthorpe_lib::pipeline::types::{HistoricalRecord, ThreadMessageLike};
+use winthorpe_lib::pipeline::MessagePipeline;
 use serde_json::Value;
 
 /// A single emission observed while replaying stream events. Kept in raw
@@ -36,7 +36,7 @@ pub struct StreamReplayFingerprint {
 }
 
 pub fn replay_stream_events(provider: &str, events: &[Value]) -> StreamReplayFingerprint {
-    use helmor_lib::pipeline::PipelineEmit;
+    use winthorpe_lib::pipeline::PipelineEmit;
 
     let mut pipeline = MessagePipeline::new(provider, "test-model", "ctx", "sess");
     let mut emissions: Vec<RawStreamEmission> = Vec::new();

@@ -16,7 +16,7 @@ on:
         required: false
         default: "latest"
         type: string
-      # Platforms expected in latest.json. Helmor ships macOS-only, so we
+      # Platforms expected in latest.json. Winthorpe ships macOS-only, so we
       # validate just the two darwin architectures.
       expected_platforms:
         description: "Comma-separated platform keys the manifest MUST contain"

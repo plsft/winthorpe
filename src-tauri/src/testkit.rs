@@ -18,7 +18,7 @@ use crate::git_ops;
 /// Isolated test environment: temp data directory + SQLite DB + env lock.
 ///
 /// Holds `TEST_ENV_LOCK` for the lifetime of the test, ensuring only one
-/// test at a time touches the `HELMOR_DATA_DIR` env var.
+/// test at a time touches the `WINTHORPE_DATA_DIR` env var.
 pub(crate) struct TestEnv {
     pub root: PathBuf,
     _lock: MutexGuard<'static, ()>,
@@ -30,8 +30,8 @@ impl TestEnv {
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-        let root = env::temp_dir().join(format!("helmor-test-{name}-{}", Uuid::new_v4()));
-        env::set_var("HELMOR_DATA_DIR", root.display().to_string());
+        let root = env::temp_dir().join(format!("winthorpe-test-{name}-{}", Uuid::new_v4()));
+        env::set_var("WINTHORPE_DATA_DIR", root.display().to_string());
         crate::data_dir::ensure_directory_structure().expect("failed to create test dirs");
 
         let connection = Connection::open(crate::data_dir::db_path().unwrap()).unwrap();
@@ -58,7 +58,7 @@ impl TestEnv {
 
 impl Drop for TestEnv {
     fn drop(&mut self) {
-        env::remove_var("HELMOR_DATA_DIR");
+        env::remove_var("WINTHORPE_DATA_DIR");
         let _ = fs::remove_dir_all(&self.root);
     }
 }
@@ -77,7 +77,7 @@ impl GitTestRepo {
         let dir = tempfile::tempdir().unwrap();
         let p = dir.path();
         Self::run_git(p, &["init", "-b", "main"]);
-        Self::run_git(p, &["config", "user.email", "test@helmor.test"]);
+        Self::run_git(p, &["config", "user.email", "test@winthorpe.test"]);
         Self::run_git(p, &["config", "user.name", "Test"]);
         Self::run_git(p, &["config", "commit.gpgsign", "false"]);
         fs::write(p.join("file.txt"), "init\n").unwrap();
@@ -100,7 +100,7 @@ impl GitTestRepo {
         )
         .unwrap();
         let p = clone_dir.path();
-        Self::run_git(p, &["config", "user.email", "test@helmor.test"]);
+        Self::run_git(p, &["config", "user.email", "test@winthorpe.test"]);
         Self::run_git(p, &["config", "user.name", "Test"]);
         Self::run_git(p, &["config", "commit.gpgsign", "false"]);
         (origin, Self { dir: clone_dir })

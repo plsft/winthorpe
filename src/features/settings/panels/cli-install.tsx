@@ -13,7 +13,7 @@ export function CliInstallPanel() {
 	const [installing, setInstalling] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const commandName =
-		status?.buildMode === "development" ? "helmor-dev" : "helmor";
+		status?.buildMode === "development" ? "winthorpe-dev" : "winthorpe";
 	const buildLabel = status?.buildMode === "development" ? "Debug" : "Release";
 	const isManaged = status?.installState === "managed";
 	const isStale = status?.installState === "stale";

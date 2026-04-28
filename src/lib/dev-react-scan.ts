@@ -4,7 +4,7 @@
  * react-scan highlights React components that re-render unnecessarily and
  * surfaces FPS drops / slow interactions as an always-on profiler.
  *
- * Gated behind `VITE_HELMOR_PERF_HUD=1` or `?perfHud=1` in the URL so it
+ * Gated behind `VITE_WINTHORPE_PERF_HUD=1` or `?perfHud=1` in the URL so it
  * never ships in production and stays out of the default dev session.
  */
 export function initDevReactScan() {
@@ -12,7 +12,7 @@ export function initDevReactScan() {
 		return;
 	}
 
-	const envFlag = import.meta.env.VITE_HELMOR_PERF_HUD === "1";
+	const envFlag = import.meta.env.VITE_WINTHORPE_PERF_HUD === "1";
 	const queryFlag =
 		new URLSearchParams(window.location.search).get("perfHud") === "1";
 

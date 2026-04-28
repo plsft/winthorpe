@@ -72,7 +72,7 @@ fn handle_initialize(request: &Value) -> Value {
             "protocolVersion": "2025-06-18",
             "capabilities": { "tools": {} },
             "serverInfo": {
-                "name": "helmor",
+                "name": "winthorpe",
                 "version": "0.1.0"
             }
         }
@@ -85,25 +85,25 @@ fn handle_ping(request: &Value) -> Value {
 
 fn handle_tools_list(request: &Value) -> Value {
     let tools = json!([
-        tool_def("helmor_data_info", "Show Helmor data directory, database path, and mode", json!({})),
-        tool_def("helmor_repo_list", "List all registered repositories", json!({})),
-        tool_def("helmor_repo_add", "Register a local Git repository (creates first workspace automatically)", json!({
+        tool_def("winthorpe_data_info", "Show Winthorpe data directory, database path, and mode", json!({})),
+        tool_def("winthorpe_repo_list", "List all registered repositories", json!({})),
+        tool_def("winthorpe_repo_add", "Register a local Git repository (creates first workspace automatically)", json!({
             "path": { "type": "string", "description": "Absolute path to the repository root" }
         }).as_object().map(|o| json!({ "type": "object", "properties": o, "required": ["path"] })).unwrap()),
-        tool_def("helmor_workspace_list", "List all active workspaces grouped by status", json!({})),
-        tool_def("helmor_workspace_show", "Show details for a workspace", json!({
+        tool_def("winthorpe_workspace_list", "List all active workspaces grouped by status", json!({})),
+        tool_def("winthorpe_workspace_show", "Show details for a workspace", json!({
             "ref": { "type": "string", "description": "Workspace UUID or repo-name/directory-name" }
         }).as_object().map(|o| json!({ "type": "object", "properties": o, "required": ["ref"] })).unwrap()),
-        tool_def("helmor_workspace_create", "Create a new workspace for a repository", json!({
+        tool_def("winthorpe_workspace_create", "Create a new workspace for a repository", json!({
             "repo": { "type": "string", "description": "Repository UUID or name" }
         }).as_object().map(|o| json!({ "type": "object", "properties": o, "required": ["repo"] })).unwrap()),
-        tool_def("helmor_session_list", "List sessions in a workspace", json!({
+        tool_def("winthorpe_session_list", "List sessions in a workspace", json!({
             "workspace": { "type": "string", "description": "Workspace UUID or repo-name/directory-name" }
         }).as_object().map(|o| json!({ "type": "object", "properties": o, "required": ["workspace"] })).unwrap()),
-        tool_def("helmor_session_create", "Create a new session in a workspace", json!({
+        tool_def("winthorpe_session_create", "Create a new session in a workspace", json!({
             "workspace": { "type": "string", "description": "Workspace UUID or repo-name/directory-name" }
         }).as_object().map(|o| json!({ "type": "object", "properties": o, "required": ["workspace"] })).unwrap()),
-        tool_def("helmor_send", "Send a prompt to an AI agent in a workspace", json!({
+        tool_def("winthorpe_send", "Send a prompt to an AI agent in a workspace", json!({
             "workspace": { "type": "string", "description": "Workspace UUID or repo-name/directory-name" },
             "prompt": { "type": "string", "description": "The prompt to send to the AI agent" },
             "model": { "type": "string", "description": "Model ID (default: opus-1m)" },
@@ -147,26 +147,26 @@ fn handle_tools_call(request: &Value) -> Value {
 
 fn dispatch_tool(name: &str, args: &Value) -> Result<String> {
     match name {
-        "helmor_data_info" => {
+        "winthorpe_data_info" => {
             let info = service::get_data_info()?;
             Ok(serde_json::to_string_pretty(&info)?)
         }
-        "helmor_repo_list" => {
+        "winthorpe_repo_list" => {
             let repos = service::list_repositories()?;
             Ok(serde_json::to_string_pretty(&repos)?)
         }
-        "helmor_repo_add" => {
+        "winthorpe_repo_add" => {
             let path = args["path"]
                 .as_str()
                 .ok_or_else(|| anyhow::anyhow!("Missing required param: path"))?;
             let resp = service::add_repository_from_local_path(path)?;
             Ok(serde_json::to_string_pretty(&resp)?)
         }
-        "helmor_workspace_list" => {
+        "winthorpe_workspace_list" => {
             let groups = service::list_workspace_groups()?;
             Ok(serde_json::to_string_pretty(&groups)?)
         }
-        "helmor_workspace_show" => {
+        "winthorpe_workspace_show" => {
             let ws_ref = args["ref"]
                 .as_str()
                 .ok_or_else(|| anyhow::anyhow!("Missing required param: ref"))?;
@@ -174,7 +174,7 @@ fn dispatch_tool(name: &str, args: &Value) -> Result<String> {
             let detail = service::get_workspace(&ws_id)?;
             Ok(serde_json::to_string_pretty(&detail)?)
         }
-        "helmor_workspace_create" => {
+        "winthorpe_workspace_create" => {
             let repo_ref = args["repo"]
                 .as_str()
                 .ok_or_else(|| anyhow::anyhow!("Missing required param: repo"))?;
@@ -182,7 +182,7 @@ fn dispatch_tool(name: &str, args: &Value) -> Result<String> {
             let resp = service::create_workspace_from_repo_impl(&repo_id)?;
             Ok(serde_json::to_string_pretty(&resp)?)
         }
-        "helmor_session_list" => {
+        "winthorpe_session_list" => {
             let ws_ref = args["workspace"]
                 .as_str()
                 .ok_or_else(|| anyhow::anyhow!("Missing required param: workspace"))?;
@@ -190,7 +190,7 @@ fn dispatch_tool(name: &str, args: &Value) -> Result<String> {
             let sessions = service::list_workspace_sessions(&ws_id)?;
             Ok(serde_json::to_string_pretty(&sessions)?)
         }
-        "helmor_session_create" => {
+        "winthorpe_session_create" => {
             let ws_ref = args["workspace"]
                 .as_str()
                 .ok_or_else(|| anyhow::anyhow!("Missing required param: workspace"))?;
@@ -201,7 +201,7 @@ fn dispatch_tool(name: &str, args: &Value) -> Result<String> {
             let resp = service::create_session(&ws_id, None, permission_mode)?;
             Ok(serde_json::to_string_pretty(&resp)?)
         }
-        "helmor_send" => {
+        "winthorpe_send" => {
             let ws_ref = args["workspace"]
                 .as_str()
                 .ok_or_else(|| anyhow::anyhow!("Missing required param: workspace"))?;

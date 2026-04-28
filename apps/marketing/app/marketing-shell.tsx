@@ -6,7 +6,7 @@ import { DownloadDropdown } from "./download-dropdown";
 
 type Theme = "light" | "dark";
 
-const STORAGE_KEY = "helmor-marketing-theme";
+const STORAGE_KEY = "winthorpe-marketing-theme";
 // Paired with Magic Card spotlight — keep the tilt subtle so the spotlight
 // reads as the primary hover affordance.
 const MAX_TILT_DEG = 4;
@@ -243,18 +243,18 @@ export function MarketingShell({ data }: { data: RepoData }) {
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						className="brand-mark-dark"
-						src="/helmor-logo-dark.svg"
+						src="/winthorpe-logo-dark.svg"
 						alt=""
 						aria-hidden="true"
 					/>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
 					<img
 						className="brand-mark-light"
-						src="/helmor-logo-light.svg"
+						src="/winthorpe-logo-light.svg"
 						alt=""
 						aria-hidden="true"
 					/>
-					Helmor
+					Winthorpe
 				</a>
 				<span className="version">{data.version}</span>
 				<div className="links">
@@ -626,7 +626,7 @@ export function MarketingShell({ data }: { data: RepoData }) {
 					<h1 className="hero">
 						<span className="line2">AI made coding faster.</span>
 						<span className="and" />
-						Helmor is about finishing the rest of the loop.
+						Winthorpe is about finishing the rest of the loop.
 					</h1>
 
 					<p className="sub">
@@ -658,22 +658,22 @@ export function MarketingShell({ data }: { data: RepoData }) {
 				<div className="mock-wrap" ref={wrapRef}>
 					<div
 						className="mock-stage"
-						aria-label="Helmor product preview"
+						aria-label="Winthorpe product preview"
 						ref={stageRef}
 					>
 						<div className="shot dark-layer">
 							{/* eslint-disable-next-line @next/next/no-img-element */}
 							<img
-								src="/helmor-screenshot-dark.png"
-								alt="Helmor (dark)"
+								src="/winthorpe-screenshot-dark.png"
+								alt="Winthorpe (dark)"
 								draggable={false}
 							/>
 						</div>
 						<div className="shot light-layer">
 							{/* eslint-disable-next-line @next/next/no-img-element */}
 							<img
-								src="/helmor-screenshot-light.png"
-								alt="Helmor (light)"
+								src="/winthorpe-screenshot-light.png"
+								alt="Winthorpe (light)"
 								draggable={false}
 							/>
 						</div>

@@ -88,7 +88,7 @@ describe("App unread lifecycle", () => {
 					{
 						id: "workspace-unread",
 						title: "Unread workspace",
-						repoName: "helmor-core",
+						repoName: "winthorpe-core",
 						state: "ready",
 						hasUnread:
 							unreadRuntime.workspaceUnread > 0 ||
@@ -105,7 +105,7 @@ describe("App unread lifecycle", () => {
 			id: "workspace-unread",
 			title: "Unread workspace",
 			repoId: "repo-1",
-			repoName: "helmor-core",
+			repoName: "winthorpe-core",
 			directoryName: "workspace-unread",
 			state: "ready",
 			hasUnread:

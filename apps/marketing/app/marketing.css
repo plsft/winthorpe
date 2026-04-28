@@ -103,7 +103,7 @@ html.dark .brand-mark-light {
 .stage {
 	display: grid;
 	/* Left col max derived from the hero type.
-	 * "Helmor takes" at clamp-max font-size (68px) + tracking −0.035em measures
+	 * "Winthorpe takes" at clamp-max font-size (68px) + tracking −0.035em measures
 	 * ≈ 400px. Inner text area = col − left-pad(56) − right-pad(24). Setting
 	 * max to 520 gives ≈ 440px usable, safely past the wrap threshold so the
 	 * phrase stays on one line at wide viewports. */
@@ -739,7 +739,7 @@ html.light .dust i {
 	--mx: -500px;
 	--my: -500px;
 	--magic-spot-size: 340px;
-	/* Monochrome spotlight & border glow — matches Helmor's palette. */
+	/* Monochrome spotlight & border glow — matches Winthorpe's palette. */
 	--magic-spot-color: oklch(1 0 0 / 18%);
 	--magic-border-core: oklch(1 0 0 / 95%);
 	--magic-border-edge: oklch(1 0 0 / 25%);

@@ -248,7 +248,7 @@ pub fn disconnect_github_identity(
 }
 
 /// CLI-friendly disconnect that skips the Tauri event emit. Used by
-/// `helmor github auth logout` where no `AppHandle` is available.
+/// `winthorpe github auth logout` where no `AppHandle` is available.
 pub fn disconnect_github_identity_headless() -> Result<()> {
     let secret_store = active_secret_store();
     clear_stored_identity(&secret_store)
@@ -329,7 +329,7 @@ fn get_github_identity_session_with(
     let Some(client_id) = client_id else {
         return Ok(GithubIdentitySnapshot::Unconfigured {
             message:
-                "GitHub account connection is not configured. Rebuild Helmor with HELMOR_GITHUB_CLIENT_ID."
+                "GitHub account connection is not configured. Rebuild Winthorpe with WINTHORPE_GITHUB_CLIENT_ID."
                     .to_string(),
         });
     };
@@ -699,13 +699,13 @@ fn sync_meta_expiry_fields(meta: &mut GithubIdentityMeta, secret: &StoredIdentit
 }
 
 fn github_client_id() -> Option<&'static str> {
-    option_env!("HELMOR_GITHUB_CLIENT_ID").filter(|value| !value.trim().is_empty())
+    option_env!("WINTHORPE_GITHUB_CLIENT_ID").filter(|value| !value.trim().is_empty())
 }
 
 fn require_client_id(client_id: Option<&str>) -> Result<&str> {
     client_id.ok_or_else(|| {
         anyhow!(
-            "GitHub account connection is not configured. Rebuild Helmor with HELMOR_GITHUB_CLIENT_ID."
+            "GitHub account connection is not configured. Rebuild Winthorpe with WINTHORPE_GITHUB_CLIENT_ID."
         )
     })
 }
@@ -727,7 +727,7 @@ fn is_expired(value: Option<&str>) -> bool {
 fn default_oauth_error_message(code: &str) -> &'static str {
     match code {
         "authorization_pending" => "Waiting for GitHub authorization.",
-        "slow_down" => "GitHub asked Helmor to poll more slowly.",
+        "slow_down" => "GitHub asked Winthorpe to poll more slowly.",
         "expired_token" => "This login code expired. Start again.",
         "access_denied" => "GitHub login was cancelled or denied.",
         _ => "GitHub login failed.",
@@ -777,7 +777,7 @@ impl ReqwestGithubClient {
         let response = self
             .client
             .post(url)
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/x-www-form-urlencoded")
             .form(body)
@@ -848,7 +848,7 @@ impl GithubHttpClient for ReqwestGithubClient {
         let response = self
             .client
             .get("https://api.github.com/user")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/vnd.github+json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
             .send()
@@ -865,7 +865,7 @@ impl GithubHttpClient for ReqwestGithubClient {
         let response = self
             .client
             .get("https://api.github.com/user/emails")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/vnd.github+json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
             .send()
@@ -937,8 +937,8 @@ mod tests {
     impl TestDataDir {
         fn new(name: &str) -> Self {
             let root = std::env::temp_dir()
-                .join(format!("helmor-auth-test-{name}-{}", uuid::Uuid::new_v4()));
-            std::env::set_var("HELMOR_DATA_DIR", root.display().to_string());
+                .join(format!("winthorpe-auth-test-{name}-{}", uuid::Uuid::new_v4()));
+            std::env::set_var("WINTHORPE_DATA_DIR", root.display().to_string());
             crate::data_dir::ensure_directory_structure().unwrap();
             let connection = Connection::open(crate::data_dir::db_path().unwrap()).unwrap();
             crate::schema::ensure_schema(&connection).unwrap();
@@ -948,7 +948,7 @@ mod tests {
 
     impl Drop for TestDataDir {
         fn drop(&mut self) {
-            std::env::remove_var("HELMOR_DATA_DIR");
+            std::env::remove_var("WINTHORPE_DATA_DIR");
             let _ = fs::remove_dir_all(&self.root);
         }
     }

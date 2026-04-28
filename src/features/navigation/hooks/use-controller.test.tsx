@@ -11,7 +11,7 @@ import type {
 	WorkspaceSessionSummary,
 	WorkspaceSummary,
 } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { DEFAULT_SETTINGS, SettingsContext } from "@/lib/settings";
 import { resetSidebarMutationGate } from "@/lib/sidebar-mutation-gate";
 import { useWorkspacesSidebarController } from "./use-controller";
@@ -109,7 +109,7 @@ const workspaceGroups: WorkspaceGroup[] = [
 			{
 				id: "ws-1",
 				title: "Workspace 1",
-				repoName: "helmor",
+				repoName: "winthorpe",
 				repoInitials: "HE",
 				state: "ready",
 				status: "in-progress",
@@ -129,7 +129,7 @@ const workspaceGroups: WorkspaceGroup[] = [
 			{
 				id: "ws-2",
 				title: "Workspace 2",
-				repoName: "helmor",
+				repoName: "winthorpe",
 				repoInitials: "HE",
 				state: "ready",
 				status: "in-progress",
@@ -155,7 +155,7 @@ function makeArchivedSummary(id: string): WorkspaceSummary {
 		id,
 		title: `Archived ${id}`,
 		directoryName: id,
-		repoName: "helmor",
+		repoName: "winthorpe",
 		repoInitials: "HE",
 		state: "archived",
 		hasUnread: false,
@@ -180,7 +180,7 @@ function makeWorkspaceDetail(id: string): WorkspaceDetail {
 		id,
 		title: `Workspace ${id}`,
 		repoId: "repo-1",
-		repoName: "helmor",
+		repoName: "winthorpe",
 		repoInitials: "HE",
 		repoIconSrc: null,
 		remote: "origin",
@@ -400,7 +400,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		apiMocks.listRepositories.mockResolvedValue([
 			{
 				id: "repo-1",
-				name: "helmor",
+				name: "winthorpe",
 				defaultBranch: "main",
 				repoInitials: "HE",
 			},
@@ -409,7 +409,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 			workspaceId: generatedWorkspaceId,
 			initialSessionId: generatedSessionId,
 			repoId: "repo-1",
-			repoName: "helmor",
+			repoName: "winthorpe",
 			directoryName: "vega",
 			branch: "feature/vega",
 			defaultBranch: "main",
@@ -457,7 +457,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		expect(preparedRow?.state).toBe("initializing");
 		// Title, directory, branch are all final-state immediately — prepare
 		// returned real values so there is no placeholder-to-real swap.
-		expect(preparedRow?.title).toBe("helmor workspace");
+		expect(preparedRow?.title).toBe("winthorpe workspace");
 		expect(preparedRow?.directoryName).toBe("vega");
 		expect(preparedRow?.branch).toBe("feature/vega");
 		expect(apiMocks.prepareWorkspaceFromRepo).toHaveBeenCalledWith("repo-1");
@@ -478,7 +478,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		await waitFor(() => {
 			expect(
 				queryClient.getQueryData(
-					helmorQueryKeys.workspaceDetail(generatedWorkspaceId),
+					winthorpeQueryKeys.workspaceDetail(generatedWorkspaceId),
 				),
 			).toMatchObject({
 				id: generatedWorkspaceId,
@@ -500,7 +500,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		apiMocks.listRepositories.mockResolvedValue([
 			{
 				id: "repo-1",
-				name: "helmor",
+				name: "winthorpe",
 				defaultBranch: "main",
 				repoInitials: "HE",
 			},
@@ -509,9 +509,9 @@ describe("useWorkspacesSidebarController archive flow", () => {
 			workspaceId: generatedWorkspaceId,
 			initialSessionId: generatedSessionId,
 			repoId: "repo-1",
-			repoName: "helmor",
-			directoryName: "testuser-helmor",
-			branch: "testuser/helmor",
+			repoName: "winthorpe",
+			directoryName: "testuser-winthorpe",
+			branch: "testuser/winthorpe",
 			defaultBranch: "main",
 			state: "initializing" as const,
 			repoScripts: {
@@ -562,12 +562,12 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		// "origin/main"` and flash the "Remote" BranchDiffSection header.
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceDetail(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceDetail(generatedWorkspaceId),
 			),
 		).toMatchObject({
 			id: generatedWorkspaceId,
-			directoryName: "testuser-helmor",
-			branch: "testuser/helmor",
+			directoryName: "testuser-winthorpe",
+			branch: "testuser/winthorpe",
 			state: "initializing",
 			remote: "origin",
 			defaultBranch: "main",
@@ -576,7 +576,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		});
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceSessions(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceSessions(generatedWorkspaceId),
 			),
 		).toMatchObject([
 			{
@@ -592,7 +592,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		// "Sync status unavailable" / "Waiting for PR review" labels).
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceGitActionStatus(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceGitActionStatus(generatedWorkspaceId),
 			),
 		).toMatchObject({
 			uncommittedCount: 0,
@@ -602,12 +602,12 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		});
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceChangeRequest(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceChangeRequest(generatedWorkspaceId),
 			),
 		).toBeNull();
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceForgeActionStatus(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceForgeActionStatus(generatedWorkspaceId),
 			),
 		).toMatchObject({
 			changeRequest: null,
@@ -676,7 +676,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		apiMocks.listRepositories.mockResolvedValue([
 			{
 				id: "repo-1",
-				name: "helmor",
+				name: "winthorpe",
 				defaultBranch: "main",
 				repoInitials: "HE",
 			},
@@ -685,9 +685,9 @@ describe("useWorkspacesSidebarController archive flow", () => {
 			workspaceId: generatedWorkspaceId,
 			initialSessionId: generatedSessionId,
 			repoId: "repo-1",
-			repoName: "helmor",
-			directoryName: "testuser-helmor",
-			branch: "testuser/helmor",
+			repoName: "winthorpe",
+			directoryName: "testuser-winthorpe",
+			branch: "testuser/winthorpe",
 			defaultBranch: "main",
 			state: "initializing" as const,
 			repoScripts: {
@@ -739,9 +739,9 @@ describe("useWorkspacesSidebarController archive flow", () => {
 					{
 						...workspaceGroups[0].rows[0],
 						id: generatedWorkspaceId,
-						title: "helmor workspace",
+						title: "winthorpe workspace",
 						state: "initializing" as const,
-						branch: "testuser/helmor",
+						branch: "testuser/winthorpe",
 					},
 					...workspaceGroups[0].rows,
 				],
@@ -750,7 +750,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		apiMocks.loadWorkspaceGroups.mockResolvedValue(upgradedGroups);
 
 		act(() => {
-			queryClient.setQueryData(helmorQueryKeys.workspaceGroups, upgradedGroups);
+			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, upgradedGroups);
 		});
 
 		await act(async () => {
@@ -787,7 +787,7 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		apiMocks.listRepositories.mockResolvedValue([
 			{
 				id: "repo-1",
-				name: "helmor",
+				name: "winthorpe",
 				defaultBranch: "main",
 				repoInitials: "HE",
 			},
@@ -796,9 +796,9 @@ describe("useWorkspacesSidebarController archive flow", () => {
 			workspaceId: generatedWorkspaceId,
 			initialSessionId: generatedSessionId,
 			repoId: "repo-1",
-			repoName: "helmor",
-			directoryName: "testuser-helmor",
-			branch: "testuser/helmor",
+			repoName: "winthorpe",
+			directoryName: "testuser-winthorpe",
+			branch: "testuser/winthorpe",
 			defaultBranch: "main",
 			state: "initializing" as const,
 			repoScripts: {
@@ -858,38 +858,38 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		// Pending entry + every seeded cache key is removed.
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceDetail(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceDetail(generatedWorkspaceId),
 			),
 		).toBeUndefined();
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceSessions(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceSessions(generatedWorkspaceId),
 			),
 		).toBeUndefined();
 		expect(
 			queryClient.getQueryData([
-				...helmorQueryKeys.sessionMessages(generatedSessionId),
+				...winthorpeQueryKeys.sessionMessages(generatedSessionId),
 				"thread",
 			]),
 		).toBeUndefined();
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.repoScripts("repo-1", generatedWorkspaceId),
+				winthorpeQueryKeys.repoScripts("repo-1", generatedWorkspaceId),
 			),
 		).toBeUndefined();
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceGitActionStatus(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceGitActionStatus(generatedWorkspaceId),
 			),
 		).toBeUndefined();
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceChangeRequest(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceChangeRequest(generatedWorkspaceId),
 			),
 		).toBeUndefined();
 		expect(
 			queryClient.getQueryData(
-				helmorQueryKeys.workspaceForgeActionStatus(generatedWorkspaceId),
+				winthorpeQueryKeys.workspaceForgeActionStatus(generatedWorkspaceId),
 			),
 		).toBeUndefined();
 		expect(

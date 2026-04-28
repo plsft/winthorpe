@@ -3,7 +3,7 @@
 //! Metadata probe (no UI) enumerates accounts; then `/usr/bin/security
 //! find-generic-password -w` reads the password for each. Routing the
 //! read through the system binary attaches the user's "Always Allow"
-//! grant to a signature that never changes, instead of Helmor's
+//! grant to a signature that never changes, instead of Winthorpe's
 //! (which changes on every upgrade and dev rebuild).
 
 use anyhow::{anyhow, Result};

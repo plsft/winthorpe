@@ -5,8 +5,8 @@ use url::Url;
 
 use crate::settings;
 
-const UPDATER_ENDPOINTS_ENV: Option<&str> = option_env!("HELMOR_UPDATER_ENDPOINTS");
-const UPDATER_PUBKEY_ENV: Option<&str> = option_env!("HELMOR_UPDATER_PUBKEY");
+const UPDATER_ENDPOINTS_ENV: Option<&str> = option_env!("WINTHORPE_UPDATER_ENDPOINTS");
+const UPDATER_PUBKEY_ENV: Option<&str> = option_env!("WINTHORPE_UPDATER_PUBKEY");
 
 const AUTO_UPDATE_ENABLED_KEY: &str = "app.auto_update_enabled";
 const AUTO_UPDATE_ON_LAUNCH_KEY: &str = "app.auto_update_check_on_launch";

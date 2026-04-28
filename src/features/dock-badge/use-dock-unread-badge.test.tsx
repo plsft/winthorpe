@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WorkspaceGroup } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { useDockUnreadBadge } from "./use-dock-unread-badge";
 
 // Captured at module scope so each test can reset call history without
@@ -59,7 +59,7 @@ function makeClient(groups?: WorkspaceGroup[]): QueryClient {
 		defaultOptions: { queries: { retry: false } },
 	});
 	if (groups !== undefined) {
-		client.setQueryData(helmorQueryKeys.workspaceGroups, groups);
+		client.setQueryData(winthorpeQueryKeys.workspaceGroups, groups);
 	}
 	return client;
 }
@@ -137,7 +137,7 @@ describe("useDockUnreadBadge", () => {
 		// reset, or a refetch brings in new unread counts).
 		act(() => {
 			client.setQueryData(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 				makeGroups([{ unreadSessionCount: 0 }, { unreadSessionCount: 4 }]),
 			);
 		});
@@ -148,7 +148,7 @@ describe("useDockUnreadBadge", () => {
 		// Clearing all unread should drop back to the "no badge" sentinel.
 		act(() => {
 			client.setQueryData(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 				makeGroups([{ unreadSessionCount: 0 }, { unreadSessionCount: 0 }]),
 			);
 		});
@@ -169,13 +169,13 @@ describe("useDockUnreadBadge", () => {
 		// redundantly hit the OS for an identical value.
 		act(() => {
 			client.setQueryData(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 				makeGroups([{ unreadSessionCount: 1 }, { unreadSessionCount: 2 }]),
 			);
 		});
 		// Give React Query + effects a chance to settle before asserting.
 		await waitFor(() => {
-			expect(client.getQueryData(helmorQueryKeys.workspaceGroups)).toEqual(
+			expect(client.getQueryData(winthorpeQueryKeys.workspaceGroups)).toEqual(
 				makeGroups([{ unreadSessionCount: 1 }, { unreadSessionCount: 2 }]),
 			);
 		});

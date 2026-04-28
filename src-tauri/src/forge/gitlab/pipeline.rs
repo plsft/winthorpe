@@ -1,6 +1,6 @@
 //! Pipeline + job (aka "check") integration.
 //!
-//! GitLab CI jobs surface in Helmor's inspector as rows in the
+//! GitLab CI jobs surface in Winthorpe's inspector as rows in the
 //! `ForgeActionStatus.checks` list. This module owns the GitLab-side loading, status mapping,
 //! duration formatting, and the check-log-insert text builder.
 

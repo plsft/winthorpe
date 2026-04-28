@@ -1,4 +1,4 @@
-//! `helmor repo` — repository management.
+//! `winthorpe repo` — repository management.
 
 use anyhow::Result;
 

@@ -35,7 +35,7 @@ pub async fn prepare_workspace_from_repo(
 }
 
 /// Phase 2: slow (~200ms-2s) materialization. Creates the git worktree,
-/// probes `helmor.json` for a setup script, and flips
+/// probes `winthorpe.json` for a setup script, and flips
 /// the workspace row from `initializing` to `ready` / `setup_pending`. On
 /// failure, the workspace + session rows are deleted and the worktree is
 /// cleaned up so the user can retry.

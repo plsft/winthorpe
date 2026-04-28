@@ -15,7 +15,7 @@ control_events:
     serverName: auth-server
     session_id: provider-session-1
     url: "https://example.com/authorize"
-    working_directory: /tmp/helmor
+    working_directory: /tmp/winthorpe
 final_messages:
   - role: assistant
     id: msg-1

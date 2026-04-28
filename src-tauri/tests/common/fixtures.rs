@@ -9,7 +9,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use helmor_lib::pipeline::types::HistoricalRecord;
+use winthorpe_lib::pipeline::types::HistoricalRecord;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 

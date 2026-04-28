@@ -3,7 +3,7 @@ import { act, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ForgeCliStatus } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { useForgeCliConnect } from "./use-forge-cli-connect";
 
 const apiMocks = vi.hoisted(() => ({
@@ -123,7 +123,7 @@ describe("useForgeCliConnect", () => {
 		);
 		// Hook fans out to BOTH cache layers.
 		expect(invalidateSpy).toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.forgeCliStatusAll,
+			queryKey: winthorpeQueryKeys.forgeCliStatusAll,
 		});
 		expect(invalidateSpy).toHaveBeenCalledWith(
 			expect.objectContaining({ predicate: expect.any(Function) }),
@@ -136,7 +136,7 @@ describe("useForgeCliConnect", () => {
 	it("short-circuits the terminal hand-off when the standalone cache already says ready", async () => {
 		const { client, wrapper } = makeWrapper();
 		client.setQueryData(
-			helmorQueryKeys.forgeCliStatus("github", "github.com"),
+			winthorpeQueryKeys.forgeCliStatus("github", "github.com"),
 			readyStatus,
 		);
 		const onReady = vi.fn();

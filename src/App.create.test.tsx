@@ -93,7 +93,7 @@ describe("App create workspace flow", () => {
 								{
 									id: "workspace-existing",
 									title: "Existing workspace",
-									repoName: "helmor-core",
+									repoName: "winthorpe-core",
 									state: "ready",
 								},
 								{
@@ -108,7 +108,7 @@ describe("App create workspace flow", () => {
 								{
 									id: "workspace-existing",
 									title: "Existing workspace",
-									repoName: "helmor-core",
+									repoName: "winthorpe-core",
 									state: "ready",
 								},
 							],
@@ -152,7 +152,7 @@ describe("App create workspace flow", () => {
 					id: "workspace-existing",
 					title: "Existing workspace",
 					repoId: "repo-existing",
-					repoName: "helmor-core",
+					repoName: "winthorpe-core",
 					directoryName: "existing-workspace",
 					state: "ready",
 					hasUnread: false,

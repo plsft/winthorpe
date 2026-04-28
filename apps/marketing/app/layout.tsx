@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Helmor — The local-first IDE for coding agent orchestration",
+	title: "Winthorpe — The local-first IDE for coding agent orchestration",
 	description:
 		"Run Claude Code and Codex side-by-side across worktrees, on your machine. Plan. Run. Review — without handing your source tree to a vendor.",
 	icons: {
-		icon: "/helmor-logo-dark.svg",
+		icon: "/winthorpe-logo-dark.svg",
 	},
 };
 
@@ -26,7 +26,7 @@ const THEME_BOOTSTRAP = `
 (function(){
   try {
     var m = null;
-    var raw = localStorage.getItem('helmor-marketing-theme');
+    var raw = localStorage.getItem('winthorpe-marketing-theme');
     if (raw) {
       try {
         var p = JSON.parse(raw);

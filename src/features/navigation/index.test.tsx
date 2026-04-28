@@ -35,7 +35,7 @@ const workspaceGroups: WorkspaceGroup[] = [
 const repositories: RepositoryCreateOption[] = [
 	{
 		id: "repo-1",
-		name: "helmor",
+		name: "winthorpe",
 		defaultBranch: "main",
 		repoInitials: "HE",
 	},
@@ -53,7 +53,7 @@ afterEach(() => {
 });
 
 describe("WorkspacesSidebar", () => {
-	it("shows the Helmor thinking indicator when a workspace enters sending state", () => {
+	it("shows the Winthorpe thinking indicator when a workspace enters sending state", () => {
 		const { rerender } = render(
 			<TooltipProvider delayDuration={0}>
 				<WorkspacesSidebar
@@ -67,7 +67,7 @@ describe("WorkspacesSidebar", () => {
 
 		const initialRow = screen.getByRole("button", { name: "Workspace 1" });
 		expect(
-			initialRow.querySelector('[data-slot="helmor-thinking-indicator"]'),
+			initialRow.querySelector('[data-slot="winthorpe-thinking-indicator"]'),
 		).toBeNull();
 
 		rerender(
@@ -83,7 +83,7 @@ describe("WorkspacesSidebar", () => {
 
 		const updatedRow = screen.getByRole("button", { name: "Workspace 1" });
 		expect(
-			updatedRow.querySelector('[data-slot="helmor-thinking-indicator"]'),
+			updatedRow.querySelector('[data-slot="winthorpe-thinking-indicator"]'),
 		).not.toBeNull();
 	});
 
@@ -130,13 +130,13 @@ describe("WorkspacesSidebar", () => {
 
 		expect(screen.queryByPlaceholderText("Search repositories")).toBeNull();
 		expect(screen.queryByText("Repositories")).toBeNull();
-		expect(screen.getByRole("option", { name: /helmor/i })).toBeInTheDocument();
+		expect(screen.getByRole("option", { name: /winthorpe/i })).toBeInTheDocument();
 
 		const [firstRepositoryOption] = screen.getAllByRole("option");
 		await user.click(firstRepositoryOption);
 
 		expect(onCreateWorkspace).toHaveBeenCalledWith("repo-1");
-		expect(screen.queryByRole("option", { name: /helmor/i })).toBeNull();
+		expect(screen.queryByRole("option", { name: /winthorpe/i })).toBeNull();
 	});
 
 	it("shows an Open in Finder action for active workspaces", async () => {

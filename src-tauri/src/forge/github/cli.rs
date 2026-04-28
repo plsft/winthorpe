@@ -694,7 +694,7 @@ mod tests {
                 stderr: String::new(),
             },
             MockRunnerResponse::Success {
-                stdout: r#"[{"id":0,"name":"helmor","full_name":"dohooo/helmor","private":false,"default_branch":"main","html_url":"https://github.com/dohooo/helmor","updated_at":"2026-01-01T00:00:00Z","pushed_at":"2026-01-01T00:00:00Z","owner":{"login":"dohooo"}}]"#
+                stdout: r#"[{"id":0,"name":"winthorpe","full_name":"dohooo/winthorpe","private":false,"default_branch":"main","html_url":"https://github.com/dohooo/winthorpe","updated_at":"2026-01-01T00:00:00Z","pushed_at":"2026-01-01T00:00:00Z","owner":{"login":"dohooo"}}]"#
                     .to_string(),
                 stderr: String::new(),
             },
@@ -706,12 +706,12 @@ mod tests {
             repositories,
             vec![GithubRepositorySummary {
                 id: 0,
-                name: "helmor".to_string(),
-                full_name: "dohooo/helmor".to_string(),
+                name: "winthorpe".to_string(),
+                full_name: "dohooo/winthorpe".to_string(),
                 owner_login: "dohooo".to_string(),
                 private: false,
                 default_branch: Some("main".to_string()),
-                html_url: "https://github.com/dohooo/helmor".to_string(),
+                html_url: "https://github.com/dohooo/winthorpe".to_string(),
                 updated_at: Some("2026-01-01T00:00:00Z".to_string()),
                 pushed_at: Some("2026-01-01T00:00:00Z".to_string()),
             }]

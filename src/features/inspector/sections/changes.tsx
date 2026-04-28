@@ -36,7 +36,7 @@ import {
 import type { DiffOpenOptions, InspectorFileItem } from "@/lib/editor-session";
 import { extractError, isRecoverableByPurge } from "@/lib/errors";
 import {
-	helmorQueryKeys,
+	winthorpeQueryKeys,
 	workspaceForgeActionStatusQueryOptions,
 	workspaceForgeQueryOptions,
 } from "@/lib/query-client";
@@ -102,7 +102,7 @@ export function ChangesSection({
 	});
 	const cachedForgeDetection = workspaceId
 		? queryClient.getQueryData<ForgeDetection>(
-				helmorQueryKeys.workspaceForge(workspaceId),
+				winthorpeQueryKeys.workspaceForge(workspaceId),
 			)
 		: null;
 	const forgeDetection = forgeQuery.data ?? cachedForgeDetection ?? null;
@@ -174,11 +174,11 @@ export function ChangesSection({
 			return;
 		}
 		queryClient.invalidateQueries({
-			queryKey: helmorQueryKeys.workspaceChanges(workspaceRootPath),
+			queryKey: winthorpeQueryKeys.workspaceChanges(workspaceRootPath),
 		});
 		if (workspaceId) {
 			queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.workspaceGitActionStatus(workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceGitActionStatus(workspaceId),
 			});
 		}
 	}, [queryClient, workspaceId, workspaceRootPath]);
@@ -302,19 +302,19 @@ export function ChangesSection({
 			pushToast(`Workspace moved to ${result.branch}.`, "Continued", "default");
 			await Promise.all([
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGroups,
+					queryKey: winthorpeQueryKeys.workspaceGroups,
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGitActionStatus(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceGitActionStatus(workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceChangeRequest(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceChangeRequest(workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceForgeActionStatus(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(workspaceId),
 				}),
 			]);
 			invalidateChanges();

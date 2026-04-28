@@ -10,18 +10,18 @@
 
 use std::sync::{Mutex, MutexGuard, OnceLock, PoisonError};
 
-use helmor_lib::agents::{build_send_message_params, BuildSendMessageParamsInput};
-use helmor_lib::data_dir;
+use winthorpe_lib::agents::{build_send_message_params, BuildSendMessageParamsInput};
+use winthorpe_lib::data_dir;
 use insta::assert_yaml_snapshot;
 use serde_json::Value;
 use tempfile::TempDir;
 
-/// Serialize intra-binary access to the process-wide `HELMOR_DATA_DIR`
+/// Serialize intra-binary access to the process-wide `WINTHORPE_DATA_DIR`
 /// env var. Cargo runs each test binary in its own OS process, so we
 /// don't need to coordinate with the unit-test crate's own lock.
 static ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
-/// RAII test env: takes the env-var lock, overrides `HELMOR_DATA_DIR`,
+/// RAII test env: takes the env-var lock, overrides `WINTHORPE_DATA_DIR`,
 /// runs migrations, and cleans up on drop.
 struct TestEnv {
     _dir: TempDir,
@@ -35,10 +35,10 @@ impl TestEnv {
             .lock()
             .unwrap_or_else(PoisonError::into_inner);
         let dir = tempfile::tempdir().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
         data_dir::ensure_directory_structure().unwrap();
         let conn = rusqlite::Connection::open(data_dir::db_path().unwrap()).unwrap();
-        helmor_lib::schema::ensure_schema(&conn).unwrap();
+        winthorpe_lib::schema::ensure_schema(&conn).unwrap();
         conn.execute(
             "INSERT INTO repos (id, name, default_branch) VALUES ('r-1', 'Repo One', 'main')",
             [],
@@ -57,7 +57,7 @@ impl TestEnv {
 
 impl Drop for TestEnv {
     fn drop(&mut self) {
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 }
 
@@ -97,7 +97,7 @@ fn base_input<'a>(session_id: Option<&'a str>) -> BuildSendMessageParamsInput<'a
         effort_level: Some("high"),
         permission_mode: Some("bypassPermissions"),
         fast_mode: false,
-        helmor_session_id: session_id,
+        winthorpe_session_id: session_id,
         claude_base_url: None,
         claude_auth_token: None,
     }
@@ -140,7 +140,7 @@ fn includes_claude_environment_for_custom_provider() {
 }
 
 #[test]
-fn omits_additional_directories_when_helmor_session_id_is_absent() {
+fn omits_additional_directories_when_winthorpe_session_id_is_absent() {
     // New session that hasn't been written to the DB yet — common for the
     // first turn. Must not emit additionalDirectories.
     let env = TestEnv::new();

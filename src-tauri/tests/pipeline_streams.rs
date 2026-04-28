@@ -31,7 +31,7 @@
 mod common;
 
 use common::*;
-use helmor_lib::pipeline::PipelineEmit;
+use winthorpe_lib::pipeline::PipelineEmit;
 use insta::{assert_yaml_snapshot, glob};
 use serde::Serialize;
 use serde_json::Value;
@@ -135,8 +135,8 @@ struct PersistedTurn {
     block_types: Vec<String>,
 }
 
-fn part_type(part: &helmor_lib::pipeline::types::ExtendedMessagePart) -> &'static str {
-    use helmor_lib::pipeline::types::{ExtendedMessagePart, MessagePart};
+fn part_type(part: &winthorpe_lib::pipeline::types::ExtendedMessagePart) -> &'static str {
+    use winthorpe_lib::pipeline::types::{ExtendedMessagePart, MessagePart};
     match part {
         ExtendedMessagePart::Basic(MessagePart::Text { .. }) => "text",
         ExtendedMessagePart::Basic(MessagePart::Reasoning { .. }) => "reasoning",
@@ -162,7 +162,7 @@ fn collect_part_types(msg: &ThreadMessageLike) -> Vec<String> {
 /// vec when no ToolCall has children — the `skip_serializing_if` on the
 /// struct field keeps existing snapshots unchanged.
 fn collect_children_tool_names(msg: &ThreadMessageLike) -> Vec<String> {
-    use helmor_lib::pipeline::types::{ExtendedMessagePart, MessagePart};
+    use winthorpe_lib::pipeline::types::{ExtendedMessagePart, MessagePart};
     let mut names = Vec::new();
     for part in &msg.content {
         if let ExtendedMessagePart::Basic(MessagePart::ToolCall { children, .. }) = part {
@@ -342,7 +342,7 @@ fn stream_replay() {
         // Hard-fail on any unhandled event type. Done AFTER the snapshot
         // assertion so the .snap diff captures the drift before the test
         // aborts — easier to triage from `cargo insta review`.
-        if std::env::var("HELMOR_INVENTORY").is_err() {
+        if std::env::var("WINTHORPE_INVENTORY").is_err() {
             assert!(
                 dropped.is_empty(),
                 "fixture {path:?} dropped unhandled event types: {dropped:?}"

@@ -30,7 +30,7 @@ import {
 import { extractError, isRecoverableByPurge } from "@/lib/errors";
 import {
 	archivedWorkspacesQueryOptions,
-	helmorQueryKeys,
+	winthorpeQueryKeys,
 	repositoriesQueryOptions,
 	sessionThreadMessagesQueryOptions,
 	workspaceDetailQueryOptions,
@@ -291,10 +291,10 @@ export function useWorkspacesSidebarController({
 				return next;
 			});
 			void queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.workspaceGroups,
+				queryKey: winthorpeQueryKeys.workspaceGroups,
 			});
 			void queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.archivedWorkspaces,
+				queryKey: winthorpeQueryKeys.archivedWorkspaces,
 			});
 		}).then((cleanup) => {
 			if (disposed) {
@@ -461,13 +461,13 @@ export function useWorkspacesSidebarController({
 	const refetchNavigation = useCallback(async () => {
 		await Promise.all([
 			queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.workspaceGroups,
+				queryKey: winthorpeQueryKeys.workspaceGroups,
 			}),
 			queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.archivedWorkspaces,
+				queryKey: winthorpeQueryKeys.archivedWorkspaces,
 			}),
 			queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.repositories,
+				queryKey: winthorpeQueryKeys.repositories,
 			}),
 		]);
 
@@ -486,10 +486,10 @@ export function useWorkspacesSidebarController({
 		async (workspaceId: string, opts?: { skipSidebarFlush?: boolean }) => {
 			await Promise.all([
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 				}),
 			]);
 			if (!opts?.skipSidebarFlush && !isSidebarMutationInFlight()) {
@@ -509,20 +509,20 @@ export function useWorkspacesSidebarController({
 	const handleMarkWorkspaceUnread = useCallback(
 		(workspaceId: string) => {
 			const previousGroups = queryClient.getQueryData(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 			);
 			const previousArchived = queryClient.getQueryData(
-				helmorQueryKeys.archivedWorkspaces,
+				winthorpeQueryKeys.archivedWorkspaces,
 			);
 			const previousDetail = queryClient.getQueryData(
-				helmorQueryKeys.workspaceDetail(workspaceId),
+				winthorpeQueryKeys.workspaceDetail(workspaceId),
 			);
 
 			// Optimistic flash of the red dot. The backend sets
 			// `workspaces.unread = 1` directly without touching sessions, so
 			// mirror that here: flip `workspaceUnread` + `hasUnread`, leave
 			// `unreadSessionCount` alone. The post-IPC invalidation backfills.
-			queryClient.setQueryData(helmorQueryKeys.workspaceGroups, (current) =>
+			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, (current) =>
 				Array.isArray(current)
 					? (current as typeof groups).map((group) => ({
 							...group,
@@ -534,7 +534,7 @@ export function useWorkspacesSidebarController({
 						}))
 					: current,
 			);
-			queryClient.setQueryData(helmorQueryKeys.archivedWorkspaces, (current) =>
+			queryClient.setQueryData(winthorpeQueryKeys.archivedWorkspaces, (current) =>
 				Array.isArray(current)
 					? (current as typeof archivedSummaries).map((summary) =>
 							summary.id === workspaceId
@@ -544,7 +544,7 @@ export function useWorkspacesSidebarController({
 					: current,
 			);
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceDetail(workspaceId),
+				winthorpeQueryKeys.workspaceDetail(workspaceId),
 				(current) =>
 					current
 						? {
@@ -563,15 +563,15 @@ export function useWorkspacesSidebarController({
 				)
 				.catch((error) => {
 					queryClient.setQueryData(
-						helmorQueryKeys.workspaceGroups,
+						winthorpeQueryKeys.workspaceGroups,
 						previousGroups,
 					);
 					queryClient.setQueryData(
-						helmorQueryKeys.archivedWorkspaces,
+						winthorpeQueryKeys.archivedWorkspaces,
 						previousArchived,
 					);
 					queryClient.setQueryData(
-						helmorQueryKeys.workspaceDetail(workspaceId),
+						winthorpeQueryKeys.workspaceDetail(workspaceId),
 						previousDetail,
 					);
 					pushWorkspaceToast(
@@ -584,7 +584,7 @@ export function useWorkspacesSidebarController({
 
 	const handleTogglePin = useCallback(
 		async (workspaceId: string, currentlyPinned: boolean) => {
-			queryClient.setQueryData(helmorQueryKeys.workspaceGroups, (current) => {
+			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, (current) => {
 				if (!Array.isArray(current)) {
 					return current;
 				}
@@ -637,7 +637,7 @@ export function useWorkspacesSidebarController({
 				await invalidateWorkspaceSummary(workspaceId);
 			} catch (error) {
 				void queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGroups,
+					queryKey: winthorpeQueryKeys.workspaceGroups,
 				});
 				pushWorkspaceToast(
 					describeUnknownError(error, "Unable to update pin state."),
@@ -721,7 +721,7 @@ export function useWorkspacesSidebarController({
 				return next;
 			});
 			queryClient.setQueryData<WorkspaceDetail | null>(
-				helmorQueryKeys.workspaceDetail(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceDetail(prepareResponse.workspaceId),
 				{
 					...createOptimisticCreatingWorkspaceDetail(
 						preparedRow,
@@ -747,7 +747,7 @@ export function useWorkspacesSidebarController({
 				},
 			);
 			queryClient.setQueryData<WorkspaceSessionSummary[]>(
-				helmorQueryKeys.workspaceSessions(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceSessions(prepareResponse.workspaceId),
 				[preparedSession],
 			);
 			// Empty thread array — the panel renders the final "nothing here
@@ -755,7 +755,7 @@ export function useWorkspacesSidebarController({
 			// the cold placeholder.
 			queryClient.setQueryData(
 				[
-					...helmorQueryKeys.sessionMessages(prepareResponse.initialSessionId),
+					...winthorpeQueryKeys.sessionMessages(prepareResponse.initialSessionId),
 					"thread",
 				],
 				[],
@@ -763,7 +763,7 @@ export function useWorkspacesSidebarController({
 			// Real repo scripts delivered by Phase 1 — the EmptyState shows
 			// the correct "missing script" button count immediately.
 			queryClient.setQueryData(
-				helmorQueryKeys.repoScripts(repoId, prepareResponse.workspaceId),
+				winthorpeQueryKeys.repoScripts(repoId, prepareResponse.workspaceId),
 				prepareResponse.repoScripts,
 			);
 			// Seed git + PR statuses so the inspector's Actions section
@@ -776,7 +776,7 @@ export function useWorkspacesSidebarController({
 			// `get_workspace_git_action_status` and
 			// `get_workspace_forge_action_status` — keep them in sync.
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceGitActionStatus(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceGitActionStatus(prepareResponse.workspaceId),
 				{
 					uncommittedCount: 0,
 					conflictCount: 0,
@@ -789,11 +789,11 @@ export function useWorkspacesSidebarController({
 				},
 			);
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceChangeRequest(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceChangeRequest(prepareResponse.workspaceId),
 				null,
 			);
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceForgeActionStatus(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceForgeActionStatus(prepareResponse.workspaceId),
 				{
 					changeRequest: null,
 					reviewDecision: null,
@@ -813,7 +813,7 @@ export function useWorkspacesSidebarController({
 			finalizeWorkspaceFromRepo(prepareResponse.workspaceId)
 				.then((finalized) => {
 					queryClient.setQueryData<WorkspaceDetail | null>(
-						helmorQueryKeys.workspaceDetail(prepareResponse.workspaceId),
+						winthorpeQueryKeys.workspaceDetail(prepareResponse.workspaceId),
 						(current) =>
 							current ? { ...current, state: finalized.finalState } : current,
 					);
@@ -834,17 +834,17 @@ export function useWorkspacesSidebarController({
 						return next;
 					});
 					void queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceDetail(
+						queryKey: winthorpeQueryKeys.workspaceDetail(
 							prepareResponse.workspaceId,
 						),
 					});
-					// Phase 1 probed helmor.json at the source repo root, which
+					// Phase 1 probed winthorpe.json at the source repo root, which
 					// matches the worktree for a fresh clone. If the user had
-					// uncommitted local edits to helmor.json the two can
+					// uncommitted local edits to winthorpe.json the two can
 					// diverge — invalidate so the canonical worktree-side
 					// probe runs once the dir exists.
 					void queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.repoScripts(
+						queryKey: winthorpeQueryKeys.repoScripts(
 							repoId,
 							prepareResponse.workspaceId,
 						),
@@ -856,7 +856,7 @@ export function useWorkspacesSidebarController({
 					// any divergence — e.g. a setup script that edited
 					// files — shows up promptly).
 					void queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceGitActionStatus(
+						queryKey: winthorpeQueryKeys.workspaceGitActionStatus(
 							prepareResponse.workspaceId,
 						),
 					});
@@ -876,20 +876,20 @@ export function useWorkspacesSidebarController({
 						return next;
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceDetail(
+						queryKey: winthorpeQueryKeys.workspaceDetail(
 							prepareResponse.workspaceId,
 						),
 						exact: true,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceSessions(
+						queryKey: winthorpeQueryKeys.workspaceSessions(
 							prepareResponse.workspaceId,
 						),
 						exact: true,
 					});
 					queryClient.removeQueries({
 						queryKey: [
-							...helmorQueryKeys.sessionMessages(
+							...winthorpeQueryKeys.sessionMessages(
 								prepareResponse.initialSessionId,
 							),
 							"thread",
@@ -897,32 +897,32 @@ export function useWorkspacesSidebarController({
 						exact: true,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.repoScripts(
+						queryKey: winthorpeQueryKeys.repoScripts(
 							repoId,
 							prepareResponse.workspaceId,
 						),
 						exact: true,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceGitActionStatus(
+						queryKey: winthorpeQueryKeys.workspaceGitActionStatus(
 							prepareResponse.workspaceId,
 						),
 						exact: true,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceChangeRequest(
+						queryKey: winthorpeQueryKeys.workspaceChangeRequest(
 							prepareResponse.workspaceId,
 						),
 						exact: true,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceForge(
+						queryKey: winthorpeQueryKeys.workspaceForge(
 							prepareResponse.workspaceId,
 						),
 						exact: true,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceForgeActionStatus(
+						queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(
 							prepareResponse.workspaceId,
 						),
 						exact: true,
@@ -1051,13 +1051,13 @@ export function useWorkspacesSidebarController({
 				return next;
 			});
 			const previousGroups = queryClient.getQueryData(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 			);
 			const previousArchived = queryClient.getQueryData(
-				helmorQueryKeys.archivedWorkspaces,
+				winthorpeQueryKeys.archivedWorkspaces,
 			);
 
-			queryClient.setQueryData(helmorQueryKeys.workspaceGroups, (current) =>
+			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, (current) =>
 				Array.isArray(current)
 					? (current as typeof groups).map((group) => ({
 							...group,
@@ -1065,7 +1065,7 @@ export function useWorkspacesSidebarController({
 						}))
 					: current,
 			);
-			queryClient.setQueryData(helmorQueryKeys.archivedWorkspaces, (current) =>
+			queryClient.setQueryData(winthorpeQueryKeys.archivedWorkspaces, (current) =>
 				Array.isArray(current)
 					? (current as typeof archivedSummaries).filter(
 							(summary) => summary.id !== workspaceId,
@@ -1076,11 +1076,11 @@ export function useWorkspacesSidebarController({
 			if (selectedWorkspaceId === workspaceId) {
 				const optimisticGroups =
 					(queryClient.getQueryData(
-						helmorQueryKeys.workspaceGroups,
+						winthorpeQueryKeys.workspaceGroups,
 					) as typeof groups) ?? [];
 				const optimisticArchived =
 					(queryClient.getQueryData(
-						helmorQueryKeys.archivedWorkspaces,
+						winthorpeQueryKeys.archivedWorkspaces,
 					) as typeof archivedSummaries) ?? [];
 				const nextWorkspaceId =
 					findInitialWorkspaceId(optimisticGroups) ??
@@ -1096,11 +1096,11 @@ export function useWorkspacesSidebarController({
 			void permanentlyDeleteWorkspace(workspaceId)
 				.catch((error) => {
 					queryClient.setQueryData(
-						helmorQueryKeys.workspaceGroups,
+						winthorpeQueryKeys.workspaceGroups,
 						previousGroups,
 					);
 					queryClient.setQueryData(
-						helmorQueryKeys.archivedWorkspaces,
+						winthorpeQueryKeys.archivedWorkspaces,
 						previousArchived,
 					);
 					if (wasSelected) {
@@ -1203,7 +1203,7 @@ export function useWorkspacesSidebarController({
 				}
 
 				const previousGroups =
-					queryClient.getQueryData(helmorQueryKeys.workspaceGroups) ?? groups;
+					queryClient.getQueryData(winthorpeQueryKeys.workspaceGroups) ?? groups;
 
 				const moved = {
 					row: null as WorkspaceRow | null,
@@ -1264,7 +1264,7 @@ export function useWorkspacesSidebarController({
 				});
 
 				queryClient.setQueryData(
-					helmorQueryKeys.workspaceGroups,
+					winthorpeQueryKeys.workspaceGroups,
 					optimisticGroups,
 				);
 
@@ -1332,10 +1332,10 @@ export function useWorkspacesSidebarController({
 	const executeRestore = useCallback(
 		(workspaceId: string, targetBranchOverride?: string) => {
 			const previousGroups = queryClient.getQueryData(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 			);
 			const previousArchived = queryClient.getQueryData(
-				helmorQueryKeys.archivedWorkspaces,
+				winthorpeQueryKeys.archivedWorkspaces,
 			);
 
 			const archivedSummary = Array.isArray(previousArchived)
@@ -1367,7 +1367,7 @@ export function useWorkspacesSidebarController({
 				return;
 			}
 
-			queryClient.setQueryData(helmorQueryKeys.archivedWorkspaces, (current) =>
+			queryClient.setQueryData(winthorpeQueryKeys.archivedWorkspaces, (current) =>
 				Array.isArray(current)
 					? (current as typeof archivedSummaries).filter(
 							(summary) => summary.id !== workspaceId,
@@ -1386,7 +1386,7 @@ export function useWorkspacesSidebarController({
 			// Sorted insert by createdAt DESC so the row lands where the server
 			// will place it on refetch — avoids the reorder flicker we'd get from
 			// unconditionally prepending.
-			queryClient.setQueryData(helmorQueryKeys.workspaceGroups, (current) =>
+			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, (current) =>
 				Array.isArray(current)
 					? (current as typeof groups).map((group) =>
 							group.id === targetGroupId
@@ -1407,10 +1407,10 @@ export function useWorkspacesSidebarController({
 				.then(async (response) => {
 					await Promise.all([
 						queryClient.invalidateQueries({
-							queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+							queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 						}),
 						queryClient.invalidateQueries({
-							queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+							queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 						}),
 					]);
 					if (response.branchRename) {
@@ -1420,11 +1420,11 @@ export function useWorkspacesSidebarController({
 				})
 				.catch((error) => {
 					queryClient.setQueryData(
-						helmorQueryKeys.workspaceGroups,
+						winthorpeQueryKeys.workspaceGroups,
 						previousGroups,
 					);
 					queryClient.setQueryData(
-						helmorQueryKeys.archivedWorkspaces,
+						winthorpeQueryKeys.archivedWorkspaces,
 						previousArchived,
 					);
 					pushPermanentDeleteRecoveryToast(

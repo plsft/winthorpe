@@ -173,7 +173,7 @@ pub struct AgentSendRequest {
     #[serde(default)]
     pub resume_only: bool,
     pub session_id: Option<String>,
-    pub helmor_session_id: Option<String>,
+    pub winthorpe_session_id: Option<String>,
     pub working_directory: Option<String>,
     pub effort_level: Option<String>,
     pub permission_mode: Option<String>,
@@ -189,7 +189,7 @@ use crate::pipeline::types::{AgentUsage, CollectedTurn, MessageRole};
 
 /// Context shared across incremental persistence calls within a single exchange.
 struct ExchangeContext {
-    helmor_session_id: String,
+    winthorpe_session_id: String,
     model_id: String,
     model_provider: String,
     user_message_id: String,
@@ -244,7 +244,7 @@ fn resolve_stream_working_directory(
     request: &AgentSendRequest,
 ) -> anyhow::Result<std::path::PathBuf> {
     if request.resume_only {
-        if let Some(session_id) = request.helmor_session_id.as_deref() {
+        if let Some(session_id) = request.winthorpe_session_id.as_deref() {
             if let Some(workspace_dir) = resolve_resume_working_directory(session_id)? {
                 if !workspace_dir.is_dir() {
                     // Tag as `WorkspaceBroken` so the frontend toast can
@@ -742,7 +742,7 @@ mod tests {
     // -----------------------------------------------------------------------
 
     fn setup_test_db(dir: &std::path::Path) -> std::path::PathBuf {
-        let db_path = dir.join("helmor.db");
+        let db_path = dir.join("winthorpe.db");
         let conn = rusqlite::Connection::open(&db_path).unwrap();
         crate::schema::ensure_schema(&conn).unwrap();
         conn.execute(
@@ -763,7 +763,7 @@ mod tests {
     fn incremental_persist_writes_effort_and_permission_mode() {
         let dir = tempfile::tempdir().unwrap();
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
 
         let db_path = setup_test_db(dir.path());
         let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -773,7 +773,7 @@ mod tests {
         ).unwrap();
 
         let ctx = ExchangeContext {
-            helmor_session_id: "s1".to_string(),
+            winthorpe_session_id: "s1".to_string(),
             model_id: "opus-1m".to_string(),
             model_provider: "claude".to_string(),
             user_message_id: Uuid::new_v4().to_string(),
@@ -829,14 +829,14 @@ mod tests {
             "Should have at least user + result messages, got {msg_count}"
         );
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     #[test]
     fn resume_stream_uses_session_workspace_directory() {
         let dir = tempfile::tempdir().unwrap();
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
 
         let db_path = setup_test_db(dir.path());
         let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -859,7 +859,7 @@ mod tests {
             prompt_prefix: None,
             resume_only: true,
             session_id: Some("provider-session-1".to_string()),
-            helmor_session_id: Some("s1".to_string()),
+            winthorpe_session_id: Some("s1".to_string()),
             working_directory: Some(provided_dir.display().to_string()),
             effort_level: None,
             permission_mode: Some("plan".to_string()),
@@ -871,14 +871,14 @@ mod tests {
         let resolved = resolve_stream_working_directory(&request).unwrap();
         assert_eq!(resolved, workspace_dir);
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     #[test]
     fn resume_stream_errors_when_session_workspace_is_missing() {
         let dir = tempfile::tempdir().unwrap();
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
 
         let db_path = setup_test_db(dir.path());
         let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -895,7 +895,7 @@ mod tests {
             prompt_prefix: None,
             resume_only: true,
             session_id: Some("provider-session-1".to_string()),
-            helmor_session_id: Some("s1".to_string()),
+            winthorpe_session_id: Some("s1".to_string()),
             working_directory: None,
             effort_level: None,
             permission_mode: Some("plan".to_string()),
@@ -913,14 +913,14 @@ mod tests {
             crate::error::ErrorCode::WorkspaceBroken,
         );
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     #[test]
     fn incremental_persist_preserves_existing_values_when_null() {
         let dir = tempfile::tempdir().unwrap();
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
 
         let db_path = setup_test_db(dir.path());
         let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -930,7 +930,7 @@ mod tests {
         ).unwrap();
 
         let ctx = ExchangeContext {
-            helmor_session_id: "s1".to_string(),
+            winthorpe_session_id: "s1".to_string(),
             model_id: "opus-1m".to_string(),
             model_provider: "claude".to_string(),
             user_message_id: Uuid::new_v4().to_string(),
@@ -971,14 +971,14 @@ mod tests {
             "permission_mode should be preserved when None passed"
         );
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     #[test]
     fn incremental_persist_turn_messages() {
         let dir = tempfile::tempdir().unwrap();
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
 
         let db_path = setup_test_db(dir.path());
         let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -988,7 +988,7 @@ mod tests {
         ).unwrap();
 
         let ctx = ExchangeContext {
-            helmor_session_id: "s1".to_string(),
+            winthorpe_session_id: "s1".to_string(),
             model_id: "opus-1m".to_string(),
             model_provider: "claude".to_string(),
             user_message_id: Uuid::new_v4().to_string(),
@@ -1026,7 +1026,7 @@ mod tests {
             .unwrap();
         assert_eq!(msg_count, 3, "Should have user + 2 turn messages");
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     /// End-to-end: simulate the sidecar firing a `user_prompt` passthrough
@@ -1048,7 +1048,7 @@ mod tests {
 
         let dir = tempfile::tempdir().unwrap();
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
 
         let db_path = setup_test_db(dir.path());
         let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -1059,7 +1059,7 @@ mod tests {
         .unwrap();
 
         let ctx = ExchangeContext {
-            helmor_session_id: "s1".to_string(),
+            winthorpe_session_id: "s1".to_string(),
             model_id: "opus-1m".to_string(),
             model_provider: "claude".to_string(),
             user_message_id: "user-initial".to_string(),
@@ -1144,7 +1144,7 @@ mod tests {
         assert_eq!(messages[2].role, PipelineRole::User);
         assert_eq!(messages[3].role, PipelineRole::Assistant);
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     #[test]
@@ -1153,7 +1153,7 @@ mod tests {
             elicitation_id: "elicitation-1".to_string(),
             action: "accept".to_string(),
             content: Some(serde_json::json!({
-                "name": "Helmor",
+                "name": "Winthorpe",
                 "approved": true,
             })),
         };
@@ -1171,7 +1171,7 @@ params:
   action: accept
   content:
     approved: true
-    name: Helmor
+    name: Winthorpe
   elicitationId: elicitation-1
         "#
         );

@@ -25,9 +25,9 @@ configure({ asyncUtilTimeout: 3000 });
 // as before.
 if (
 	typeof process !== "undefined" &&
-	!process.env.HELMOR_REACT_SCHEDULER_FILTER_INSTALLED
+	!process.env.WINTHORPE_REACT_SCHEDULER_FILTER_INSTALLED
 ) {
-	process.env.HELMOR_REACT_SCHEDULER_FILTER_INSTALLED = "1";
+	process.env.WINTHORPE_REACT_SCHEDULER_FILTER_INSTALLED = "1";
 	const isBenignReactSchedulerTeardown = (error: unknown) =>
 		error instanceof ReferenceError &&
 		/window is not defined/.test(error.message) &&
@@ -164,13 +164,13 @@ vi.mock("@tauri-apps/api/core", () => ({
 					buildMode: "development",
 					installState: "missing",
 				};
-			case "get_helmor_skills_status":
+			case "get_winthorpe_skills_status":
 				return {
 					installed: false,
 					claude: false,
 					codex: false,
 					command:
-						"npx --yes skills add dohooo/helmor/.codex/skills/helmor-cli -g -s helmor-cli -y --copy -a claude-code -a codex",
+						"npx --yes skills add dohooo/winthorpe/.codex/skills/winthorpe-cli -g -s winthorpe-cli -y --copy -a claude-code -a codex",
 				};
 			case "get_app_update_status":
 				return {

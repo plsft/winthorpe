@@ -101,7 +101,7 @@ describe("parseElicitationResultContent", () => {
 			parseElicitationResultContent(
 				{
 					content: {
-						name: "Helmor",
+						name: "Winthorpe",
 						count: 2,
 						enabled: true,
 						tags: ["sdk", "plan"],
@@ -110,7 +110,7 @@ describe("parseElicitationResultContent", () => {
 				"content",
 			),
 		).toEqual({
-			name: "Helmor",
+			name: "Winthorpe",
 			count: 2,
 			enabled: true,
 			tags: ["sdk", "plan"],

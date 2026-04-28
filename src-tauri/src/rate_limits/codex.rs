@@ -9,7 +9,7 @@ use std::time::Duration;
 const CODEX_USAGE_URL: &str = "https://chatgpt.com/backend-api/wham/usage";
 const CODEX_REFRESH_URL: &str = "https://auth.openai.com/oauth/token";
 const CODEX_CLIENT_ID: &str = "app_EMoamEEZ73f0CkXaXp7hrann";
-const CODEX_USER_AGENT: &str = concat!("Helmor/", env!("CARGO_PKG_VERSION"));
+const CODEX_USER_AGENT: &str = concat!("Winthorpe/", env!("CARGO_PKG_VERSION"));
 const REFRESH_AFTER_SECONDS: i64 = 8 * 24 * 60 * 60;
 
 /// Pull the raw `wham/usage` response body straight from ChatGPT.
@@ -235,7 +235,7 @@ fn refresh_credentials(
 ///
 /// Write is atomic — serialise to a sibling `*.tmp` file, fsync, then
 /// rename — so a crash mid-write can never leave a half-written
-/// `auth.json` that breaks both Helmor and the CLI. Failure is non-fatal
+/// `auth.json` that breaks both Winthorpe and the CLI. Failure is non-fatal
 /// at the call site (the in-memory credential is still valid for this
 /// run) but loud enough that ops can find it in the log.
 fn persist_refreshed_credentials(path: &Path, credentials: &CodexCredentials) -> Result<()> {

@@ -1,4 +1,4 @@
-// Minimum set of IPC command responses needed to boot the Helmor React shell
+// Minimum set of IPC command responses needed to boot the Winthorpe React shell
 // in a browser without a Rust backend.
 //
 // Mirrors the switch in src/test/setup.ts — keep them in sync when the boot
@@ -48,12 +48,12 @@ export const defaultInvokeHandlers: Record<string, InvokeHandler> = {
 		buildMode: "development",
 		installState: "missing",
 	}),
-	get_helmor_skills_status: () => ({
+	get_winthorpe_skills_status: () => ({
 		installed: false,
 		claude: false,
 		codex: false,
 		command:
-			"npx --yes skills add dohooo/helmor/.codex/skills/helmor-cli -g -s helmor-cli -y --copy -a claude-code -a codex",
+			"npx --yes skills add dohooo/winthorpe/.codex/skills/winthorpe-cli -g -s winthorpe-cli -y --copy -a claude-code -a codex",
 	}),
 	get_app_settings: () => ({}),
 	load_auto_close_action_kinds: () => [],
@@ -121,7 +121,7 @@ type Overrides = Record<string, InvokeHandler>;
 
 declare global {
 	interface Window {
-		__HELMOR_E2E__?: {
+		__WINTHORPE_E2E__?: {
 			invokeOverrides?: Overrides;
 		};
 	}
@@ -131,12 +131,12 @@ export async function runInvoke(
 	command: string,
 	args?: unknown,
 ): Promise<unknown> {
-	const overrides = globalThis.window?.__HELMOR_E2E__?.invokeOverrides;
+	const overrides = globalThis.window?.__WINTHORPE_E2E__?.invokeOverrides;
 	const handler = overrides?.[command] ?? defaultInvokeHandlers[command];
 	if (!handler) {
 		// Unknown commands are a common footgun — log once so devs notice
 		// missing stubs instead of chasing a silent `undefined`.
-		console.warn(`[helmor-e2e] unstubbed invoke: ${command}`, args);
+		console.warn(`[winthorpe-e2e] unstubbed invoke: ${command}`, args);
 		return undefined;
 	}
 	return await handler(args);

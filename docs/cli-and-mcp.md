@@ -1,7 +1,7 @@
-# Helmor CLI & MCP Server
+# Winthorpe CLI & MCP Server
 
-Helmor ships a companion CLI inside the desktop app bundle. Release builds
-install `helmor`; debug builds install `helmor-dev`. The terminal entrypoint
+Winthorpe ships a companion CLI inside the desktop app bundle. Release builds
+install `winthorpe`; debug builds install `winthorpe-dev`. The terminal entrypoint
 always points at the currently installed desktop app so CLI and desktop
 versions stay aligned.
 
@@ -10,37 +10,37 @@ versions stay aligned.
 ### Settings UI
 
 Open the desktop app → Settings → Experimental → **Command Line Tool** → Install.
-This installs a symlink to the app bundle's `helmor-cli`:
+This installs a symlink to the app bundle's `winthorpe-cli`:
 
-- Release build: `/usr/local/bin/helmor`
-- Debug build: `/usr/local/bin/helmor-dev`
+- Release build: `/usr/local/bin/winthorpe`
+- Debug build: `/usr/local/bin/winthorpe-dev`
 
 ### Development
 
 ```bash
 bun run dev:cli:build
-./src-tauri/target/debug/helmor-cli cli-status
+./src-tauri/target/debug/winthorpe-cli cli-status
 bun run dev:cli:install
-helmor-dev cli-status
+winthorpe-dev cli-status
 ```
 
-The debug build reads `~/helmor-dev/` — same database as `bun run dev`.
+The debug build reads `~/winthorpe-dev/` — same database as `bun run dev`.
 
 ## CLI Usage
 
 ```bash
-helmor data info
-helmor repo list
-helmor repo add /path/to/repo
-helmor workspace list
-helmor workspace show helmor/earth            # human-readable ref
-helmor workspace new --repo helmor
-helmor session list --workspace helmor/earth
-helmor session new --workspace helmor/earth
-helmor send --workspace helmor/earth "Refactor the auth module"
+winthorpe data info
+winthorpe repo list
+winthorpe repo add /path/to/repo
+winthorpe workspace list
+winthorpe workspace show winthorpe/earth            # human-readable ref
+winthorpe workspace new --repo winthorpe
+winthorpe session list --workspace winthorpe/earth
+winthorpe session new --workspace winthorpe/earth
+winthorpe send --workspace winthorpe/earth "Refactor the auth module"
 ```
 
-Debug builds use the same commands under `helmor-dev`.
+Debug builds use the same commands under `winthorpe-dev`.
 
 `--json` on any command outputs machine-readable JSON. `--data-dir <path>` overrides the data directory.
 
@@ -49,32 +49,32 @@ Debug builds use the same commands under `helmor-dev`.
 Most commands accept either a UUID or a `repo-name/directory-name` shorthand:
 
 ```bash
-helmor workspace show 5508edf1-bc73-4c6e-9c3d-21de3eeb25be   # UUID
-helmor workspace show ai-shipany-template/draco                 # shorthand
+winthorpe workspace show 5508edf1-bc73-4c6e-9c3d-21de3eeb25be   # UUID
+winthorpe workspace show ai-shipany-template/draco                 # shorthand
 ```
 
 ## MCP Server
 
-Run `helmor mcp` (or `helmor-dev mcp` in debug) to start a stdio MCP server implementing JSON-RPC 2.0.
+Run `winthorpe mcp` (or `winthorpe-dev mcp` in debug) to start a stdio MCP server implementing JSON-RPC 2.0.
 
 ### Exposed Tools
 
 | Tool | Description |
 |------|-------------|
-| `helmor_data_info` | Data directory and build mode |
-| `helmor_repo_list` | List repositories |
-| `helmor_repo_add` | Register a local Git repo |
-| `helmor_workspace_list` | List workspaces by status |
-| `helmor_workspace_show` | Workspace details |
-| `helmor_workspace_create` | Create workspace |
-| `helmor_session_list` | List sessions |
-| `helmor_session_create` | Create session |
-| `helmor_send` | Send prompt to AI agent |
+| `winthorpe_data_info` | Data directory and build mode |
+| `winthorpe_repo_list` | List repositories |
+| `winthorpe_repo_add` | Register a local Git repo |
+| `winthorpe_workspace_list` | List workspaces by status |
+| `winthorpe_workspace_show` | Workspace details |
+| `winthorpe_workspace_create` | Create workspace |
+| `winthorpe_session_list` | List sessions |
+| `winthorpe_session_create` | Create session |
+| `winthorpe_send` | Send prompt to AI agent |
 
 ### Register with Claude Code
 
 ```bash
-claude mcp add helmor -- /usr/local/bin/helmor mcp
+claude mcp add winthorpe -- /usr/local/bin/winthorpe mcp
 ```
 
 Verify: `claude mcp list`
@@ -86,8 +86,8 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "helmor": {
-      "command": "/usr/local/bin/helmor",
+    "winthorpe": {
+      "command": "/usr/local/bin/winthorpe",
       "args": ["mcp"]
     }
   }
@@ -103,8 +103,8 @@ Edit `~/.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "helmor": {
-      "command": "/usr/local/bin/helmor",
+    "winthorpe": {
+      "command": "/usr/local/bin/winthorpe",
       "args": ["mcp"]
     }
   }
@@ -116,7 +116,7 @@ Edit `~/.cursor/mcp.json`:
 Use the debug entrypoint instead:
 
 ```bash
-claude mcp add helmor-dev -- /usr/local/bin/helmor-dev mcp
+claude mcp add winthorpe-dev -- /usr/local/bin/winthorpe-dev mcp
 ```
 
 ## Testing the MCP Server
@@ -124,7 +124,7 @@ claude mcp add helmor-dev -- /usr/local/bin/helmor-dev mcp
 ### MCP Inspector (Web UI)
 
 ```bash
-npx @modelcontextprotocol/inspector -- ./src-tauri/target/debug/helmor-cli mcp
+npx @modelcontextprotocol/inspector -- ./src-tauri/target/debug/winthorpe-cli mcp
 ```
 
 Opens a browser UI to browse tools, invoke them, and inspect protocol traffic.
@@ -132,7 +132,7 @@ Opens a browser UI to browse tools, invoke them, and inspect protocol traffic.
 ### Terminal Inspector
 
 ```bash
-npx @wong2/mcp-cli -- ./src-tauri/target/debug/helmor-cli mcp
+npx @wong2/mcp-cli -- ./src-tauri/target/debug/winthorpe-cli mcp
 ```
 
 ### Manual (pipe JSON-RPC)
@@ -141,5 +141,5 @@ npx @wong2/mcp-cli -- ./src-tauri/target/debug/helmor-cli mcp
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}
 {"jsonrpc":"2.0","method":"notifications/initialized"}
 {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
-| ./src-tauri/target/debug/helmor-cli mcp
+| ./src-tauri/target/debug/winthorpe-cli mcp
 ```

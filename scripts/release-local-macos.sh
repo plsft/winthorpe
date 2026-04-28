@@ -27,8 +27,8 @@ PY
 )"
 
 required_vars=(
-  HELMOR_UPDATER_ENDPOINTS
-  HELMOR_UPDATER_PUBKEY
+  WINTHORPE_UPDATER_ENDPOINTS
+  WINTHORPE_UPDATER_PUBKEY
   TAURI_SIGNING_PRIVATE_KEY
   APPLE_CERTIFICATE
   APPLE_CERTIFICATE_PASSWORD
@@ -84,10 +84,10 @@ fi
 echo "Checking notarization tool availability..."
 xcrun notarytool --version >/dev/null
 
-echo "Building Helmor macOS release..."
+echo "Building Winthorpe macOS release..."
 bun x tauri build --bundles app,dmg --ci
 
-APP_BUNDLE="${ROOT_DIR}/src-tauri/target/release/bundle/macos/Helmor.app"
+APP_BUNDLE="${ROOT_DIR}/src-tauri/target/release/bundle/macos/Winthorpe.app"
 echo "Verifying bundled CLI..."
 bash "${ROOT_DIR}/scripts/verify-bundled-cli.sh" "${APP_BUNDLE}"
 
@@ -96,7 +96,7 @@ echo
 echo "Expected artifacts:"
 echo "  - src-tauri/target/release/bundle/dmg/"
 echo "  - src-tauri/target/release/bundle/macos/"
-echo "  - src-tauri/target/release/bundle/macos/Helmor.app.tar.gz"
-echo "  - src-tauri/target/release/bundle/macos/Helmor.app.tar.gz.sig"
+echo "  - src-tauri/target/release/bundle/macos/Winthorpe.app.tar.gz"
+echo "  - src-tauri/target/release/bundle/macos/Winthorpe.app.tar.gz.sig"
 echo
 echo "latest.json is published in CI by tauri-action using these updater artifacts."

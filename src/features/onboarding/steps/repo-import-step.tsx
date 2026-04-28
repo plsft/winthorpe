@@ -46,7 +46,7 @@ export function RepoImportStep({
 					</h2>
 					<p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
 						Start with a local project, or pull a remote repository from GitHub.
-						You can add more than one before entering Helmor.
+						You can add more than one before entering Winthorpe.
 					</p>
 				</div>
 
@@ -80,7 +80,7 @@ export function RepoImportStep({
 							Import from GitHub
 						</div>
 						<p className="mt-1 text-xs leading-5 text-muted-foreground">
-							Clone a remote project into Helmor.
+							Clone a remote project into Winthorpe.
 						</p>
 						{githubImportProgress !== null ? (
 							<div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">

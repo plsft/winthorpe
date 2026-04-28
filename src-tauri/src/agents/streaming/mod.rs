@@ -73,7 +73,7 @@ pub(super) fn stream_via_sidecar(
     );
 
     let resume_session_id = request.session_id.clone().or_else(|| {
-        request.helmor_session_id.as_deref().and_then(|hsid| {
+        request.winthorpe_session_id.as_deref().and_then(|hsid| {
             let conn = crate::models::db::read_conn().ok()?;
             let (stored_sid, stored_provider): (Option<String>, Option<String>) = conn
                 .query_row(
@@ -93,13 +93,13 @@ pub(super) fn stream_via_sidecar(
 
     tracing::debug!(
         resume_session_id = ?resume_session_id,
-        helmor_session_id = ?request.helmor_session_id,
+        winthorpe_session_id = ?request.winthorpe_session_id,
         provider = %model.provider,
         "Session resume context"
     );
 
-    let helmor_session_id = request.helmor_session_id.clone();
-    let sidecar_session_id = helmor_session_id
+    let winthorpe_session_id = request.winthorpe_session_id.clone();
+    let sidecar_session_id = winthorpe_session_id
         .clone()
         .unwrap_or_else(|| Uuid::new_v4().to_string());
 
@@ -127,7 +127,7 @@ pub(super) fn stream_via_sidecar(
         effort_level: request.effort_level.as_deref(),
         permission_mode: request.permission_mode.as_deref(),
         fast_mode: request.fast_mode.unwrap_or(false),
-        helmor_session_id: request.helmor_session_id.as_deref(),
+        winthorpe_session_id: request.winthorpe_session_id.as_deref(),
         claude_base_url: model.claude_base_url.as_deref(),
         claude_auth_token: model.claude_auth_token.as_deref(),
     });
@@ -143,12 +143,12 @@ pub(super) fn stream_via_sidecar(
         tracing::info!(
             count = arr.len(),
             dirs = ?arr,
-            helmor_session_id = ?request.helmor_session_id,
+            winthorpe_session_id = ?request.winthorpe_session_id,
             "sendMessage with linked additionalDirectories"
         );
     } else {
         tracing::info!(
-            helmor_session_id = ?request.helmor_session_id,
+            winthorpe_session_id = ?request.winthorpe_session_id,
             "sendMessage without linked additionalDirectories (none configured)"
         );
     }
@@ -177,7 +177,7 @@ pub(super) fn stream_via_sidecar(
     let model_copy = model.clone();
     let prompt_copy = prompt.to_string();
     let working_dir_str = working_directory.display().to_string();
-    let hsid_copy = helmor_session_id;
+    let hsid_copy = winthorpe_session_id;
     let effort_copy = request.effort_level.clone();
     let permission_mode_initial = request.permission_mode.clone();
     let fast_mode = request.fast_mode.unwrap_or(false);
@@ -191,7 +191,7 @@ pub(super) fn stream_via_sidecar(
         let stream_started_at = Instant::now();
         tracing::info!(
             rid = %rid,
-            helmor_session_id = ?hsid_copy,
+            winthorpe_session_id = ?hsid_copy,
             sidecar_session_id = %sidecar_session_id_copy,
             provider = %provider,
             model = %model_copy.cli_model,
@@ -228,7 +228,7 @@ pub(super) fn stream_via_sidecar(
         // block pin/unpin/mark-read/rename for the entire turn.
         if let Some(hsid) = &hsid_copy {
             let ctx = ExchangeContext {
-                helmor_session_id: hsid.clone(),
+                winthorpe_session_id: hsid.clone(),
                 model_id: model_copy.id.to_string(),
                 model_provider: model_copy.provider.to_string(),
                 user_message_id: user_message_id_copy
@@ -240,7 +240,7 @@ pub(super) fn stream_via_sidecar(
                 Ok(conn) => {
                     if let Err(e) = conn.execute(
                         "UPDATE sessions SET fast_mode = ?1 WHERE id = ?2",
-                        rusqlite::params![fast_mode, &ctx.helmor_session_id],
+                        rusqlite::params![fast_mode, &ctx.winthorpe_session_id],
                     ) {
                         tracing::error!(rid = %rid, "Failed to update fast_mode: {e}");
                     }
@@ -284,7 +284,7 @@ pub(super) fn stream_via_sidecar(
             effort_level: effort_copy.clone(),
             permission_mode: permission_mode_initial.clone(),
             fast_mode,
-            helmor_session_id: hsid_copy.clone(),
+            winthorpe_session_id: hsid_copy.clone(),
             resolved_session_id: resolved_session_id.clone(),
             resolved_model: model_copy.cli_model.to_string(),
             persisted_turn_count: 0,
@@ -415,7 +415,7 @@ pub(super) fn stream_via_sidecar(
                         {
                             if let Err(error) = conn.execute(
                                 "UPDATE sessions SET provider_session_id = ?2, agent_type = ?3 WHERE id = ?1",
-                                params![ctx.helmor_session_id, sid, ctx.model_provider],
+                                params![ctx.winthorpe_session_id, sid, ctx.model_provider],
                             ) {
                                 tracing::error!(rid = %rid, "Failed to persist session id: {error}");
                             } else {

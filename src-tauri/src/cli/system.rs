@@ -1,10 +1,10 @@
-//! `helmor` / `helmor-dev` meta / system commands.
+//! `winthorpe` / `winthorpe-dev` meta / system commands.
 //!
 //! `install_cli` is intentionally omitted: the installer copies the
-//! currently-running binary to `/usr/local/bin/helmor` (or `helmor-dev` in
+//! currently-running binary to `/usr/local/bin/winthorpe` (or `winthorpe-dev` in
 //! debug builds), which is how the
 //! desktop Settings UI already handles it. From the CLI, the analogous
-//! operation is just `cp "$(command -v helmor)" /usr/local/bin/<name>`
+//! operation is just `cp "$(command -v winthorpe)" /usr/local/bin/<name>`
 //! and we shouldn't invite accidental privilege escalation.
 
 use std::io::Write;
@@ -80,9 +80,9 @@ pub fn completions(shell: CompletionShell) -> Result<()> {
 
 fn installed_cli_name() -> &'static str {
     if crate::data_dir::is_dev() {
-        "helmor-dev"
+        "winthorpe-dev"
     } else {
-        "helmor"
+        "winthorpe"
     }
 }
 
@@ -95,10 +95,10 @@ fn installed_cli_name() -> &'static str {
 pub fn quit() -> Result<()> {
     if service::is_app_running() {
         anyhow::bail!(
-            "Helmor is running but the CLI cannot stop it remotely yet. \
-             Close the app from the menu bar (Helmor → Quit) or press ⌘Q."
+            "Winthorpe is running but the CLI cannot stop it remotely yet. \
+             Close the app from the menu bar (Winthorpe → Quit) or press ⌘Q."
         );
     }
-    println!("Helmor is not running.");
+    println!("Winthorpe is not running.");
     Ok(())
 }

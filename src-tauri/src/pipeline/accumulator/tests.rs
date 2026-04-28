@@ -120,7 +120,7 @@ fn claude_local_bash_task_events_are_dropped() {
             "task_id": "task_bash",
             "task_type": "local_bash",
             "tool_use_id": "toolu_bash_1",
-            "description": "cargo test -p helmor",
+            "description": "cargo test -p winthorpe",
         });
         acc.push_event(&event, &event.to_string());
     }

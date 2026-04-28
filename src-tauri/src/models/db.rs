@@ -57,7 +57,7 @@ struct PoolBundle {
 }
 
 /// RwLock-wrapped so tests can transparently rebuild the pools when they
-/// swap `HELMOR_DATA_DIR`. In production [`init_pools`] runs once and the
+/// swap `WINTHORPE_DATA_DIR`. In production [`init_pools`] runs once and the
 /// lock sees a single writer forever.
 fn pool_slot() -> &'static RwLock<Option<PoolBundle>> {
     static P: OnceLock<RwLock<Option<PoolBundle>>> = OnceLock::new();
@@ -120,7 +120,7 @@ fn build_bundle(path: std::path::PathBuf) -> Result<PoolBundle> {
     Ok(PoolBundle { path, read, write })
 }
 
-/// Initialise both pools against the current `HELMOR_DATA_DIR`. Called once
+/// Initialise both pools against the current `WINTHORPE_DATA_DIR`. Called once
 /// during app startup. In tests, [`read_conn`] / [`write_conn`] auto-rebuild
 /// the pools whenever the data dir changes, so individual test helpers
 /// don't need to remember to call this.
@@ -139,13 +139,13 @@ pub fn init_pools() -> Result<()> {
     Ok(())
 }
 
-/// Ensure pools exist and point at the current `HELMOR_DATA_DIR`. Rebuilds
+/// Ensure pools exist and point at the current `WINTHORPE_DATA_DIR`. Rebuilds
 /// transparently if the data dir has changed (tests) or if pools were
 /// never built (first call).
 ///
 /// Prod fast path skips `db_path()` resolution: pools are built once at
 /// startup and never swapped. Tests still resolve every call so they can
-/// hot-swap `HELMOR_DATA_DIR`.
+/// hot-swap `WINTHORPE_DATA_DIR`.
 fn with_bundle<T>(f: impl FnOnce(&PoolBundle) -> Result<T>) -> Result<T> {
     #[cfg(not(test))]
     {
@@ -181,7 +181,7 @@ fn with_bundle<T>(f: impl FnOnce(&PoolBundle) -> Result<T>) -> Result<T> {
     {
         tracing::debug!(
             path = %current_path.display(),
-            "db: rebuilding pool bundle (first access or HELMOR_DATA_DIR changed)"
+            "db: rebuilding pool bundle (first access or WINTHORPE_DATA_DIR changed)"
         );
         *guard = Some(build_bundle(current_path)?);
     }

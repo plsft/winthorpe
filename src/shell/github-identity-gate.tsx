@@ -1,7 +1,7 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { useCallback, useState } from "react";
-import helmorLogoSrc from "@/assets/helmor-logo.png";
+import winthorpeLogoSrc from "@/assets/winthorpe-logo.png";
 import bannerHtml from "@/assets/render-banner.html?raw";
 import { GithubBrandIcon } from "@/components/brand-icon";
 import { TrafficLightSpacer } from "@/components/chrome/traffic-light-spacer";
@@ -54,7 +54,7 @@ export function GithubIdentityGate({
 			className="relative h-screen overflow-hidden bg-background font-sans text-foreground antialiased"
 		>
 			<iframe
-				title="Helmor branding animation"
+				title="Winthorpe branding animation"
 				srcDoc={bannerHtml}
 				aria-hidden
 				tabIndex={-1}
@@ -72,8 +72,8 @@ export function GithubIdentityGate({
 			<div className="relative z-10 flex h-full items-center justify-center px-6">
 				<div className="flex w-full max-w-md flex-col items-center">
 					<img
-						src={helmorLogoSrc}
-						alt="Helmor"
+						src={winthorpeLogoSrc}
+						alt="Winthorpe"
 						draggable={false}
 						className="size-18 rounded-[11px] opacity-90"
 					/>
@@ -161,7 +161,7 @@ export function GithubIdentityGate({
 						text={[
 							{ text: "AI made me 10x. " },
 							{
-								text: "Helmor",
+								text: "Winthorpe",
 								className: "font-bold text-foreground",
 							},
 							{

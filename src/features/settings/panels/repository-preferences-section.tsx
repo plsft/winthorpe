@@ -15,7 +15,7 @@ import {
 	type RepoPreferences,
 	updateRepoPreferences,
 } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import {
 	REPO_PREFERENCE_DESCRIPTIONS,
 	REPO_PREFERENCE_LABELS,
@@ -34,7 +34,7 @@ const PREFERENCE_KEYS: RepoPreferenceKey[] = [
 export function RepositoryPreferencesSection({ repoId }: { repoId: string }) {
 	const queryClient = useQueryClient();
 	const preferencesQuery = useQuery({
-		queryKey: helmorQueryKeys.repoPreferences(repoId),
+		queryKey: winthorpeQueryKeys.repoPreferences(repoId),
 		queryFn: () => loadRepoPreferences(repoId),
 		staleTime: 0,
 	});
@@ -62,7 +62,7 @@ export function RepositoryPreferencesSection({ repoId }: { repoId: string }) {
 					Preferences
 				</div>
 				<div className="mt-1 text-[12px] leading-snug text-muted-foreground">
-					Repo-level built-in prompts used by Helmor actions and new chats.
+					Repo-level built-in prompts used by Winthorpe actions and new chats.
 				</div>
 				<div className="mt-4 divide-y divide-app-border/20">
 					{PREFERENCE_KEYS.map((key) => {
@@ -133,7 +133,7 @@ export function RepositoryPreferencesSection({ repoId }: { repoId: string }) {
 														.then(async () => {
 															await queryClient.invalidateQueries({
 																queryKey:
-																	helmorQueryKeys.repoPreferences(repoId),
+																	winthorpeQueryKeys.repoPreferences(repoId),
 															});
 														})
 														.finally(() => setSavingKey(null));

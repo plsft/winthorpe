@@ -7,7 +7,7 @@
  * (`fixtures/streaming-tool-use.jsonl`, 730 stream events) into the panel
  * tick-by-tick.
  *
- * Output line: `HELMOR_PERF_STREAMING_TOTAL=<n>` where `n` =
+ * Output line: `WINTHORPE_PERF_STREAMING_TOTAL=<n>` where `n` =
  *   sum(messageRows.rendersBySession) + sum(composer.rendersByContext) +
  *   sum(sidebarRows). Lower is better.
  *
@@ -21,8 +21,8 @@ if (typeof window !== "undefined") {
 	url.searchParams.set("debugRenderCounts", "1");
 	window.history.replaceState(null, "", url.toString());
 	(
-		window as unknown as { __HELMOR_DEV_RENDER_STATS__?: unknown }
-	).__HELMOR_DEV_RENDER_STATS__ = undefined;
+		window as unknown as { __WINTHORPE_DEV_RENDER_STATS__?: unknown }
+	).__WINTHORPE_DEV_RENDER_STATS__ = undefined;
 
 	// Same jsdom layout-stub trick as conversation-render.perf.test.tsx —
 	// jsdom returns 0 for everything otherwise, which makes the
@@ -60,7 +60,7 @@ import type {
 	WorkspaceDetail,
 	WorkspaceSessionSummary,
 } from "@/lib/api";
-import { createHelmorQueryClient } from "@/lib/query-client";
+import { createWinthorpeQueryClient } from "@/lib/query-client";
 import { countFixtureRows, replayFixture } from "./fixture-loader";
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -150,8 +150,8 @@ type DevRenderStats = {
 function readStats(): DevRenderStats | null {
 	if (typeof window === "undefined") return null;
 	const stats = (
-		window as unknown as { __HELMOR_DEV_RENDER_STATS__?: DevRenderStats }
-	).__HELMOR_DEV_RENDER_STATS__;
+		window as unknown as { __WINTHORPE_DEV_RENDER_STATS__?: DevRenderStats }
+	).__WINTHORPE_DEV_RENDER_STATS__;
 	return stats ?? null;
 }
 
@@ -169,8 +169,8 @@ function sumStats(stats: DevRenderStats | null): number {
 function resetStats() {
 	if (typeof window === "undefined") return;
 	(
-		window as unknown as { __HELMOR_DEV_RENDER_STATS__?: unknown }
-	).__HELMOR_DEV_RENDER_STATS__ = undefined;
+		window as unknown as { __WINTHORPE_DEV_RENDER_STATS__?: unknown }
+	).__WINTHORPE_DEV_RENDER_STATS__ = undefined;
 }
 
 type LazyPanel = typeof import("@/features/panel")["WorkspacePanel"];
@@ -186,7 +186,7 @@ afterAll(() => {
 });
 
 describe("streaming replay perf", () => {
-	it("replays a real Claude SDK capture into the panel and emits HELMOR_PERF_STREAMING_TOTAL", async () => {
+	it("replays a real Claude SDK capture into the panel and emits WINTHORPE_PERF_STREAMING_TOTAL", async () => {
 		resetStats();
 
 		const workspace = makeWorkspace("ws-1");
@@ -198,7 +198,7 @@ describe("streaming replay perf", () => {
 		// same path that real users hit during streaming.
 		const history = makeStaticHistory(20);
 
-		const queryClient = createHelmorQueryClient();
+		const queryClient = createWinthorpeQueryClient();
 		queryClient.setDefaultOptions({
 			queries: {
 				...queryClient.getDefaultOptions().queries,
@@ -259,11 +259,11 @@ describe("streaming replay perf", () => {
 		const total = sumStats(readStats());
 
 		// eslint-disable-next-line no-console
-		console.log(`HELMOR_PERF_STREAMING_TOTAL=${total}`);
+		console.log(`WINTHORPE_PERF_STREAMING_TOTAL=${total}`);
 		// eslint-disable-next-line no-console
-		console.log(`HELMOR_PERF_STREAMING_SNAPSHOTS=${snapshotCount}`);
+		console.log(`WINTHORPE_PERF_STREAMING_SNAPSHOTS=${snapshotCount}`);
 		// eslint-disable-next-line no-console
-		console.log(`HELMOR_PERF_STREAMING_FIXTURE_ROWS=${countFixtureRows()}`);
+		console.log(`WINTHORPE_PERF_STREAMING_FIXTURE_ROWS=${countFixtureRows()}`);
 
 		if (readStats() === null) {
 			throw new Error(

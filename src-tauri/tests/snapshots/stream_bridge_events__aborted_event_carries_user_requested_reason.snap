@@ -11,7 +11,7 @@ control_events:
     reason: user_requested
     resolved_model: test-model
     session_id: provider-session-1
-    working_directory: /tmp/helmor
+    working_directory: /tmp/winthorpe
 final_messages:
   - role: assistant
     id: msg-1

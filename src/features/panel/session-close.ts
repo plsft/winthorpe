@@ -7,7 +7,7 @@ import {
 	type WorkspaceDetail,
 	type WorkspaceSessionSummary,
 } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { isNewSession } from "@/lib/workspace-helpers";
 import type { PushWorkspaceToast } from "@/lib/workspace-toast-context";
 import { buildOptimisticSession } from "./session-cache";
@@ -73,11 +73,11 @@ export async function closeWorkspaceSession({
 				now,
 			);
 			void queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.repoScripts(workspace.repoId, workspace.id),
+				queryKey: winthorpeQueryKeys.repoScripts(workspace.repoId, workspace.id),
 			});
 
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceDetail(workspace.id),
+				winthorpeQueryKeys.workspaceDetail(workspace.id),
 				(current: WorkspaceDetail | null | undefined) => {
 					const base = current ?? workspace;
 					if (!base) {
@@ -95,11 +95,11 @@ export async function closeWorkspaceSession({
 				},
 			);
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceSessions(workspace.id),
+				winthorpeQueryKeys.workspaceSessions(workspace.id),
 				() => [optimisticSession],
 			);
 			queryClient.setQueryData(
-				[...helmorQueryKeys.sessionMessages(replacementSessionId), "thread"],
+				[...winthorpeQueryKeys.sessionMessages(replacementSessionId), "thread"],
 				[],
 			);
 
@@ -121,7 +121,7 @@ export async function closeWorkspaceSession({
 				sessions.find((session) => session.id === adjacentSessionId) ?? null;
 
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceDetail(workspace.id),
+				winthorpeQueryKeys.workspaceDetail(workspace.id),
 				(current: WorkspaceDetail | null | undefined) => {
 					const base = current ?? workspace;
 					if (!base) {
@@ -139,7 +139,7 @@ export async function closeWorkspaceSession({
 				},
 			);
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceSessions(workspace.id),
+				winthorpeQueryKeys.workspaceSessions(workspace.id),
 				(current: WorkspaceSessionSummary[] | undefined) =>
 					(current ?? sessions)
 						.filter((session) => session.id !== sessionId)

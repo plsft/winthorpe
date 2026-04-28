@@ -4,7 +4,7 @@ import {
 	CircleQuestionMark,
 	CircleX,
 } from "lucide-react";
-import { HelmorLogoAnimated } from "@/components/helmor-logo-animated";
+import { WinthorpeLogoAnimated } from "@/components/winthorpe-logo-animated";
 import { cn } from "@/lib/utils";
 import type { ScriptIconState } from "./hooks/use-script-status";
 
@@ -22,16 +22,16 @@ type ScriptStatusIconProps = {
  * Success / failure reuse the Git-actions PR accent tokens (open-accent
  * green, closed-accent red) so status semantics stay consistent across
  * the inspector. `no-script` and `idle` stay muted — they're neutral
- * states, not alerts. `running` uses the Helmor H logo animation.
+ * states, not alerts. `running` uses the Winthorpe H logo animation.
  */
 export function ScriptStatusIcon({ state, className }: ScriptStatusIconProps) {
 	switch (state) {
 		case "running":
-			// HelmorLogoAnimated is a div with lottie-rendered SVG inside;
+			// WinthorpeLogoAnimated is a div with lottie-rendered SVG inside;
 			// no text or label, so it's already silent to screen readers —
 			// no aria-hidden needed (and the component doesn't forward it).
 			return (
-				<HelmorLogoAnimated
+				<WinthorpeLogoAnimated
 					size={11}
 					className={cn("shrink-0 opacity-85", className)}
 				/>

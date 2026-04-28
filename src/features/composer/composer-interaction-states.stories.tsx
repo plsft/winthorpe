@@ -21,7 +21,7 @@ import type { PendingDeferredTool } from "@/features/conversation/pending-deferr
 import type { PendingElicitation } from "@/features/conversation/pending-elicitation";
 import { adaptPermissionToDeferredTool } from "@/features/conversation/permission-as-deferred-tool";
 import type { AgentModelSection } from "@/lib/api";
-import { createHelmorQueryClient } from "@/lib/query-client";
+import { createWinthorpeQueryClient } from "@/lib/query-client";
 import { WorkspaceComposer } from "./index";
 
 // ── Mock fixtures ─────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ const MOCK_DEFERRED_TOOL: PendingDeferredTool = {
 	modelId: "sonnet-4-5",
 	resolvedModel: "claude-sonnet-4-5",
 	providerSessionId: null,
-	workingDirectory: "/tmp/helmor",
+	workingDirectory: "/tmp/winthorpe",
 	permissionMode: null,
 	toolUseId: "tool-mock-1",
 	toolName: "Bash",
@@ -82,7 +82,7 @@ const MOCK_FORM_ELICITATION: PendingElicitation = {
 	modelId: "sonnet-4-5",
 	resolvedModel: "claude-sonnet-4-5",
 	providerSessionId: null,
-	workingDirectory: "/tmp/helmor",
+	workingDirectory: "/tmp/winthorpe",
 	elicitationId: "elicit-mock-form",
 	serverName: "vercel",
 	message: "Configure the new deployment target.",
@@ -129,12 +129,12 @@ const MOCK_URL_ELICITATION: PendingElicitation = {
 	modelId: "sonnet-4-5",
 	resolvedModel: "claude-sonnet-4-5",
 	providerSessionId: null,
-	workingDirectory: "/tmp/helmor",
+	workingDirectory: "/tmp/winthorpe",
 	elicitationId: "elicit-mock-url",
 	serverName: "auth-server",
 	message: "Finish signing in in the browser to continue.",
 	mode: "url",
-	url: "https://example.com/oauth/authorize?client_id=helmor&state=abc",
+	url: "https://example.com/oauth/authorize?client_id=winthorpe&state=abc",
 	requestedSchema: null,
 };
 
@@ -143,7 +143,7 @@ const MOCK_ASK_USER_QUESTION: PendingDeferredTool = {
 	modelId: "sonnet-4-5",
 	resolvedModel: "claude-sonnet-4-5",
 	providerSessionId: null,
-	workingDirectory: "/tmp/helmor",
+	workingDirectory: "/tmp/winthorpe",
 	permissionMode: null,
 	toolUseId: "tool-ask-1",
 	toolName: "AskUserQuestion",
@@ -205,7 +205,7 @@ function baseComposerProps(contextKey: string): ComposerProps {
 		restoreCustomTags: [],
 		restoreNonce: 0,
 		slashCommands: [],
-		workspaceRootPath: "/tmp/helmor",
+		workspaceRootPath: "/tmp/winthorpe",
 		pendingElicitation: null,
 		pendingDeferredTool: null,
 		hasPlanReview: false,
@@ -219,7 +219,7 @@ function baseComposerProps(contextKey: string): ComposerProps {
 let sharedQueryClient: QueryClient | null = null;
 function getQueryClient(): QueryClient {
 	if (sharedQueryClient == null) {
-		sharedQueryClient = createHelmorQueryClient();
+		sharedQueryClient = createWinthorpeQueryClient();
 	}
 	return sharedQueryClient;
 }

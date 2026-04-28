@@ -33,9 +33,9 @@ The script will:
 
 - `src-tauri/target/release/bundle/dmg/`
 - `src-tauri/target/release/bundle/macos/`
-- the updater bundle (`Helmor.app.tar.gz`) and signature (`.sig`)
+- the updater bundle (`Winthorpe.app.tar.gz`) and signature (`.sig`)
 
-`latest.json` is not produced by the local `tauri build` command. Helmor publishes
+`latest.json` is not produced by the local `tauri build` command. Winthorpe publishes
 that file in GitHub Actions through the official `tauri-action`, which uses the
 generated updater bundle and signature to create the GitHub Releases metadata.
 

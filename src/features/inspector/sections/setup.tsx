@@ -6,7 +6,7 @@ import {
 	TerminalOutput,
 } from "@/components/terminal-output";
 import { Button } from "@/components/ui/button";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { cn } from "@/lib/utils";
 import { TABS_EASING, TABS_HOVER_TRANSITION_MS, useTabsZoom } from "../layout";
 import {
@@ -55,7 +55,7 @@ export function SetupTab({
 					const state = getScriptState(workspaceId, "setup");
 					if (state?.exitCode === 0) {
 						queryClient.invalidateQueries({
-							queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+							queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 						});
 					}
 				}

@@ -12,7 +12,7 @@ export function buildAgentLoginItems(
 			label: "Claude Code",
 			description: status?.claude
 				? "Signed in and ready to run in local workspaces."
-				: "Sign in to Claude Code to use Anthropic models in Helmor.",
+				: "Sign in to Claude Code to use Anthropic models in Winthorpe.",
 			status: status?.claude ? "ready" : "needsSetup",
 		},
 		{
@@ -20,8 +20,8 @@ export function buildAgentLoginItems(
 			provider: "codex",
 			label: "Codex",
 			description: status?.codex
-				? "Signed in and ready to run OpenAI models in Helmor."
-				: "Sign in to Codex to use OpenAI models in Helmor.",
+				? "Signed in and ready to run OpenAI models in Winthorpe."
+				: "Sign in to Codex to use OpenAI models in Winthorpe.",
 			status: status?.codex ? "ready" : "needsSetup",
 		},
 	];

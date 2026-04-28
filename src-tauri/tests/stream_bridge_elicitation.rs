@@ -1,8 +1,8 @@
 mod common;
 
 use common::*;
-use helmor_lib::agents::{bridge_elicitation_request_event, AgentStreamEvent};
-use helmor_lib::pipeline::PipelineEmit;
+use winthorpe_lib::agents::{bridge_elicitation_request_event, AgentStreamEvent};
+use winthorpe_lib::pipeline::PipelineEmit;
 use insta::assert_yaml_snapshot;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -31,7 +31,7 @@ fn replay_stream(lines: &[Value]) -> StreamBridgeSnapshot {
                 "opus-1m",
                 "claude-opus-4-20250514",
                 Some("provider-session-1".to_string()),
-                "/tmp/helmor",
+                "/tmp/winthorpe",
                 value,
             )));
             continue;

@@ -86,7 +86,7 @@ import { ElicitationPanel } from "./elicitation-panel";
 import { FastModeLottieIcon } from "./fast-mode-lottie-icon";
 import { UsageStatsIndicator } from "./usage-stats-indicator";
 
-const OPEN_SETTINGS_EVENT = "helmor:open-settings";
+const OPEN_SETTINGS_EVENT = "winthorpe:open-settings";
 
 type WorkspaceComposerProps = {
 	contextKey: string;
@@ -143,7 +143,7 @@ type WorkspaceComposerProps = {
 	 *  When false (the default), the ring auto-reveals only after usage
 	 *  crosses the threshold defined inside the ring component. */
 	alwaysShowContextUsage?: boolean;
-	/** Helmor session id for the context-usage ring. */
+	/** Winthorpe session id for the context-usage ring. */
 	sessionId?: string | null;
 	/** Provider's own session id (Claude Code UUID). Threaded into the
 	 *  context-usage ring for its hover-triggered live fetch. */
@@ -253,9 +253,9 @@ export const WorkspaceComposer = memo(function WorkspaceComposer({
 				?.focus();
 		};
 
-		window.addEventListener("helmor:focus-composer", handleFocusComposer);
+		window.addEventListener("winthorpe:focus-composer", handleFocusComposer);
 		return () =>
-			window.removeEventListener("helmor:focus-composer", handleFocusComposer);
+			window.removeEventListener("winthorpe:focus-composer", handleFocusComposer);
 	}, [disabled]);
 	const selectedModel = useMemo(() => {
 		for (const section of modelSections) {
@@ -311,10 +311,10 @@ export const WorkspaceComposer = memo(function WorkspaceComposer({
 			if (toolbarDisabled) return;
 			setModelPickerOpen(true);
 		};
-		window.addEventListener("helmor:open-model-picker", handleOpenModelPicker);
+		window.addEventListener("winthorpe:open-model-picker", handleOpenModelPicker);
 		return () =>
 			window.removeEventListener(
-				"helmor:open-model-picker",
+				"winthorpe:open-model-picker",
 				handleOpenModelPicker,
 			);
 	}, [toolbarDisabled]);

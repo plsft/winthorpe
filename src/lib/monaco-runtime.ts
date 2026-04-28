@@ -62,7 +62,7 @@ function detectInitialTheme(): EditorTheme {
 }
 
 function themeId(theme: EditorTheme): string {
-	return theme === "dark" ? "helmor-editor-dark" : "helmor-editor-light";
+	return theme === "dark" ? "winthorpe-editor-dark" : "winthorpe-editor-light";
 }
 
 export async function createFileEditor(options: {
@@ -167,10 +167,10 @@ export async function createDiffEditor(options: {
 	const language = resolveLanguageId(monaco, options.path);
 
 	const originalUri = monaco.Uri.file(options.path).with({
-		query: "helmor-review=original",
+		query: "winthorpe-review=original",
 	});
 	const modifiedUri = monaco.Uri.file(options.path).with({
-		query: "helmor-review=modified",
+		query: "winthorpe-review=modified",
 	});
 	monaco.editor.getModel(originalUri)?.dispose();
 	monaco.editor.getModel(modifiedUri)?.dispose();
@@ -325,7 +325,7 @@ function installMonacoEnvironment() {
 }
 
 function installEditorTheme(monaco: MonacoModule) {
-	monaco.editor.defineTheme("helmor-editor-dark", {
+	monaco.editor.defineTheme("winthorpe-editor-dark", {
 		base: "vs-dark",
 		inherit: true,
 		rules: [
@@ -375,7 +375,7 @@ function installEditorTheme(monaco: MonacoModule) {
 			"diffEditor.diagonalFill": "#faf9f608",
 		},
 	});
-	monaco.editor.defineTheme("helmor-editor-light", {
+	monaco.editor.defineTheme("winthorpe-editor-light", {
 		base: "vs",
 		inherit: true,
 		rules: [

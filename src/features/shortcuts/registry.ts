@@ -161,7 +161,7 @@ export const SHORTCUT_DEFINITIONS: ShortcutDefinition[] = [
 	{
 		id: "global.hotkey",
 		title: "Global hotkey",
-		description: "Show/hide Helmor from anywhere.",
+		description: "Show/hide Winthorpe from anywhere.",
 		group: "System",
 		defaultHotkey: null,
 		scopes: ["app"],

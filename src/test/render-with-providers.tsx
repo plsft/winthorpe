@@ -3,13 +3,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { createHelmorQueryClient } from "@/lib/query-client";
+import { createWinthorpeQueryClient } from "@/lib/query-client";
 
 export function renderWithProviders(
 	ui: ReactElement,
 	options?: { queryClient?: QueryClient },
 ) {
-	const queryClient = options?.queryClient ?? createHelmorQueryClient();
+	const queryClient = options?.queryClient ?? createWinthorpeQueryClient();
 	queryClient.setDefaultOptions({
 		queries: {
 			...queryClient.getDefaultOptions().queries,

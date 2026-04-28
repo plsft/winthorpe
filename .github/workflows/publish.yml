@@ -54,12 +54,12 @@ jobs:
       - name: Verify release config
         run: |
           bun run release:verify
-          test -n "${HELMOR_UPDATER_PUBKEY}"
-          test -n "${HELMOR_UPDATER_ENDPOINTS}"
+          test -n "${WINTHORPE_UPDATER_PUBKEY}"
+          test -n "${WINTHORPE_UPDATER_ENDPOINTS}"
           test -n "${TAURI_SIGNING_PRIVATE_KEY}"
         env:
-          HELMOR_UPDATER_PUBKEY: ${{ secrets.HELMOR_UPDATER_PUBKEY }}
-          HELMOR_UPDATER_ENDPOINTS: ${{ secrets.HELMOR_UPDATER_ENDPOINTS }}
+          WINTHORPE_UPDATER_PUBKEY: ${{ secrets.WINTHORPE_UPDATER_PUBKEY }}
+          WINTHORPE_UPDATER_ENDPOINTS: ${{ secrets.WINTHORPE_UPDATER_ENDPOINTS }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
 
       - name: Read version
@@ -156,11 +156,11 @@ jobs:
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          HELMOR_UPDATER_PUBKEY: ${{ secrets.HELMOR_UPDATER_PUBKEY }}
-          HELMOR_UPDATER_ENDPOINTS: ${{ secrets.HELMOR_UPDATER_ENDPOINTS }}
+          WINTHORPE_UPDATER_PUBKEY: ${{ secrets.WINTHORPE_UPDATER_PUBKEY }}
+          WINTHORPE_UPDATER_ENDPOINTS: ${{ secrets.WINTHORPE_UPDATER_ENDPOINTS }}
         with:
           tagName: v__VERSION__
-          releaseName: Helmor v__VERSION__
+          releaseName: Winthorpe v__VERSION__
           releaseBody: ${{ needs.preflight.outputs.release_body }}
           releaseDraft: ${{ needs.preflight.outputs.draft == 'true' }}
           prerelease: false
@@ -173,7 +173,7 @@ jobs:
         shell: bash
         run: |
           bash scripts/verify-bundled-cli.sh \
-            "src-tauri/target/${{ matrix.target-triple }}/release/bundle/macos/Helmor.app"
+            "src-tauri/target/${{ matrix.target-triple }}/release/bundle/macos/Winthorpe.app"
 
       - name: Cleanup macOS signing keychain
         if: always()
@@ -189,16 +189,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Revalidate helmor.ai
+      - name: Revalidate winthorpe.ai
         env:
-          SECRET: ${{ secrets.HELMOR_MARKETING_REVALIDATE_SECRET }}
+          SECRET: ${{ secrets.WINTHORPE_MARKETING_REVALIDATE_SECRET }}
         run: |
           if [ -z "${SECRET}" ]; then
-            echo "HELMOR_MARKETING_REVALIDATE_SECRET not set; skipping"
+            echo "WINTHORPE_MARKETING_REVALIDATE_SECRET not set; skipping"
             exit 0
           fi
           curl --fail --silent --show-error \
             --retry 3 --retry-delay 10 --retry-connrefused \
-            -X POST "https://helmor.ai/api/revalidate" \
+            -X POST "https://winthorpe.ai/api/revalidate" \
             -H "x-revalidate-secret: ${SECRET}" \
             -H "content-type: application/json"

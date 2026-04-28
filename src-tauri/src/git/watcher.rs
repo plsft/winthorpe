@@ -733,7 +733,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         git(dir.path(), &["init"]);
         git(dir.path(), &["checkout", "-b", "main"]);
-        git(dir.path(), &["config", "user.email", "test@helmor.dev"]);
+        git(dir.path(), &["config", "user.email", "test@winthorpe.dev"]);
         git(dir.path(), &["config", "user.name", "Test"]);
         git(dir.path(), &["config", "commit.gpgsign", "false"]);
         std::fs::write(dir.path().join("f.txt"), "init\n").unwrap();

@@ -45,7 +45,7 @@ fn forge_cli_auth_script_type(provider: ForgeProvider, host: &str, instance_id: 
     format!("forge-cli-auth:{provider:?}:{host}:{instance_id}")
 }
 
-const FORGE_CLI_AUTH_REPO_ID: &str = "__helmor_onboarding_forge__";
+const FORGE_CLI_AUTH_REPO_ID: &str = "__winthorpe_onboarding_forge__";
 
 #[tauri::command]
 pub async fn spawn_forge_cli_auth_terminal(

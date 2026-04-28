@@ -152,7 +152,7 @@ mod tests {
         let temp = tempfile::tempdir().unwrap();
         let source = temp.path().join("source.png");
         fs::write(&source, b"png-bytes").unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", temp.path().join("helmor-data"));
+        std::env::set_var("WINTHORPE_DATA_DIR", temp.path().join("winthorpe-data"));
 
         let content = serde_json::json!({
             "type": "item.completed",
@@ -174,14 +174,14 @@ mod tests {
         assert!(saved_path.contains("generated-images/session_1/ig_1.png"));
         assert_eq!(fs::read(saved_path).unwrap(), b"png-bytes");
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     #[test]
     fn writes_base64_when_saved_path_is_missing() {
         let _guard = crate::data_dir::TEST_ENV_LOCK.lock().unwrap();
         let temp = tempfile::tempdir().unwrap();
-        std::env::set_var("HELMOR_DATA_DIR", temp.path().join("helmor-data"));
+        std::env::set_var("WINTHORPE_DATA_DIR", temp.path().join("winthorpe-data"));
 
         let content = serde_json::json!({
             "type": "item.completed",
@@ -202,6 +202,6 @@ mod tests {
             .unwrap();
         assert_eq!(fs::read(saved_path).unwrap(), b"png-bytes");
 
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 }

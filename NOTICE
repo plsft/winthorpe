@@ -1,3 +1,20 @@
+================================================================================
+Winthorpe — a Windows-first fork of Helmor
+================================================================================
+
+Winthorpe is derived from Helmor (https://github.com/dohooo/helmor), originally
+authored by Caspian Zhao and Nathan Lian. Per the Apache 2.0 trademark notice
+in upstream Helmor's NOTICE, this fork ships under a distinct name and does
+not use the "Helmor" mark or logo to identify itself.
+
+This file preserves upstream Helmor's NOTICE in full below for attribution.
+Per Apache 2.0 Section 4(b), source files modified as part of the Windows port
+carry change notices in their headers where modifications are non-trivial.
+
+================================================================================
+Upstream NOTICE (Helmor)
+================================================================================
+
 Helmor
 Copyright 2026 Caspian Zhao, Nathan Lian
 
@@ -44,6 +61,3 @@ license text:
 - Bun (oven-sh/bun) — MIT
 - Claude Agent SDK (@anthropic-ai/claude-agent-sdk) — Anthropic's terms
 - Codex SDK (@openai/codex-sdk) — OpenAI's terms
-
-Inclusion of these components does not imply endorsement by their respective
-owners.

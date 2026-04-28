@@ -195,7 +195,7 @@ body {
 	color: var(--accent-foreground);
 }
 
-.helmor-shimmer-text {
+.winthorpe-shimmer-text {
 	color: transparent;
 	background-image: linear-gradient(
 		90deg,
@@ -208,7 +208,7 @@ body {
 	background-size: 300% 100%;
 	background-clip: text;
 	-webkit-background-clip: text;
-	animation: helmor-shimmer-sweep 2.4s ease-in-out infinite;
+	animation: winthorpe-shimmer-sweep 2.4s ease-in-out infinite;
 }
 
 .assistant-markdown-scale {
@@ -308,7 +308,7 @@ body {
 	font-size: 0.86em;
 }
 
-@keyframes helmor-shimmer-sweep {
+@keyframes winthorpe-shimmer-sweep {
 	0% {
 		background-position: 100% 50%;
 	}

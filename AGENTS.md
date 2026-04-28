@@ -2,16 +2,22 @@
 
 This file provides guidance to AI coding agents working with code in this repository.
 
-## What is Helmor
+## Fork status
 
-Helmor is a local-first desktop app built with **Tauri v2** (Rust backend) + **React 19** + **Vite** + **TypeScript**. It provides a workspace management UI with its own SQLite database (`~/helmor/` in release, `~/helmor-dev/` in debug), letting users browse workspaces/sessions/messages and send prompts to AI agents (Claude Code CLI, OpenAI Codex CLI) via streaming IPC.
+Winthorpe is a **Windows-first fork** of [Helmor](https://github.com/dohooo/helmor) (Apache 2.0). Upstream Helmor is macOS-only. Winthorpe is a personal, long-running project for the maintainer; not currently shipped publicly. See `docs/winthorpe-port.md` for the port plan, phase status, and architectural decisions that diverge from upstream.
+
+Most architecture/code conventions below were inherited from upstream Helmor and remain valid. Where Winthorpe diverges (PTY layer, credential storage, sidecar runtimes, shell discovery, OS chrome, deep-link registration, CLI install), the divergence is documented inline in this file or in the relevant module's CLAUDE.md.
+
+## What is Winthorpe
+
+Winthorpe is a local-first desktop app built with **Tauri v2** (Rust backend) + **React 19** + **Vite** + **TypeScript**. It provides a workspace management UI with its own SQLite database (`%LOCALAPPDATA%\Winthorpe\` in release, `%LOCALAPPDATA%\Winthorpe-dev\` in debug), letting users browse workspaces/sessions/messages and send prompts to AI agents (Claude Code CLI, OpenAI Codex CLI, .NET-hosted custom skills) via streaming IPC.
 
 ## Commands
 
 ```bash
 bun install                  # Install deps (bun 1.3+). Also runs `bun install` in sidecar/ via postinstall.
 bun run dev                  # Full desktop app: Tauri + Vite (localhost:1420 in webview)
-bun run dev:analyze          # Same as dev, with perf HUD (VITE_HELMOR_PERF_HUD=1)
+bun run dev:analyze          # Same as dev, with perf HUD (VITE_WINTHORPE_PERF_HUD=1)
 bun run build                # tsc + vite build (frontend bundle to dist/)
 bun run typecheck            # tsc --noEmit for frontend AND sidecar
 bun run lint                 # biome check . + cargo clippy -- -D warnings
@@ -37,7 +43,7 @@ Single test file: `bun x vitest run src/App.test.tsx` | `cd sidecar && bun test 
 
 - **Frontend** (`src/`): React 19 SPA in Tauri webview. Root state in `App.tsx` via `useState` + TanStack React Query + context providers.
 - **Rust backend** (`src-tauri/src/`): Tauri host, SQLite database, spawns and supervises the sidecar.
-- **Sidecar** (`sidecar/`): Bun + TypeScript, wraps `@anthropic-ai/claude-agent-sdk` and `@openai/codex-sdk`. Built to `sidecar/dist/helmor-sidecar` via `bun build --compile`. JSON event stream over stdout.
+- **Sidecar** (`sidecar/`): Bun + TypeScript, wraps `@anthropic-ai/claude-agent-sdk` and `@openai/codex-sdk`. Built to `sidecar/dist/winthorpe-sidecar` via `bun build --compile`. JSON event stream over stdout.
 
 Message flow: user prompt -> Rust `agents::streaming` -> sidecar -> SDK -> stdout events -> Rust accumulator -> adapter + collapse -> `ThreadMessageLike[]` -> `tauri::ipc::Channel` -> React.
 
@@ -80,7 +86,7 @@ Feature-based layout. Each feature folder follows: `index.tsx` (main) + `contain
 | `schema.rs` | DB schema + idempotent migrations. |
 | `mcp.rs` | MCP bridge integration. |
 | `logging.rs` | Structured logging setup. |
-| `data_dir.rs` | Data dir resolution. `HELMOR_DATA_DIR` env override. |
+| `data_dir.rs` | Data dir resolution. `WINTHORPE_DATA_DIR` env override. |
 | `error.rs` | `CommandError` -- bridges `anyhow::Error` to Tauri IPC. |
 
 ### Sidecar structure (`sidecar/src/`)
@@ -128,19 +134,19 @@ When a snapshot drifts: look at the diff first. Only accept after confirming the
 - **File editor**: Monaco, lazy via `src/lib/monaco-runtime.ts`.
 - **Linting**: Biome (tab indent). `lint-staged` enforces on pre-commit.
 - **Testing**: Vitest + jsdom (frontend), `bun test` (sidecar), cargo test + insta (Rust). Tests co-located with source.
-- **Changesets**: A `.changeset/*.md` body uses the smallest shape that fits — a single prose sentence (default for simple patch-level changes) or a prose summary line followed by `- ` sub-items (only when ≥2 distinct user-visible changes are worth enumerating). Never start the body with `- `. See the `helmor-release` skill for full format and rationale.
-- **Data dir**: `~/helmor/` (release) or `~/helmor-dev/` (debug). Override: `HELMOR_DATA_DIR`.
+- **Changesets**: A `.changeset/*.md` body uses the smallest shape that fits — a single prose sentence (default for simple patch-level changes) or a prose summary line followed by `- ` sub-items (only when ≥2 distinct user-visible changes are worth enumerating). Never start the body with `- `. See the `winthorpe-release` skill for full format and rationale.
+- **Data dir**: `~/winthorpe/` (release) or `~/winthorpe-dev/` (debug). Override: `WINTHORPE_DATA_DIR`.
 - **macOS chrome**: Overlay title bar, traffic lights at (16, 24). Drag via `data-tauri-drag-region`.
 - **Serde**: `#[serde(rename_all = "camelCase")]` -- JSON fields match TypeScript directly.
 - **Backend → frontend notifications**: Always go through `UiMutationEvent` (`src-tauri/src/ui_sync/events.rs`). Add a typed variant, broadcast with `crate::ui_sync::publish(&app, ...)`, mirror the variant in `UiMutationEvent` in `src/lib/api.ts`, and handle it in `src/shell/hooks/use-ui-sync-bridge.ts` to invalidate the right React Query keys. Do NOT add ad-hoc `app.emit("custom-event", ...)` channels with their own component-level `listen(...)` -- they fragment cache invalidation, skip the global bridge, and are easy to leak.
 - **Clippy**: Must pass `cargo clippy --all-targets -- -D warnings` with zero warnings.
-- **Perf**: `VITE_HELMOR_PERF_HUD=1` enables HUD + react-scan + long-frame tracker.
-- **Logging**: Dev defaults to `debug`. Override: `HELMOR_LOG=info|debug|error`. JSONL logs in `{data_dir}/logs/`.
+- **Perf**: `VITE_WINTHORPE_PERF_HUD=1` enables HUD + react-scan + long-frame tracker.
+- **Logging**: Dev defaults to `debug`. Override: `WINTHORPE_LOG=info|debug|error`. JSONL logs in `{data_dir}/logs/`.
 - **Bundled forge CLIs (`gh`, `glab`)**: Pinned + SHA256-verified in `sidecar/scripts/stage-vendor.ts`. To upgrade:
   1. Bump `GH_VERSION` / `GLAB_VERSION`.
   2. Pull the new SHA256 from `…/checksums.txt` (URLs in the file's header comment) and update `GH_SHA256` / `GLAB_SHA256`.
   3. Wipe `sidecar/.bundle-cache/` and re-run `bun run build` in `sidecar/` to force re-download + verify.
-  Bump cadence: every release cycle if upstream has shipped a notable fix; immediately on security advisories. Pin so the auth-status JSON shape Helmor parses doesn't drift unexpectedly.
+  Bump cadence: every release cycle if upstream has shipped a notable fix; immediately on security advisories. Pin so the auth-status JSON shape Winthorpe parses doesn't drift unexpectedly.
 
 ## 🚨 Code organization rules
 
@@ -154,7 +160,7 @@ When a snapshot drifts: look at the diff first. Only accept after confirming the
 
 ## Debugging (Tauri MCP only)
 
-> **Hard rule:** Use the Tauri MCP bridge (`tauri-plugin-mcp-bridge`) only. No `chrome-devtools` MCP, no `/agent-browser`. Helmor runs in Tauri webview only.
+> **Hard rule:** Use the Tauri MCP bridge (`tauri-plugin-mcp-bridge`) only. No `chrome-devtools` MCP, no `/agent-browser`. Winthorpe runs in Tauri webview only.
 
 ### Prerequisites
 
@@ -169,7 +175,7 @@ When a snapshot drifts: look at the diff first. Only accept after confirming the
 - **IPC tracing**: `ipc_monitor start` -> trigger flow -> `ipc_get_captured filter=<cmd>` -> `ipc_monitor stop`. Always stop when done.
 - **Direct backend call**: `ipc_execute_command command=... args=...` to bypass frontend.
 - **Async waits**: `webview_wait_for type=ipc-event value=<event>` for streaming/pipeline events.
-- **Console/system logs**: `read_logs source=console` or `source=system filter=helmor`.
+- **Console/system logs**: `read_logs source=console` or `source=system filter=winthorpe`.
 - **JS eval**: `webview_execute_js script="(() => <expr>)()"` (IIFE, JSON-serializable return). Cannot see React state.
 - **Styles**: `webview_get_styles selector=... properties=[...]`.
 - **Element picker**: `webview_select_element` or `webview_get_pointed_element` (Alt+Shift+Click).

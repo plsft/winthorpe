@@ -431,7 +431,7 @@ pub fn get_workspace_linked_directories(workspace_id: &str) -> Result<Vec<String
 
 /// One entry in the `/add-dir` picker's "known workspaces" list. Mirrors
 /// the sidebar row's display fields so the popup looks and reads the
-/// same as Helmor's workspace list (repo icon + humanized title +
+/// same as Winthorpe's workspace list (repo icon + humanized title +
 /// branch). `absolute_path` is the only non-display field — it's what
 /// we persist into `linked_directory_paths` on selection.
 #[derive(Debug, Clone, Serialize)]
@@ -588,12 +588,12 @@ mod candidate_directories_tests {
         let _guard = crate::data_dir::TEST_ENV_LOCK
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
         crate::data_dir::ensure_directory_structure().unwrap();
         let conn = rusqlite::Connection::open(crate::data_dir::db_path().unwrap()).unwrap();
         crate::schema::ensure_schema(&conn).unwrap();
         f(&conn);
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     fn seed_repo(conn: &rusqlite::Connection, id: &str, name: &str) {

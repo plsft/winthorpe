@@ -96,10 +96,10 @@ import type { DiffOpenOptions, EditorSessionState } from "./lib/editor-session";
 import { isPathWithinRoot } from "./lib/editor-session";
 import {
 	archivedWorkspacesQueryOptions,
-	createHelmorQueryClient,
+	createWinthorpeQueryClient,
 	detectedEditorsQueryOptions,
-	helmorQueryKeys,
-	helmorQueryPersister,
+	winthorpeQueryKeys,
+	winthorpeQueryPersister,
 	sessionThreadMessagesQueryOptions,
 	workspaceChangeRequestQueryOptions,
 	workspaceDetailQueryOptions,
@@ -135,8 +135,8 @@ import {
 } from "./lib/workspace-toast-context";
 import { StreamingFooterOverlapScenario } from "./test/e2e-scenarios/streaming-footer-overlap";
 
-const SETTINGS_RELOAD_EVENT = "helmor:reload-settings";
-const OPEN_SETTINGS_EVENT = "helmor:open-settings";
+const SETTINGS_RELOAD_EVENT = "winthorpe:reload-settings";
+const OPEN_SETTINGS_EVENT = "winthorpe:open-settings";
 
 function App() {
 	const e2eScenario =
@@ -162,7 +162,7 @@ function MainApp() {
 	>(null);
 	const [settingsInitialSection, setSettingsInitialSection] =
 		useState<SettingsSection>();
-	const [queryClient] = useState(() => createHelmorQueryClient());
+	const [queryClient] = useState(() => createWinthorpeQueryClient());
 	const preloadSettings = useMemo<AppSettings>(() => {
 		const t = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
 		return { ...DEFAULT_SETTINGS, theme: t ?? DEFAULT_SETTINGS.theme };
@@ -255,7 +255,7 @@ function MainApp() {
 			<PersistQueryClientProvider
 				client={queryClient}
 				persistOptions={{
-					persister: helmorQueryPersister,
+					persister: winthorpeQueryPersister,
 					dehydrateOptions: {
 						shouldDehydrateQuery: (query) => {
 							// Never persist session thread messages — they must
@@ -298,10 +298,10 @@ function MainApp() {
 					// Discard any leftover workspace list data from older
 					// cache snapshots so we never select a ghost workspace.
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.workspaceGroups,
+						queryKey: winthorpeQueryKeys.workspaceGroups,
 					});
 					queryClient.removeQueries({
-						queryKey: helmorQueryKeys.archivedWorkspaces,
+						queryKey: winthorpeQueryKeys.archivedWorkspaces,
 					});
 				}}
 			>
@@ -529,13 +529,13 @@ function AppShell({
 
 		// Snapshot for rollback on IPC failure.
 		const previousGroups = queryClient.getQueryData(
-			helmorQueryKeys.workspaceGroups,
+			winthorpeQueryKeys.workspaceGroups,
 		);
 		const previousDetail = workspaceId
-			? queryClient.getQueryData(helmorQueryKeys.workspaceDetail(workspaceId))
+			? queryClient.getQueryData(winthorpeQueryKeys.workspaceDetail(workspaceId))
 			: undefined;
 		const previousSessions = workspaceId
-			? queryClient.getQueryData(helmorQueryKeys.workspaceSessions(workspaceId))
+			? queryClient.getQueryData(winthorpeQueryKeys.workspaceSessions(workspaceId))
 			: undefined;
 
 		// Optimistic: clear this session's unread in the sessions cache, then
@@ -546,19 +546,19 @@ function AppShell({
 		if (workspaceId) {
 			const currentSessions = queryClient.getQueryData<
 				WorkspaceSessionSummary[] | undefined
-			>(helmorQueryKeys.workspaceSessions(workspaceId));
+			>(winthorpeQueryKeys.workspaceSessions(workspaceId));
 			if (Array.isArray(currentSessions)) {
 				const patched = currentSessions.map((session) =>
 					session.id === sessionId ? { ...session, unreadCount: 0 } : session,
 				);
 				remainingUnread = patched.filter((s) => s.unreadCount > 0).length;
 				queryClient.setQueryData<WorkspaceSessionSummary[]>(
-					helmorQueryKeys.workspaceSessions(workspaceId),
+					winthorpeQueryKeys.workspaceSessions(workspaceId),
 					patched,
 				);
 			}
 			queryClient.setQueryData<WorkspaceGroup[] | undefined>(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 				(current) =>
 					recomputeWorkspaceUnreadInGroups(
 						current,
@@ -567,7 +567,7 @@ function AppShell({
 					),
 			);
 			queryClient.setQueryData<WorkspaceDetail | null | undefined>(
-				helmorQueryKeys.workspaceDetail(workspaceId),
+				winthorpeQueryKeys.workspaceDetail(workspaceId),
 				(current) =>
 					current
 						? recomputeWorkspaceDetailUnread(current, remainingUnread)
@@ -588,10 +588,10 @@ function AppShell({
 				if (workspaceId) {
 					invalidations.push(
 						queryClient.invalidateQueries({
-							queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+							queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 						}),
 						queryClient.invalidateQueries({
-							queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+							queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 						}),
 					);
 				}
@@ -601,16 +601,16 @@ function AppShell({
 				// Roll back the optimistic patch and reset dedupe so a retry can
 				// succeed.
 				queryClient.setQueryData(
-					helmorQueryKeys.workspaceGroups,
+					winthorpeQueryKeys.workspaceGroups,
 					previousGroups,
 				);
 				if (workspaceId) {
 					queryClient.setQueryData(
-						helmorQueryKeys.workspaceDetail(workspaceId),
+						winthorpeQueryKeys.workspaceDetail(workspaceId),
 						previousDetail,
 					);
 					queryClient.setQueryData(
-						helmorQueryKeys.workspaceSessions(workspaceId),
+						winthorpeQueryKeys.workspaceSessions(workspaceId),
 						previousSessions,
 					);
 				}
@@ -691,7 +691,7 @@ function AppShell({
 		setInspectorCollapsed(!zenActive);
 	}, [inspectorCollapsed, setSidebarCollapsed, sidebarCollapsed]);
 	const handleOpenModelPicker = useCallback(() => {
-		window.dispatchEvent(new Event("helmor:open-model-picker"));
+		window.dispatchEvent(new Event("winthorpe:open-model-picker"));
 	}, []);
 	const handlePullLatest = useCallback(async () => {
 		if (!selectedWorkspaceId) return;
@@ -714,20 +714,20 @@ function AppShell({
 			await Promise.all([
 				queryClient.invalidateQueries({
 					queryKey:
-						helmorQueryKeys.workspaceGitActionStatus(selectedWorkspaceId),
+						winthorpeQueryKeys.workspaceGitActionStatus(selectedWorkspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceChangeRequest(selectedWorkspaceId),
+					queryKey: winthorpeQueryKeys.workspaceChangeRequest(selectedWorkspaceId),
 				}),
 				queryClient.invalidateQueries({
 					queryKey:
-						helmorQueryKeys.workspaceForgeActionStatus(selectedWorkspaceId),
+						winthorpeQueryKeys.workspaceForgeActionStatus(selectedWorkspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceDetail(selectedWorkspaceId),
+					queryKey: winthorpeQueryKeys.workspaceDetail(selectedWorkspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGroups,
+					queryKey: winthorpeQueryKeys.workspaceGroups,
 				}),
 				queryClient.invalidateQueries({ queryKey: ["workspaceChanges"] }),
 			]);
@@ -765,7 +765,7 @@ function AppShell({
 		selectedWorkspaceDetailQuery.data ??
 		(selectedWorkspaceId
 			? queryClient.getQueryData<WorkspaceDetail | null>(
-					helmorQueryKeys.workspaceDetail(selectedWorkspaceId),
+					winthorpeQueryKeys.workspaceDetail(selectedWorkspaceId),
 				)
 			: null) ??
 		null;
@@ -1121,11 +1121,11 @@ function AppShell({
 	const resolveCachedWorkspaceDisplay = useCallback(
 		(workspaceId: string, preferredSessionId?: string | null) => {
 			const workspaceDetail = queryClient.getQueryData<WorkspaceDetail | null>(
-				helmorQueryKeys.workspaceDetail(workspaceId),
+				winthorpeQueryKeys.workspaceDetail(workspaceId),
 			);
 			const workspaceSessions = queryClient.getQueryData<
 				WorkspaceSessionSummary[] | undefined
-			>(helmorQueryKeys.workspaceSessions(workspaceId));
+			>(winthorpeQueryKeys.workspaceSessions(workspaceId));
 
 			if (!workspaceDetail || !Array.isArray(workspaceSessions)) {
 				return null;
@@ -1140,7 +1140,7 @@ function AppShell({
 			const hasSessionMessages =
 				sessionId === null ||
 				queryClient.getQueryData([
-					...helmorQueryKeys.sessionMessages(sessionId),
+					...winthorpeQueryKeys.sessionMessages(sessionId),
 					"thread",
 				]) !== undefined;
 
@@ -1161,11 +1161,11 @@ function AppShell({
 			const sessionHistory =
 				sessionSelectionHistoryByWorkspaceRef.current[workspaceId] ?? [];
 			const workspaceDetail = queryClient.getQueryData<WorkspaceDetail | null>(
-				helmorQueryKeys.workspaceDetail(workspaceId),
+				winthorpeQueryKeys.workspaceDetail(workspaceId),
 			);
 			const workspaceSessions =
 				queryClient.getQueryData<WorkspaceSessionSummary[] | undefined>(
-					helmorQueryKeys.workspaceSessions(workspaceId),
+					winthorpeQueryKeys.workspaceSessions(workspaceId),
 				) ?? [];
 
 			const sessionIds =
@@ -1318,7 +1318,7 @@ function AppShell({
 				// `state === "initializing"` means Phase 2 hasn't finished
 				// materializing the worktree on disk yet.
 				const cachedDetail = queryClient.getQueryData<WorkspaceDetail | null>(
-					helmorQueryKeys.workspaceDetail(workspaceId),
+					winthorpeQueryKeys.workspaceDetail(workspaceId),
 				);
 				if (cachedDetail?.state !== "initializing") {
 					triggerWorkspaceFetch(workspaceId);
@@ -1422,7 +1422,7 @@ function AppShell({
 
 			if (
 				queryClient.getQueryData([
-					...helmorQueryKeys.sessionMessages(sessionId),
+					...winthorpeQueryKeys.sessionMessages(sessionId),
 					"thread",
 				]) !== undefined
 			) {
@@ -1506,10 +1506,10 @@ function AppShell({
 						flushSidebarListsIfIdle(queryClient);
 						return Promise.all([
 							queryClient.invalidateQueries({
-								queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+								queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 							}),
 							queryClient.invalidateQueries({
-								queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+								queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 							}),
 						]);
 					})
@@ -1521,7 +1521,7 @@ function AppShell({
 			if (document.hasFocus() && isCurrentSession) return;
 			const name =
 				queryClient.getQueryData<WorkspaceDetail | null>(
-					helmorQueryKeys.workspaceDetail(workspaceId),
+					winthorpeQueryKeys.workspaceDetail(workspaceId),
 				)?.title ?? "Workspace";
 			notify({ title: "Session completed", body: name });
 		},
@@ -1547,7 +1547,7 @@ function AppShell({
 				if (count > prev) {
 					const name =
 						queryClient.getQueryData<WorkspaceDetail | null>(
-							helmorQueryKeys.workspaceDetail(workspaceId),
+							winthorpeQueryKeys.workspaceDetail(workspaceId),
 						)?.title ?? "Workspace";
 					notify({ title: "Input needed", body: name });
 				}
@@ -1588,11 +1588,11 @@ function AppShell({
 		}
 
 		const workspace = queryClient.getQueryData<WorkspaceDetail | null>(
-			helmorQueryKeys.workspaceDetail(workspaceId),
+			winthorpeQueryKeys.workspaceDetail(workspaceId),
 		);
 		const sessions =
 			queryClient.getQueryData<WorkspaceSessionSummary[]>(
-				helmorQueryKeys.workspaceSessions(workspaceId),
+				winthorpeQueryKeys.workspaceSessions(workspaceId),
 			) ?? [];
 		if (!workspace || !sessions.some((session) => session.id === sessionId)) {
 			return null;
@@ -1643,13 +1643,13 @@ function AppShell({
 			await unhideSession(next.sessionId);
 			await Promise.all([
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceDetail(next.workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceDetail(next.workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceSessions(next.workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceSessions(next.workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGroups,
+					queryKey: winthorpeQueryKeys.workspaceGroups,
 				}),
 			]);
 			handleSelectWorkspace(next.workspaceId);
@@ -1685,16 +1685,16 @@ function AppShell({
 			onSessionsChanged: () => {
 				void Promise.all([
 					queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+						queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 					}),
 					queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+						queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 					}),
 					queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceGroups,
+						queryKey: winthorpeQueryKeys.workspaceGroups,
 					}),
 					queryClient.invalidateQueries({
-						queryKey: [...helmorQueryKeys.sessionMessages(sessionId), "thread"],
+						queryKey: [...winthorpeQueryKeys.sessionMessages(sessionId), "thread"],
 					}),
 				]);
 			},
@@ -1711,7 +1711,7 @@ function AppShell({
 			const { sessionId } = await createSession(workspaceId);
 			const cachedWorkspace =
 				queryClient.getQueryData<WorkspaceDetail | null>(
-					helmorQueryKeys.workspaceDetail(workspaceId),
+					winthorpeQueryKeys.workspaceDetail(workspaceId),
 				) ?? null;
 			seedNewSessionInCache({
 				queryClient,
@@ -1720,7 +1720,7 @@ function AppShell({
 				workspace: cachedWorkspace,
 				existingSessions:
 					queryClient.getQueryData<WorkspaceSessionSummary[]>(
-						helmorQueryKeys.workspaceSessions(workspaceId),
+						winthorpeQueryKeys.workspaceSessions(workspaceId),
 					) ?? [],
 			});
 			handleSelectSession(sessionId);
@@ -1729,7 +1729,7 @@ function AppShell({
 				...(cachedWorkspace
 					? [
 							queryClient.invalidateQueries({
-								queryKey: helmorQueryKeys.repoScripts(
+								queryKey: winthorpeQueryKeys.repoScripts(
 									cachedWorkspace.repoId,
 									workspaceId,
 								),
@@ -1737,13 +1737,13 @@ function AppShell({
 						]
 					: []),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGroups,
+					queryKey: winthorpeQueryKeys.workspaceGroups,
 				}),
 			]);
 		} catch (error) {
@@ -1763,7 +1763,7 @@ function AppShell({
 
 			const workspaceSessions =
 				queryClient.getQueryData<WorkspaceSessionSummary[]>(
-					helmorQueryKeys.workspaceSessions(workspaceId),
+					winthorpeQueryKeys.workspaceSessions(workspaceId),
 				) ?? [];
 			const nextSessionId = findAdjacentSessionId(
 				workspaceSessions,
@@ -1819,13 +1819,13 @@ function AppShell({
 			{
 				id: "workspace.new" as const,
 				callback: () =>
-					window.dispatchEvent(new Event("helmor:open-new-workspace")),
+					window.dispatchEvent(new Event("winthorpe:open-new-workspace")),
 				enabled: isIdentityConnected,
 			},
 			{
 				id: "workspace.addRepository" as const,
 				callback: () =>
-					window.dispatchEvent(new Event("helmor:open-add-repository")),
+					window.dispatchEvent(new Event("winthorpe:open-add-repository")),
 				enabled: isIdentityConnected,
 			},
 			{
@@ -1868,7 +1868,7 @@ function AppShell({
 			},
 			{
 				id: "script.run" as const,
-				callback: () => window.dispatchEvent(new Event("helmor:run-script")),
+				callback: () => window.dispatchEvent(new Event("winthorpe:run-script")),
 				enabled: isIdentityConnected,
 			},
 			{
@@ -1924,7 +1924,7 @@ function AppShell({
 			{
 				id: "composer.focus" as const,
 				callback: () =>
-					window.dispatchEvent(new Event("helmor:focus-composer")),
+					window.dispatchEvent(new Event("winthorpe:focus-composer")),
 				enabled: isIdentityConnected && workspaceViewMode === "conversation",
 			},
 			{
@@ -2006,11 +2006,11 @@ function AppShell({
 			const first = sends[0];
 
 			await queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.workspaceGroups,
+				queryKey: winthorpeQueryKeys.workspaceGroups,
 			});
 			if (first.workspaceId) {
 				await queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceSessions(first.workspaceId),
+					queryKey: winthorpeQueryKeys.workspaceSessions(first.workspaceId),
 				});
 			}
 
@@ -2045,7 +2045,7 @@ function AppShell({
 	});
 
 	// ── Pending CLI sends: on window focus, drain queued prompts ────────
-	// When `helmor send` detects the App is running it writes the prompt
+	// When `winthorpe send` detects the App is running it writes the prompt
 	// into `pending_cli_sends` instead of starting its own sidecar. On
 	// the next focus event we pick those up and replay them through the
 	// normal streaming path (setPendingPromptForSession → auto-submit).
@@ -2083,7 +2083,7 @@ function AppShell({
 		let disposed = false;
 		let unlisten: (() => void) | undefined;
 
-		void listen("helmor://close-current-session", () => {
+		void listen("winthorpe://close-current-session", () => {
 			if (!getCloseableCurrentSession()) {
 				return;
 			}
@@ -2190,7 +2190,7 @@ function AppShell({
 											{!sidebarCollapsed && (
 												<aside
 													aria-label="Workspace sidebar"
-													data-helmor-sidebar-root
+													data-winthorpe-sidebar-root
 													className="relative flex h-full shrink-0 flex-col overflow-hidden bg-sidebar"
 													style={{ width: `${sidebarWidth}px` }}
 												>

@@ -47,7 +47,7 @@ import {
 } from "@/lib/api";
 import {
 	agentModelSectionsQueryOptions,
-	helmorQueryKeys,
+	winthorpeQueryKeys,
 	repositoriesQueryOptions,
 } from "@/lib/query-client";
 import type { ThemeMode } from "@/lib/settings";
@@ -607,10 +607,10 @@ export const SettingsDialog = memo(function SettingsDialog({
 									}
 									onRepoSettingsChanged={() => {
 										void queryClient.invalidateQueries({
-											queryKey: helmorQueryKeys.repositories,
+											queryKey: winthorpeQueryKeys.repositories,
 										});
 										void queryClient.invalidateQueries({
-											queryKey: helmorQueryKeys.workspaceGroups,
+											queryKey: winthorpeQueryKeys.workspaceGroups,
 										});
 										// Invalidate all workspace detail caches so
 										// open panels pick up the new remote/branch.
@@ -621,10 +621,10 @@ export const SettingsDialog = memo(function SettingsDialog({
 									onRepoDeleted={() => {
 										setActiveSection("general");
 										void queryClient.invalidateQueries({
-											queryKey: helmorQueryKeys.repositories,
+											queryKey: winthorpeQueryKeys.repositories,
 										});
 										void queryClient.invalidateQueries({
-											queryKey: helmorQueryKeys.workspaceGroups,
+											queryKey: winthorpeQueryKeys.workspaceGroups,
 										});
 									}}
 								/>

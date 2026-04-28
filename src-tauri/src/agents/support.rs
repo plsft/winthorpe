@@ -52,7 +52,7 @@ pub(super) fn parse_codex_output(
 pub(super) fn resolve_working_directory(provided: Option<&str>) -> Result<PathBuf> {
     if let Some(path) = non_empty(provided) {
         let directory = PathBuf::from(path);
-        // Provided path MUST exist — silently falling back to the helmor
+        // Provided path MUST exist — silently falling back to the winthorpe
         // process's cwd would spawn the agent CLI in `/` (or the app bundle)
         // and pollute session_messages with nonsense output. Tag the error
         // with `WorkspaceBroken` so the frontend can offer "Permanently

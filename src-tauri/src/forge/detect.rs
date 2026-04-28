@@ -322,7 +322,7 @@ fn probe_github_api(host: &str) -> Option<DetectionSignal> {
 
 fn build_probe_client() -> Option<reqwest::blocking::Client> {
     reqwest::blocking::Client::builder()
-        .user_agent("helmor-forge-probe/1.0")
+        .user_agent("winthorpe-forge-probe/1.0")
         .timeout(Duration::from_millis(1500))
         .connect_timeout(Duration::from_millis(800))
         .build()

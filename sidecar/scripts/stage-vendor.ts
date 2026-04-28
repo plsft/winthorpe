@@ -57,7 +57,7 @@ interface TargetInfo {
 function detectTarget(): TargetInfo {
 	if (process.platform !== "darwin") {
 		throw new Error(
-			`[stage-vendor] Helmor only builds on macOS; host platform is ${process.platform}`,
+			`[stage-vendor] Winthorpe only builds on macOS; host platform is ${process.platform}`,
 		);
 	}
 	const arch = process.arch as NodeArch;
@@ -338,7 +338,7 @@ function locateHostBun(): string {
 		throw new Error(
 			"[stage-vendor] bun not found on PATH — install Bun (https://bun.sh) on the build host. " +
 				"The Claude Agent SDK needs a JS runtime to execute cli.js, and `.app` bundles cannot rely " +
-				"on the user's PATH. We ship the host's bun binary inside Helmor.app/Contents/Resources/vendor/bun/.",
+				"on the user's PATH. We ship the host's bun binary inside Winthorpe.app/Contents/Resources/vendor/bun/.",
 		);
 	}
 }

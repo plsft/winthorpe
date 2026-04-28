@@ -9,7 +9,7 @@ import { GitSectionHeader } from "./git-section-header";
 // ── Mock data ─────────────────────────────────────────────────────────
 
 const CHANGE_REQUEST_OPEN: ChangeRequestInfo = {
-	url: "https://github.com/helmor/helmor/pull/42",
+	url: "https://github.com/winthorpe/winthorpe/pull/42",
 	number: 42,
 	state: "OPEN",
 	title: "feat: add workspace git sync",
@@ -17,7 +17,7 @@ const CHANGE_REQUEST_OPEN: ChangeRequestInfo = {
 };
 
 const CHANGE_REQUEST_MERGED: ChangeRequestInfo = {
-	url: "https://github.com/helmor/helmor/pull/42",
+	url: "https://github.com/winthorpe/winthorpe/pull/42",
 	number: 42,
 	state: "MERGED",
 	title: "feat: add workspace git sync",
@@ -25,7 +25,7 @@ const CHANGE_REQUEST_MERGED: ChangeRequestInfo = {
 };
 
 const CHANGE_REQUEST_CLOSED: ChangeRequestInfo = {
-	url: "https://github.com/helmor/helmor/pull/42",
+	url: "https://github.com/winthorpe/winthorpe/pull/42",
 	number: 42,
 	state: "CLOSED",
 	title: "feat: add workspace git sync",

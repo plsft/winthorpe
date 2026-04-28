@@ -18,7 +18,7 @@ pub struct BuildSendMessageParamsInput<'a> {
     pub effort_level: Option<&'a str>,
     pub permission_mode: Option<&'a str>,
     pub fast_mode: bool,
-    pub helmor_session_id: Option<&'a str>,
+    pub winthorpe_session_id: Option<&'a str>,
     pub claude_base_url: Option<&'a str>,
     pub claude_auth_token: Option<&'a str>,
 }
@@ -29,7 +29,7 @@ pub struct BuildSendMessageParamsInput<'a> {
 /// stays tight and existing snapshot fixtures for untouched sessions
 /// don't churn.
 pub fn build_send_message_params(input: BuildSendMessageParamsInput<'_>) -> Value {
-    let additional_directories = lookup_workspace_linked_directories(input.helmor_session_id);
+    let additional_directories = lookup_workspace_linked_directories(input.winthorpe_session_id);
 
     let mut params = serde_json::json!({
         "sessionId": input.sidecar_session_id,
@@ -64,21 +64,21 @@ pub fn build_send_message_params(input: BuildSendMessageParamsInput<'_>) -> Valu
     params
 }
 
-/// Load the workspace's `/add-dir` list via the helmor session id. Returns
+/// Load the workspace's `/add-dir` list via the winthorpe session id. Returns
 /// an empty vec if the session is not yet persisted or the workspace has
 /// no linked directories — both are normal states. DB read failures are
 /// degraded to an empty list (the feature is best-effort per turn) but
 /// logged so a broken DB surfaces in the logs instead of as "my
 /// /add-dir silently stopped working".
-pub fn lookup_workspace_linked_directories(helmor_session_id: Option<&str>) -> Vec<String> {
-    let Some(hsid) = helmor_session_id else {
+pub fn lookup_workspace_linked_directories(winthorpe_session_id: Option<&str>) -> Vec<String> {
+    let Some(hsid) = winthorpe_session_id else {
         return Vec::new();
     };
     let conn = match crate::models::db::read_conn() {
         Ok(c) => c,
         Err(err) => {
             tracing::warn!(
-                helmor_session_id = %hsid,
+                winthorpe_session_id = %hsid,
                 error = %err,
                 "Failed to open DB for linked-directory lookup; falling back to empty list",
             );
@@ -97,7 +97,7 @@ pub fn lookup_workspace_linked_directories(helmor_session_id: Option<&str>) -> V
         Err(rusqlite::Error::QueryReturnedNoRows) => None,
         Err(err) => {
             tracing::warn!(
-                helmor_session_id = %hsid,
+                winthorpe_session_id = %hsid,
                 error = %err,
                 "linked_directory_paths query failed; falling back to empty list",
             );
@@ -116,7 +116,7 @@ mod tests {
         let _guard = crate::data_dir::TEST_ENV_LOCK
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
-        std::env::set_var("HELMOR_DATA_DIR", dir.path());
+        std::env::set_var("WINTHORPE_DATA_DIR", dir.path());
         crate::data_dir::ensure_directory_structure().unwrap();
 
         let db_path = crate::data_dir::db_path().unwrap();
@@ -128,7 +128,7 @@ mod tests {
         )
         .unwrap();
         f(&conn);
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
     }
 
     fn insert_ws_session(

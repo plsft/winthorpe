@@ -1,8 +1,8 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "Helmor",
+	"productName": "Winthorpe",
 	"version": "0.11.4",
-	"identifier": "ai.helmor.desktop",
+	"identifier": "com.plsft.winthorpe",
 	"build": {
 		"beforeDevCommand": "bun x vite",
 		"devUrl": "http://localhost:1420",
@@ -12,20 +12,20 @@
 	"plugins": {
 		"deep-link": {
 			"desktop": {
-				"schemes": ["helmor", "helmor-dev"]
+				"schemes": ["winthorpe", "winthorpe-dev"]
 			}
 		},
 		"updater": {
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM5QkE5MEUwRjc5N0EzQ0QKUldUTm81ZjM0SkM2T2RweXFnOTYvanRkSENTRW9Zc25sMXRmeFlxazN1MFNZdjZPb2crVWNISzMK",
 			"endpoints": [
-				"https://github.com/dohooo/helmor/releases/latest/download/latest.json"
+				"https://github.com/plsft/winthorpe/releases/latest/download/latest.json"
 			]
 		}
 	},
 	"app": {
 		"windows": [
 			{
-				"title": "Helmor",
+				"title": "Winthorpe",
 				"width": 1300,
 				"height": 810,
 				"titleBarStyle": "Overlay",
@@ -53,8 +53,8 @@
 		"createUpdaterArtifacts": true,
 		"targets": "all",
 		"externalBin": [
-			"../sidecar/dist/helmor-sidecar",
-			"./target/bundled/helmor-cli"
+			"../sidecar/dist/winthorpe-sidecar",
+			"./target/bundled/winthorpe-cli"
 		],
 		"resources": {
 			"../sidecar/dist/vendor/": "vendor"

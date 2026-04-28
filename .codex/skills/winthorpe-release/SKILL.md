@@ -1,11 +1,11 @@
 ---
-name: helmor-release
-description: Prepare Helmor releases by inspecting the current branch, drafting a concise user-facing Changesets entry first (bump + body — a single sentence when one fits, or summary line + bullets when there are multiple distinct changes), writing it to `.changeset/`, and then showing the user the result with a short menu of adjustments they can pick from. Use when the user wants to cut a release, write a changeset, decide patch/minor/major, draft GitHub release notes, or summarize branch changes into release-ready language.
+name: winthorpe-release
+description: Prepare Winthorpe releases by inspecting the current branch, drafting a concise user-facing Changesets entry first (bump + body — a single sentence when one fits, or summary line + bullets when there are multiple distinct changes), writing it to `.changeset/`, and then showing the user the result with a short menu of adjustments they can pick from. Use when the user wants to cut a release, write a changeset, decide patch/minor/major, draft GitHub release notes, or summarize branch changes into release-ready language.
 ---
 
-# Helmor Release
+# Winthorpe Release
 
-Use this skill to turn a branch's real changes into a clean `.changeset/*.md` entry for Helmor.
+Use this skill to turn a branch's real changes into a clean `.changeset/*.md` entry for Winthorpe.
 
 ## Workflow
 
@@ -114,7 +114,7 @@ Decision rule: if you find yourself writing a summary that just restates the one
 
 ```md
 ---
-"helmor": patch
+"winthorpe": patch
 ---
 
 Fix a Chinese IME regression in the composer so pressing Enter to confirm an IME candidate no longer accidentally sends the message.
@@ -126,13 +126,13 @@ First line is a prose summary ending with `:`. Bullets start from the next line:
 
 ```md
 ---
-"helmor": minor
+"winthorpe": minor
 ---
 
 Ship a round of release and auto-update improvements:
 - Add in-app update checks that download updates in the background and prompt once the update is ready to install.
 - Add a signed and notarized macOS release pipeline for GitHub Releases.
-- Add release planning automation so Helmor can publish user-facing release notes through Changesets.
+- Add release planning automation so Winthorpe can publish user-facing release notes through Changesets.
 ```
 
 This renders cleanly as:
@@ -152,7 +152,7 @@ If the user wants credits, append a final bullet such as:
 
 ## GitHub Release Notes
 
-Helmor already uses `@changesets/changelog-github` in `.changeset/config.json`.
+Winthorpe already uses `@changesets/changelog-github` in `.changeset/config.json`.
 
 That means:
 
@@ -170,9 +170,9 @@ Recommend:
 - `minor` for new user-visible features or workflows
 - `major` only when behavior changes incompatibly
 
-For Helmor's current early lifecycle, prefer `patch` or `minor`. Escalate to `major` only with a concrete breaking change.
+For Winthorpe's current early lifecycle, prefer `patch` or `minor`. Escalate to `major` only with a concrete breaking change.
 
 ## Resources
 
 - Use `scripts/collect_release_context.py` to inspect the current branch before drafting the changeset.
-- Use `references/release-format.md` if you need the exact Helmor release flow or writing guidance.
+- Use `references/release-format.md` if you need the exact Winthorpe release flow or writing guidance.

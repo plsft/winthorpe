@@ -189,9 +189,9 @@ pub(super) struct TurnContext {
     pub permission_mode: Option<String>,
     pub fast_mode: bool,
 
-    /// Helmor's session id (the DB primary key), if the request had one.
+    /// Winthorpe's session id (the DB primary key), if the request had one.
     /// `None` for transient turns that don't persist (e.g., title gen).
-    pub helmor_session_id: Option<String>,
+    pub winthorpe_session_id: Option<String>,
 
     /// Provider-issued session id (Claude conversation id, Codex thread id).
     /// Adopted from `system.init` per the rules in
@@ -623,11 +623,11 @@ mod tests {
         TurnContext {
             provider: "claude".into(),
             model_id: "opus-1m".into(),
-            working_directory: "/tmp/helmor".into(),
+            working_directory: "/tmp/winthorpe".into(),
             effort_level: None,
             permission_mode: None,
             fast_mode: false,
-            helmor_session_id: Some("session-1".into()),
+            winthorpe_session_id: Some("session-1".into()),
             resolved_session_id: None,
             resolved_model: "claude-opus-4".into(),
             persisted_turn_count: 0,

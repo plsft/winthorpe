@@ -33,7 +33,7 @@ export function AppUpdateButton({ status, className }: AppUpdateButtonProps) {
 					type="button"
 					variant="ghost"
 					size="xs"
-					aria-label={`Update Helmor to ${update.version}`}
+					aria-label={`Update Winthorpe to ${update.version}`}
 					className={cn(
 						"h-6 gap-1 rounded-sm px-1.5 text-[11px] font-medium tracking-[0.01em] text-muted-foreground transition-[background-color,color,border-color,box-shadow] duration-200 hover:bg-accent/60 hover:text-foreground dark:hover:bg-muted/45",
 						"relative overflow-hidden shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--border)_36%,transparent)] hover:shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--foreground)_12%,transparent)]",

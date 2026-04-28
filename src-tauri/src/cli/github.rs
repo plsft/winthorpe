@@ -1,4 +1,4 @@
-//! `helmor github` — GitHub auth + PR operations.
+//! `winthorpe github` — GitHub auth + PR operations.
 
 use anyhow::Result;
 

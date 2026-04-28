@@ -738,7 +738,7 @@ mod tests {
 
     #[test]
     fn repo_initials_single_word() {
-        assert_eq!(repo_initials_for_name("helmor"), "HE");
+        assert_eq!(repo_initials_for_name("winthorpe"), "HE");
     }
 
     #[test]

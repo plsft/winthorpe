@@ -146,7 +146,7 @@ export type AgentSendRequest = {
 	promptPrefix?: string | null;
 	resumeOnly?: boolean | null;
 	sessionId?: string | null;
-	helmorSessionId?: string | null;
+	winthorpeSessionId?: string | null;
 	workingDirectory?: string | null;
 	effortLevel?: string | null;
 	permissionMode?: string | null;
@@ -725,19 +725,19 @@ export async function getCliStatus(): Promise<CliStatus> {
 	return await invoke<CliStatus>("get_cli_status");
 }
 
-export type HelmorSkillsStatus = {
+export type WinthorpeSkillsStatus = {
 	installed: boolean;
 	claude: boolean;
 	codex: boolean;
 	command: string;
 };
 
-export async function getHelmorSkillsStatus(): Promise<HelmorSkillsStatus> {
+export async function getWinthorpeSkillsStatus(): Promise<WinthorpeSkillsStatus> {
 	try {
-		return await invoke<HelmorSkillsStatus>("get_helmor_skills_status");
+		return await invoke<WinthorpeSkillsStatus>("get_winthorpe_skills_status");
 	} catch (error) {
 		throw new Error(
-			describeInvokeError(error, "Unable to load Helmor skills status."),
+			describeInvokeError(error, "Unable to load Winthorpe skills status."),
 		);
 	}
 }
@@ -776,12 +776,12 @@ export async function installCli(): Promise<CliStatus> {
 	return await invoke<CliStatus>("install_cli");
 }
 
-export async function installHelmorSkills(): Promise<HelmorSkillsStatus> {
+export async function installWinthorpeSkills(): Promise<WinthorpeSkillsStatus> {
 	try {
-		return await invoke<HelmorSkillsStatus>("install_helmor_skills");
+		return await invoke<WinthorpeSkillsStatus>("install_winthorpe_skills");
 	} catch (error) {
 		throw new Error(
-			describeInvokeError(error, "Unable to install Helmor skills."),
+			describeInvokeError(error, "Unable to install Winthorpe skills."),
 		);
 	}
 }
@@ -1717,7 +1717,7 @@ export type PendingCliSend = {
 
 /**
  * Atomically read and delete all pending CLI sends. Called on window focus
- * so the App can stream prompts that `helmor send` queued while the CLI
+ * so the App can stream prompts that `winthorpe send` queued while the CLI
  * detected the App was running.
  */
 export async function drainPendingCliSends(): Promise<PendingCliSend[]> {
@@ -1826,7 +1826,7 @@ export async function prepareWorkspaceFromRepo(
 
 /**
  * Phase 2 of workspace creation. Slow (~200ms-2s): creates the git
- * worktree, probes `helmor.json`, and flips the
+ * worktree, probes `winthorpe.json`, and flips the
  * workspace row from `initializing` to `ready` / `setup_pending`. On
  * failure, the workspace row is cleaned up automatically.
  */
@@ -2469,9 +2469,9 @@ export type ScriptEvent =
 
 /**
  * Resolve repo scripts using a fixed priority (enforced in Rust):
- *   1. Workspace worktree `helmor.json` (when `workspaceId` is given AND
+ *   1. Workspace worktree `winthorpe.json` (when `workspaceId` is given AND
  *      the worktree exists on disk)
- *   2. Source repo root `helmor.json` (fallback for any missing workspace
+ *   2. Source repo root `winthorpe.json` (fallback for any missing workspace
  *      / worktree — archived, broken, or caller with no workspace context)
  *   3. DB-level override (Settings UI edit)
  *

@@ -1,10 +1,10 @@
-//! Resolves the Helmor data directory based on build profile and environment.
+//! Resolves the Winthorpe data directory based on build profile and environment.
 //!
-//! - Debug builds: `~/helmor-dev/`
-//! - Release builds: `~/helmor/`
-//! - `HELMOR_DATA_DIR` env var overrides both
+//! - Debug builds: `~/winthorpe-dev/`
+//! - Release builds: `~/winthorpe/`
+//! - `WINTHORPE_DATA_DIR` env var overrides both
 //!
-//! The SQLite database lives at `{data_dir}/helmor.db`.
+//! The SQLite database lives at `{data_dir}/winthorpe.db`.
 
 use std::fs;
 use std::path::PathBuf;
@@ -15,14 +15,14 @@ use anyhow::{Context, Result};
 pub static TEST_ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 /// Name of the database file inside the data directory.
-const DB_FILENAME: &str = "helmor.db";
+const DB_FILENAME: &str = "winthorpe.db";
 
-/// Default top-level directory name for Helmor app data.
+/// Default top-level directory name for Winthorpe app data.
 const fn default_data_dir_name() -> &'static str {
     if cfg!(debug_assertions) {
-        "helmor-dev"
+        "winthorpe-dev"
     } else {
-        "helmor"
+        "winthorpe"
     }
 }
 
@@ -32,7 +32,7 @@ pub fn data_dir() -> Result<PathBuf> {
 
     if !dir.exists() {
         fs::create_dir_all(&dir)
-            .with_context(|| format!("Failed to create Helmor data directory {}", dir.display()))?;
+            .with_context(|| format!("Failed to create Winthorpe data directory {}", dir.display()))?;
     }
 
     Ok(dir)
@@ -131,7 +131,7 @@ pub fn is_dev() -> bool {
 /// Resolve the data directory path without creating it.
 fn resolve_data_dir() -> Result<PathBuf> {
     // 1. Environment variable override
-    if let Ok(dir) = std::env::var("HELMOR_DATA_DIR") {
+    if let Ok(dir) = std::env::var("WINTHORPE_DATA_DIR") {
         return Ok(PathBuf::from(dir));
     }
 
@@ -179,11 +179,11 @@ mod tests {
     use super::*;
 
     /// Test path construction without touching environment variables.
-    /// This avoids races with other test modules that also set HELMOR_DATA_DIR.
+    /// This avoids races with other test modules that also set WINTHORPE_DATA_DIR.
 
     #[test]
-    fn db_filename_is_helmor_db() {
-        assert_eq!(DB_FILENAME, "helmor.db");
+    fn db_filename_is_winthorpe_db() {
+        assert_eq!(DB_FILENAME, "winthorpe.db");
     }
 
     #[test]
@@ -199,7 +199,7 @@ mod tests {
 
     #[test]
     fn default_data_dir_name_returns_dev_directory_in_debug() {
-        assert_eq!(default_data_dir_name(), "helmor-dev");
+        assert_eq!(default_data_dir_name(), "winthorpe-dev");
     }
 
     #[test]

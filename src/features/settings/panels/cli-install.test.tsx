@@ -32,7 +32,7 @@ describe("CliInstallPanel", () => {
 	it("renders the managed install state", async () => {
 		apiMocks.getCliStatus.mockResolvedValue({
 			installed: true,
-			installPath: "/usr/local/bin/helmor-dev",
+			installPath: "/usr/local/bin/winthorpe-dev",
 			buildMode: "development",
 			installState: "managed",
 		});
@@ -42,8 +42,8 @@ describe("CliInstallPanel", () => {
 		await waitFor(() => {
 			expect(screen.getByText(/Installed at/)).toBeInTheDocument();
 		});
-		expect(screen.getByText("helmor-dev")).toBeInTheDocument();
-		expect(screen.getByText("/usr/local/bin/helmor-dev")).toBeInTheDocument();
+		expect(screen.getByText("winthorpe-dev")).toBeInTheDocument();
+		expect(screen.getByText("/usr/local/bin/winthorpe-dev")).toBeInTheDocument();
 		expect(
 			screen.getByRole("button", { name: "Reinstall" }),
 		).toBeInTheDocument();
@@ -53,13 +53,13 @@ describe("CliInstallPanel", () => {
 		const user = userEvent.setup();
 		apiMocks.getCliStatus.mockResolvedValue({
 			installed: true,
-			installPath: "/usr/local/bin/helmor",
+			installPath: "/usr/local/bin/winthorpe",
 			buildMode: "release",
 			installState: "stale",
 		});
 		apiMocks.installCli.mockResolvedValue({
 			installed: true,
-			installPath: "/usr/local/bin/helmor",
+			installPath: "/usr/local/bin/winthorpe",
 			buildMode: "release",
 			installState: "managed",
 		});

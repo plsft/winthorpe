@@ -37,7 +37,7 @@ export function useShellPanels() {
 			);
 		} catch (error) {
 			console.error(
-				`[helmor] sidebar width save failed for "${SIDEBAR_WIDTH_STORAGE_KEY}"`,
+				`[winthorpe] sidebar width save failed for "${SIDEBAR_WIDTH_STORAGE_KEY}"`,
 				error,
 			);
 		}
@@ -51,7 +51,7 @@ export function useShellPanels() {
 			);
 		} catch (error) {
 			console.error(
-				`[helmor] inspector width save failed for "${INSPECTOR_WIDTH_STORAGE_KEY}"`,
+				`[winthorpe] inspector width save failed for "${INSPECTOR_WIDTH_STORAGE_KEY}"`,
 				error,
 			);
 		}

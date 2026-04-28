@@ -4,9 +4,9 @@
  *
  * Steps:
  * 1. `cd sidecar && bun install --frozen-lockfile` (so CI runners have deps).
- * 2. `bun run build` — produces `sidecar/dist/helmor-sidecar` plus the
+ * 2. `bun run build` — produces `sidecar/dist/winthorpe-sidecar` plus the
  *    `sidecar/dist/vendor/` tree that Tauri bundles as resources.
- * 3. `cargo build --bin helmor-cli --release --target <triple>` — produces
+ * 3. `cargo build --bin winthorpe-cli --release --target <triple>` — produces
  *    the CLI companion binary that ships inside the desktop app bundle.
  * 4. Copy the compiled sidecar / CLI to target-suffixed names so Tauri's
  *    `externalBin` entries can find the artifacts they expect.
@@ -94,14 +94,14 @@ function main() {
 	run("bun run build", sidecarDir);
 
 	const triple = detectTargetTriple();
-	const sidecarSource = resolve(sidecarDir, "dist", "helmor-sidecar");
+	const sidecarSource = resolve(sidecarDir, "dist", "winthorpe-sidecar");
 	const sidecarDestination = resolve(
 		sidecarDir,
 		"dist",
-		`helmor-sidecar-${triple}`,
+		`winthorpe-sidecar-${triple}`,
 	);
 	const cliBinaryName =
-		process.platform === "win32" ? "helmor-cli.exe" : "helmor-cli";
+		process.platform === "win32" ? "winthorpe-cli.exe" : "winthorpe-cli";
 	const cliSource = resolve(
 		srcTauriDir,
 		"target",
@@ -109,7 +109,7 @@ function main() {
 		"release",
 		cliBinaryName,
 	);
-	const cliDestination = resolve(bundledBinDir, `helmor-cli-${triple}`);
+	const cliDestination = resolve(bundledBinDir, `winthorpe-cli-${triple}`);
 
 	if (!existsSync(sidecarSource)) {
 		throw new Error(
@@ -119,11 +119,11 @@ function main() {
 
 	// Tauri validates every `externalBin` during `cargo build`, including the
 	// sidecar companion. Stage the target-suffixed sidecar first so a clean CI
-	// checkout can compile `helmor-cli` without depending on stale artifacts.
+	// checkout can compile `winthorpe-cli` without depending on stale artifacts.
 	copyFileSync(sidecarSource, sidecarDestination);
 
 	run(
-		`cargo build --manifest-path ${resolve(srcTauriDir, "Cargo.toml")} --bin helmor-cli --release --target ${triple}`,
+		`cargo build --manifest-path ${resolve(srcTauriDir, "Cargo.toml")} --bin winthorpe-cli --release --target ${triple}`,
 		repoRoot,
 	);
 

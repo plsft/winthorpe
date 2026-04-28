@@ -1,6 +1,6 @@
 import lottie from "lottie-web/build/player/lottie_svg";
 import { useEffect, useMemo, useRef } from "react";
-import logoAnimation from "@/assets/helmor-logo-animation.json";
+import logoAnimation from "@/assets/winthorpe-logo-animation.json";
 import { resolveTheme, useSettings } from "@/lib/settings";
 
 // The original animation has a ~1.7s hold between flip cascades and
@@ -78,7 +78,7 @@ function themedAnimationData(theme: "light" | "dark") {
 	return data;
 }
 
-interface HelmorLogoAnimatedProps {
+interface WinthorpeLogoAnimatedProps {
 	/** CSS width/height */
 	size?: string | number;
 	loop?: boolean;
@@ -86,12 +86,12 @@ interface HelmorLogoAnimatedProps {
 	className?: string;
 }
 
-export function HelmorLogoAnimated({
+export function WinthorpeLogoAnimated({
 	size,
 	loop = true,
 	autoplay = true,
 	className,
-}: HelmorLogoAnimatedProps) {
+}: WinthorpeLogoAnimatedProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { settings } = useSettings();
 	const effectiveTheme = resolveTheme(settings.theme);

@@ -1,4 +1,4 @@
-//! `helmor files` — list, read, write, stage, discard workspace files.
+//! `winthorpe files` — list, read, write, stage, discard workspace files.
 
 use std::io::Read;
 use std::path::{Path, PathBuf};

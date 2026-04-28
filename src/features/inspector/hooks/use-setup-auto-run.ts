@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { completeWorkspaceSetup } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { getScriptState, startScript } from "../script-store";
 
 type UseSetupAutoRunArgs = {
@@ -58,7 +58,7 @@ export function useSetupAutoRun({
 		}
 		void completeWorkspaceSetup(workspaceId).then(() => {
 			queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 			});
 		});
 	}, [workspaceState, scriptsLoaded, hasScript, workspaceId, queryClient]);

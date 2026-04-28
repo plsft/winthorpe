@@ -2,7 +2,7 @@ import type { WorkspaceGroup } from "@/lib/api";
 import { ARCHIVED_SECTION_ID } from "./shared";
 
 const SECTION_OPEN_STATE_STORAGE_KEY =
-	"helmor:workspaces-sidebar:section-open-state";
+	"winthorpe:workspaces-sidebar:section-open-state";
 
 export function createInitialSectionOpenState(groups: WorkspaceGroup[]) {
 	return Object.fromEntries([
@@ -45,7 +45,7 @@ export function writeStoredSectionOpenState(state: Record<string, boolean>) {
 		);
 	} catch (error) {
 		console.error(
-			`[helmor] sidebar section state save failed for "${SECTION_OPEN_STATE_STORAGE_KEY}"`,
+			`[winthorpe] sidebar section state save failed for "${SECTION_OPEN_STATE_STORAGE_KEY}"`,
 			error,
 		);
 	}

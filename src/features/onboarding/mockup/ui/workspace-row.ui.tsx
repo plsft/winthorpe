@@ -7,7 +7,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { HelmorThinkingIndicator } from "@/components/helmor-thinking-indicator";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import { Button } from "@/components/ui/button";
 import { HyperText } from "@/components/ui/hyper-text";
 import {
@@ -139,7 +139,7 @@ export function WorkspaceRowUI({
 				{/* Fade is on an inner wrapper so the avatar's overflowing badge isn't clipped by mask-image. */}
 				<div className="row-content-fade flex min-w-0 flex-1 items-center gap-2">
 					{isSending && !isInteractionRequired ? (
-						<HelmorThinkingIndicator size={13} />
+						<WinthorpeThinkingIndicator size={13} />
 					) : (
 						<GitBranch
 							className={cn(

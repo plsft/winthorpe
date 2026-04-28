@@ -1,4 +1,4 @@
-//! `helmor scripts` — inspect effective repo scripts (setup / run / archive).
+//! `winthorpe scripts` — inspect effective repo scripts (setup / run / archive).
 //!
 //! Execution (`run`, `stop`, `write-stdin`, `resize`) is GUI-owned because
 //! it requires a Tauri `Channel<ScriptEvent>` for streamed output. The

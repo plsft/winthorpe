@@ -1,6 +1,6 @@
 ---
 source: tests/agent_stream_event_wire.rs
-expression: "to_value(AgentStreamEvent::ElicitationRequest\n{\n    provider: \"claude\".into(), model_id: \"opus-1m\".into(), resolved_model:\n    \"claude-opus-4-20250514\".into(), session_id:\n    Some(\"provider-session-1\".into()), working_directory:\n    \"/tmp/helmor\".into(), elicitation_id: Some(\"elicitation-1\".into()),\n    server_name: \"design-server\".into(), message:\n    \"Need structured input\".into(), mode: Some(\"form\".into()), url: None,\n    requested_schema:\n    Some(json!({\n        \"type\": \"object\", \"properties\": { \"name\": { \"type\": \"string\" } },\n        \"required\": [\"name\"]\n    })),\n})"
+expression: "to_value(AgentStreamEvent::ElicitationRequest\n{\n    provider: \"claude\".into(), model_id: \"opus-1m\".into(), resolved_model:\n    \"claude-opus-4-20250514\".into(), session_id:\n    Some(\"provider-session-1\".into()), working_directory:\n    \"/tmp/winthorpe\".into(), elicitation_id: Some(\"elicitation-1\".into()),\n    server_name: \"design-server\".into(), message:\n    \"Need structured input\".into(), mode: Some(\"form\".into()), url: None,\n    requested_schema:\n    Some(json!({\n        \"type\": \"object\", \"properties\": { \"name\": { \"type\": \"string\" } },\n        \"required\": [\"name\"]\n    })),\n})"
 ---
 elicitationId: elicitation-1
 kind: elicitationRequest
@@ -19,4 +19,4 @@ resolved_model: claude-opus-4-20250514
 serverName: design-server
 session_id: provider-session-1
 url: ~
-working_directory: /tmp/helmor
+working_directory: /tmp/winthorpe

@@ -14,15 +14,15 @@ Configure these GitHub repository secrets before running the macOS release workf
   - Contents of your Tauri updater private key
 - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
   - Password used when generating the updater private key
-- `HELMOR_UPDATER_PUBKEY`
+- `WINTHORPE_UPDATER_PUBKEY`
   - Public key embedded into the app at build time
-- `HELMOR_UPDATER_ENDPOINTS`
+- `WINTHORPE_UPDATER_ENDPOINTS`
   - Comma-separated updater endpoint list
   - Stable-only default:
-    - `https://github.com/dohooo/helmor/releases/latest/download/latest.json`
+    - `https://github.com/dohooo/winthorpe/releases/latest/download/latest.json`
 
 GitHub release publication uses the official `tauri-action`. It uploads the signed
-updater bundle and generates the `latest.json` manifest consumed by Helmor's updater.
+updater bundle and generates the `latest.json` manifest consumed by Winthorpe's updater.
 
 ## Required for macOS signing and notarization
 

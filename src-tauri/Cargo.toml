@@ -1,10 +1,10 @@
 [package]
-name = "helmor"
+name = "winthorpe"
 version = "0.11.4"
 description = "The local-first IDE for coding agent orchestration."
 authors = ["Caspian Zhao", "Nathan Lian"]
 edition = "2021"
-default-run = "helmor"
+default-run = "winthorpe"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,7 +12,7 @@ default-run = "helmor"
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "helmor_lib"
+name = "winthorpe_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -58,8 +58,8 @@ security-framework = "3"
 security-framework-sys = "2"
 
 [[bin]]
-name = "helmor-cli"
-path = "src/bin/helmor-cli.rs"
+name = "winthorpe-cli"
+path = "src/bin/winthorpe-cli.rs"
 
 [[bin]]
 name = "gen_pipeline_fixture"

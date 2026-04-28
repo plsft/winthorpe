@@ -13,7 +13,7 @@ type DevRenderStats = {
 
 declare global {
 	interface Window {
-		__HELMOR_DEV_RENDER_STATS__?: DevRenderStats;
+		__WINTHORPE_DEV_RENDER_STATS__?: DevRenderStats;
 	}
 }
 
@@ -35,8 +35,8 @@ function ensureStats(): DevRenderStats | null {
 		return null;
 	}
 
-	if (!window.__HELMOR_DEV_RENDER_STATS__) {
-		window.__HELMOR_DEV_RENDER_STATS__ = {
+	if (!window.__WINTHORPE_DEV_RENDER_STATS__) {
+		window.__WINTHORPE_DEV_RENDER_STATS__ = {
 			composer: {
 				rendersByContext: {},
 				instanceIdsByContext: {},
@@ -50,7 +50,7 @@ function ensureStats(): DevRenderStats | null {
 		};
 	}
 
-	return window.__HELMOR_DEV_RENDER_STATS__;
+	return window.__WINTHORPE_DEV_RENDER_STATS__;
 }
 
 export function recordComposerRender(contextKey: string, instanceId: string) {

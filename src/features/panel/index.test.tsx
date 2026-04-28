@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { WorkspaceDetail, WorkspaceSessionSummary } from "@/lib/api";
-import { createHelmorQueryClient, helmorQueryKeys } from "@/lib/query-client";
+import { createWinthorpeQueryClient, winthorpeQueryKeys } from "@/lib/query-client";
 
 const apiMocks = vi.hoisted(() => ({
 	createSession: vi.fn(),
@@ -40,8 +40,8 @@ const WORKSPACE: WorkspaceDetail = {
 	id: "workspace-1",
 	title: "Workspace 1",
 	repoId: "repo-1",
-	repoName: "helmor",
-	directoryName: "helmor",
+	repoName: "winthorpe",
+	directoryName: "winthorpe",
 	state: "ready",
 	hasUnread: false,
 	workspaceUnread: 0,
@@ -59,7 +59,7 @@ const WORKSPACE: WorkspaceDetail = {
 	archiveCommit: null,
 	sessionCount: 1,
 	messageCount: 0,
-	rootPath: "/tmp/helmor",
+	rootPath: "/tmp/winthorpe",
 };
 
 const SESSIONS: WorkspaceSessionSummary[] = [
@@ -98,7 +98,7 @@ describe("WorkspacePanel", () => {
 
 	it("optimistically seeds the new session before switching selection", async () => {
 		const user = userEvent.setup();
-		const queryClient = createHelmorQueryClient();
+		const queryClient = createWinthorpeQueryClient();
 		const onSelectSession = vi.fn();
 
 		render(
@@ -125,7 +125,7 @@ describe("WorkspacePanel", () => {
 
 		expect(
 			queryClient.getQueryData<WorkspaceDetail>(
-				helmorQueryKeys.workspaceDetail("workspace-1"),
+				winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			),
 		).toMatchObject({
 			activeSessionId: "session-new",
@@ -134,7 +134,7 @@ describe("WorkspacePanel", () => {
 		});
 		expect(
 			queryClient.getQueryData<WorkspaceSessionSummary[]>(
-				helmorQueryKeys.workspaceSessions("workspace-1"),
+				winthorpeQueryKeys.workspaceSessions("workspace-1"),
 			),
 		).toEqual(
 			expect.arrayContaining([
@@ -147,7 +147,7 @@ describe("WorkspacePanel", () => {
 		);
 		expect(
 			queryClient.getQueryData([
-				...helmorQueryKeys.sessionMessages("session-new"),
+				...winthorpeQueryKeys.sessionMessages("session-new"),
 				"thread",
 			]),
 		).toEqual([]);
@@ -155,7 +155,7 @@ describe("WorkspacePanel", () => {
 
 	it("replaces the last visible session before closing it", async () => {
 		const user = userEvent.setup();
-		const queryClient = createHelmorQueryClient();
+		const queryClient = createWinthorpeQueryClient();
 		const onSelectSession = vi.fn();
 		const onSessionsChanged = vi.fn();
 
@@ -196,7 +196,7 @@ describe("WorkspacePanel", () => {
 		expect(onSessionsChanged).toHaveBeenCalled();
 		expect(
 			queryClient.getQueryData<WorkspaceDetail>(
-				helmorQueryKeys.workspaceDetail("workspace-1"),
+				winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			),
 		).toMatchObject({
 			activeSessionId: "session-replacement",
@@ -204,7 +204,7 @@ describe("WorkspacePanel", () => {
 		});
 		expect(
 			queryClient.getQueryData<WorkspaceSessionSummary[]>(
-				helmorQueryKeys.workspaceSessions("workspace-1"),
+				winthorpeQueryKeys.workspaceSessions("workspace-1"),
 			),
 		).toEqual([
 			expect.objectContaining({
@@ -217,7 +217,7 @@ describe("WorkspacePanel", () => {
 	it("wraps the empty session state in a full-size centered container", () => {
 		const { container } = render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={SESSIONS}
@@ -263,7 +263,7 @@ describe("WorkspacePanel", () => {
 	it("renders only the missing workspace script actions in the empty state", () => {
 		render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={SESSIONS}
@@ -302,7 +302,7 @@ describe("WorkspacePanel", () => {
 
 		render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={SESSIONS}
@@ -345,7 +345,7 @@ describe("WorkspacePanel", () => {
 
 		render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={sessions}
@@ -368,7 +368,7 @@ describe("WorkspacePanel", () => {
 	it("keeps the yellow dot visible on the selected session while interaction is pending", () => {
 		render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={SESSIONS}
@@ -389,10 +389,10 @@ describe("WorkspacePanel", () => {
 		).toBe(true);
 	});
 
-	it("shows the Helmor thinking indicator for the active sending session", () => {
+	it("shows the Winthorpe thinking indicator for the active sending session", () => {
 		render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={SESSIONS}
@@ -408,7 +408,7 @@ describe("WorkspacePanel", () => {
 		expect(
 			activeSessions.some(
 				(tab) =>
-					tab.querySelector('[data-slot="helmor-thinking-indicator"]') !== null,
+					tab.querySelector('[data-slot="winthorpe-thinking-indicator"]') !== null,
 			),
 		).toBe(true);
 	});
@@ -426,7 +426,7 @@ describe("WorkspacePanel", () => {
 
 		render(
 			<TooltipProvider delayDuration={0}>
-				<QueryClientProvider client={createHelmorQueryClient()}>
+				<QueryClientProvider client={createWinthorpeQueryClient()}>
 					<WorkspacePanel
 						workspace={WORKSPACE}
 						sessions={sessions}

@@ -256,11 +256,11 @@ export function AppOnboarding({ onComplete }: AppOnboardingProps) {
 
 	return (
 		<main
-			aria-label="Helmor onboarding"
+			aria-label="Winthorpe onboarding"
 			className="relative h-screen overflow-hidden bg-background font-sans text-foreground antialiased"
 		>
 			<div
-				aria-label="Helmor onboarding drag region"
+				aria-label="Winthorpe onboarding drag region"
 				className="absolute inset-x-0 top-0 z-20 flex h-11 items-center"
 			>
 				<TrafficLightSpacer side="left" width={94} />

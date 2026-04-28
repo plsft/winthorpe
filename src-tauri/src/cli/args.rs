@@ -1,4 +1,4 @@
-//! Clap argument definitions for every installed Helmor CLI subcommand.
+//! Clap argument definitions for every installed Winthorpe CLI subcommand.
 //!
 //! Split out from `mod.rs` so dispatch logic and argument schema evolve
 //! independently — adding a new flag only touches this file plus the
@@ -8,10 +8,10 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 
 #[derive(Parser)]
 #[command(
-    name = "helmor",
+    name = "winthorpe",
     version,
-    about = "Helmor workspace, session, and agent CLI",
-    long_about = "Remote-control Helmor from the terminal. Works against the same SQLite \
+    about = "Winthorpe workspace, session, and agent CLI",
+    long_about = "Remote-control Winthorpe from the terminal. Works against the same SQLite \
                   database the desktop app uses — run commands even while the app is \
                   running."
 )]
@@ -24,7 +24,7 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub quiet: bool,
 
-    /// Override the data directory (default: ~/helmor or ~/helmor-dev).
+    /// Override the data directory (default: ~/winthorpe or ~/winthorpe-dev).
     #[arg(long, global = true, value_name = "DIR")]
     pub data_dir: Option<String>,
 
@@ -81,7 +81,7 @@ pub enum Commands {
         #[command(subcommand)]
         action: ScriptsAction,
     },
-    /// Migrate from Helmor v1 (Conductor).
+    /// Migrate from Winthorpe v1 (Conductor).
     Conductor {
         #[command(subcommand)]
         action: ConductorAction,
@@ -91,9 +91,9 @@ pub enum Commands {
         #[arg(value_enum)]
         shell: CompletionShell,
     },
-    /// Report whether the current Helmor CLI entrypoint is installed to PATH and which data mode it uses.
+    /// Report whether the current Winthorpe CLI entrypoint is installed to PATH and which data mode it uses.
     CliStatus,
-    /// Ask a running Helmor app to quit (noop when it isn't running).
+    /// Ask a running Winthorpe app to quit (noop when it isn't running).
     Quit,
     /// Run as an MCP (Model Context Protocol) server over stdio.
     Mcp,
@@ -149,7 +149,7 @@ pub enum RepoAction {
         #[arg(name = "ref")]
         repo_ref: String,
     },
-    /// Change the default branch saved in the Helmor DB.
+    /// Change the default branch saved in the Winthorpe DB.
     DefaultBranch {
         #[arg(name = "ref")]
         repo_ref: String,
@@ -171,7 +171,7 @@ pub enum RepoAction {
         #[arg(name = "ref")]
         repo_ref: String,
         /// Optional workspace_id — scripts resolve from that workspace's
-        /// `helmor.json` when present.
+        /// `winthorpe.json` when present.
         #[arg(long)]
         workspace: Option<String>,
     },

@@ -23,8 +23,8 @@
 
 // Re-exported so test files can `use common::*` and reach the production
 // pipeline types without listing each one.
-pub use helmor_lib::pipeline::types::{HistoricalRecord, ThreadMessageLike};
-pub use helmor_lib::pipeline::MessagePipeline;
+pub use winthorpe_lib::pipeline::types::{HistoricalRecord, ThreadMessageLike};
+pub use winthorpe_lib::pipeline::MessagePipeline;
 
 mod builders;
 mod fixtures;

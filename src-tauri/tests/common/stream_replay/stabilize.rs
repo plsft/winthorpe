@@ -3,7 +3,7 @@
 //! `has_duration` boolean. Everything here is pure transformation; see
 //! `replay.rs` for the side-effectful driver that produces the raw form.
 
-use helmor_lib::pipeline::types::ThreadMessageLike;
+use winthorpe_lib::pipeline::types::ThreadMessageLike;
 use serde::Serialize;
 use serde_json::Value;
 

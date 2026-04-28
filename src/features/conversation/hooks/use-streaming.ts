@@ -33,7 +33,7 @@ import type { ComposerCustomTag } from "@/lib/composer-insert";
 import { extractError, isRecoverableByPurge } from "@/lib/errors";
 import {
 	agentModelSectionsQueryOptions,
-	helmorQueryKeys,
+	winthorpeQueryKeys,
 	sessionThreadMessagesQueryOptions,
 } from "@/lib/query-client";
 import { resolveGeneralPreferencePrefix } from "@/lib/repo-preferences-prompts";
@@ -202,7 +202,7 @@ export function useConversationStreaming({
 	const seedSessionTitle = useCallback(
 		(sessionId: string, workspaceId: string | null, title: string) => {
 			queryClient.setQueryData(
-				helmorQueryKeys.workspaceSessions(workspaceId ?? "__none__"),
+				winthorpeQueryKeys.workspaceSessions(workspaceId ?? "__none__"),
 				(current: Array<Record<string, unknown>> | undefined) =>
 					(current ?? []).map((session) =>
 						session.id === sessionId ? { ...session, title } : session,
@@ -210,7 +210,7 @@ export function useConversationStreaming({
 			);
 			if (workspaceId) {
 				queryClient.setQueryData(
-					helmorQueryKeys.workspaceDetail(workspaceId),
+					winthorpeQueryKeys.workspaceDetail(workspaceId),
 					(current: Record<string, unknown> | undefined) => {
 						if (!current || current.activeSessionId !== sessionId) {
 							return current;
@@ -222,7 +222,7 @@ export function useConversationStreaming({
 					},
 				);
 				queryClient.setQueryData(
-					helmorQueryKeys.workspaceGroups,
+					winthorpeQueryKeys.workspaceGroups,
 					(current: Array<Record<string, unknown>> | undefined) =>
 						(current ?? []).map((group) => ({
 							...group,
@@ -493,7 +493,7 @@ export function useConversationStreaming({
 				return next;
 			});
 			respondToPermissionRequest(permissionId, behavior, options).catch((err) =>
-				console.error("[helmor] permission response:", err),
+				console.error("[winthorpe] permission response:", err),
 			);
 		},
 		[composerContextKey],
@@ -532,17 +532,17 @@ export function useConversationStreaming({
 		async (workspaceId: string | null, sessionId: string | null) => {
 			const invalidations: Promise<unknown>[] = [
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.workspaceGroups,
+					queryKey: winthorpeQueryKeys.workspaceGroups,
 				}),
 			];
 
 			if (workspaceId) {
 				invalidations.push(
 					queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceDetail(workspaceId),
+						queryKey: winthorpeQueryKeys.workspaceDetail(workspaceId),
 					}),
 					queryClient.invalidateQueries({
-						queryKey: helmorQueryKeys.workspaceSessions(workspaceId),
+						queryKey: winthorpeQueryKeys.workspaceSessions(workspaceId),
 					}),
 				);
 			}
@@ -550,7 +550,7 @@ export function useConversationStreaming({
 			if (sessionId) {
 				invalidations.push(
 					queryClient.invalidateQueries({
-						queryKey: [...helmorQueryKeys.sessionMessages(sessionId), "thread"],
+						queryKey: [...winthorpeQueryKeys.sessionMessages(sessionId), "thread"],
 					}),
 				);
 			}
@@ -788,7 +788,7 @@ export function useConversationStreaming({
 						prompt: "",
 						resumeOnly: true,
 						sessionId: deferred.providerSessionId,
-						helmorSessionId: displayedSessionId,
+						winthorpeSessionId: displayedSessionId,
 						workingDirectory: deferred.workingDirectory,
 						permissionMode: deferred.permissionMode,
 					},
@@ -1166,7 +1166,7 @@ export function useConversationStreaming({
 			const currentThread = readSessionThread(queryClient, cacheSessionId);
 			const currentSessions = targetWorkspaceId
 				? queryClient.getQueryData<Array<Record<string, unknown>>>(
-						helmorQueryKeys.workspaceSessions(targetWorkspaceId),
+						winthorpeQueryKeys.workspaceSessions(targetWorkspaceId),
 					)
 				: undefined;
 			const currentSession = currentSessions?.find(
@@ -1251,18 +1251,18 @@ export function useConversationStreaming({
 						if (result?.title || result?.branchRenamed) {
 							void Promise.all([
 								queryClient.invalidateQueries({
-									queryKey: helmorQueryKeys.workspaceGroups,
+									queryKey: winthorpeQueryKeys.workspaceGroups,
 								}),
 								targetWorkspaceId
 									? queryClient.invalidateQueries({
 											queryKey:
-												helmorQueryKeys.workspaceSessions(targetWorkspaceId),
+												winthorpeQueryKeys.workspaceSessions(targetWorkspaceId),
 										})
 									: undefined,
 								targetWorkspaceId
 									? queryClient.invalidateQueries({
 											queryKey:
-												helmorQueryKeys.workspaceDetail(targetWorkspaceId),
+												winthorpeQueryKeys.workspaceDetail(targetWorkspaceId),
 										})
 									: undefined,
 							]);
@@ -1325,7 +1325,7 @@ export function useConversationStreaming({
 						prompt: trimmedPrompt,
 						promptPrefix,
 						sessionId: providerSessionId,
-						helmorSessionId: targetSessionId,
+						winthorpeSessionId: targetSessionId,
 						workingDirectory,
 						effortLevel,
 						permissionMode,

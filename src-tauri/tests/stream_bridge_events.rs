@@ -12,11 +12,11 @@
 mod common;
 
 use common::*;
-use helmor_lib::agents::{
+use winthorpe_lib::agents::{
     bridge_aborted_event, bridge_deferred_tool_use_event, bridge_done_event, bridge_error_event,
     bridge_permission_request_event, bridge_user_input_request_event, AgentStreamEvent,
 };
-use helmor_lib::pipeline::PipelineEmit;
+use winthorpe_lib::pipeline::PipelineEmit;
 use insta::assert_yaml_snapshot;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -44,7 +44,7 @@ fn replay_stream(provider: &str, lines: &[Value]) -> StreamBridgeSnapshot {
     let mut control_events = Vec::new();
 
     let resolved_session_id = || Some("provider-session-1".to_string());
-    let working_directory = "/tmp/helmor";
+    let working_directory = "/tmp/winthorpe";
 
     for value in lines {
         let kind = value.get("type").and_then(Value::as_str).unwrap_or("");

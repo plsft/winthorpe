@@ -2,8 +2,8 @@
 //! from `content`. Mirrors the production loader in
 //! `sessions.rs::list_session_*`.
 
-use helmor_lib::pipeline::types::HistoricalRecord;
-use helmor_lib::pipeline::MessagePipeline;
+use winthorpe_lib::pipeline::types::HistoricalRecord;
+use winthorpe_lib::pipeline::MessagePipeline;
 use serde_json::{json, Value};
 
 use super::normalize::{normalize_all, NormThreadMessage};

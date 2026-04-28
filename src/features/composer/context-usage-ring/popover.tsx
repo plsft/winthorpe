@@ -1,4 +1,4 @@
-import { HelmorThinkingIndicator } from "@/components/helmor-thinking-indicator";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import type { DisplayResolution } from "./parse";
 import {
 	AutoCompactNote,
@@ -55,7 +55,7 @@ export function ContextUsagePopoverContent({
 
 			{richLoading && !showCategories ? (
 				<div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-					<HelmorThinkingIndicator size={12} />
+					<WinthorpeThinkingIndicator size={12} />
 					<span>Loading context details…</span>
 				</div>
 			) : null}

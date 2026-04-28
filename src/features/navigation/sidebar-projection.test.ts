@@ -35,7 +35,7 @@ function makeArchivedSummary(id: string): WorkspaceSummary {
 		id,
 		title: `Archived ${id}`,
 		directoryName: id,
-		repoName: "helmor",
+		repoName: "winthorpe",
 		state: "archived",
 		hasUnread: false,
 		workspaceUnread: 0,
@@ -80,7 +80,7 @@ function makePendingCreation(
 		repoId: "repo-1",
 		row: {
 			id: resolvedWorkspaceId ?? workspaceId,
-			title: "Creating helmor",
+			title: "Creating winthorpe",
 			state: "initializing",
 			status: "in-progress",
 		},

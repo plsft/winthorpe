@@ -1220,7 +1220,7 @@ fn codex_image_generation_saved_path_renders_as_file_image() {
             "id": "img_2",
             "type": "image_generation",
             "status": "completed",
-            "saved_path": "/tmp/helmor/generated-images/session/img_2.png"
+            "saved_path": "/tmp/winthorpe/generated-images/session/img_2.png"
         }
     });
     let msgs = vec![make_record(

@@ -8,7 +8,7 @@ import {
 } from "@/lib/api";
 import {
 	forgeCliStatusQueryOptions,
-	helmorQueryKeys,
+	winthorpeQueryKeys,
 } from "@/lib/query-client";
 
 const POLL_INTERVAL_MS = 2000;
@@ -57,7 +57,7 @@ export function useForgeCliConnect(
 	const finishReady = useCallback(
 		async (status: ForgeCliReadyStatus) => {
 			void queryClient.invalidateQueries({
-				queryKey: helmorQueryKeys.forgeCliStatusAll,
+				queryKey: winthorpeQueryKeys.forgeCliStatusAll,
 			});
 			void queryClient.invalidateQueries({
 				predicate: (q) => q.queryKey[0] === "workspaceForge",
@@ -120,7 +120,7 @@ export function useForgeCliConnect(
 			const cached =
 				hint ??
 				queryClient.getQueryData<ForgeCliStatus>(
-					helmorQueryKeys.forgeCliStatus(provider, host),
+					winthorpeQueryKeys.forgeCliStatus(provider, host),
 				);
 			if (cached?.status === "ready") {
 				await finishReady(cached);

@@ -122,7 +122,7 @@ mod unix {
     /// Strategy: start from the login shell's PATH (which contains
     /// Homebrew, nvm, bun, cargo, etc.), then *append* any entries from
     /// the current PATH that aren't already present (e.g. Claude plugin
-    /// directories that Helmor itself added).
+    /// directories that Winthorpe itself added).
     fn merge_path(login_path: &str) {
         let current = std::env::var("PATH").unwrap_or_default();
 
@@ -281,20 +281,20 @@ mod unix {
 
         #[test]
         fn merge_missing_env_sets_value_when_absent() {
-            unsafe { std::env::remove_var("HELMOR_TEST_MISSING_ENV") };
-            merge_missing_env("HELMOR_TEST_MISSING_ENV", "/tmp/agent.sock");
+            unsafe { std::env::remove_var("WINTHORPE_TEST_MISSING_ENV") };
+            merge_missing_env("WINTHORPE_TEST_MISSING_ENV", "/tmp/agent.sock");
             assert_eq!(
-                std::env::var("HELMOR_TEST_MISSING_ENV").as_deref(),
+                std::env::var("WINTHORPE_TEST_MISSING_ENV").as_deref(),
                 Ok("/tmp/agent.sock")
             );
         }
 
         #[test]
         fn merge_missing_env_preserves_existing_value() {
-            unsafe { std::env::set_var("HELMOR_TEST_EXISTING_ENV", "/tmp/existing.sock") };
-            merge_missing_env("HELMOR_TEST_EXISTING_ENV", "/tmp/login.sock");
+            unsafe { std::env::set_var("WINTHORPE_TEST_EXISTING_ENV", "/tmp/existing.sock") };
+            merge_missing_env("WINTHORPE_TEST_EXISTING_ENV", "/tmp/login.sock");
             assert_eq!(
-                std::env::var("HELMOR_TEST_EXISTING_ENV").as_deref(),
+                std::env::var("WINTHORPE_TEST_EXISTING_ENV").as_deref(),
                 Ok("/tmp/existing.sock")
             );
         }

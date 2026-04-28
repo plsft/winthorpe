@@ -15,8 +15,8 @@ use super::process::run_with_timeout;
 const CLAUDE_CODE_FALLBACK_VERSION: &str = "2.1.0";
 const CLAUDE_VERSION_PROBE_TIMEOUT: Duration = Duration::from_secs(5);
 
-/// `claude --version` doesn't change for the life of a Helmor process
-/// (the user can't upgrade Claude CLI without restarting Helmor first
+/// `claude --version` doesn't change for the life of a Winthorpe process
+/// (the user can't upgrade Claude CLI without restarting Winthorpe first
 /// — at minimum to clear our in-memory state). Probe once, reuse.
 static USER_AGENT: OnceLock<String> = OnceLock::new();
 

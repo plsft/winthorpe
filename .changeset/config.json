@@ -3,7 +3,7 @@
 	"changelog": [
 		"@changesets/changelog-github",
 		{
-			"repo": "dohooo/helmor"
+			"repo": "dohooo/winthorpe"
 		}
 	],
 	"commit": false,
@@ -12,7 +12,7 @@
 	"access": "restricted",
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
-	"ignore": ["@helmor/marketing"],
+	"ignore": ["@winthorpe/marketing"],
 	"privatePackages": {
 		"version": true,
 		"tag": true

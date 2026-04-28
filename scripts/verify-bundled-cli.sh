@@ -2,12 +2,12 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 <Helmor.app path>"
+  echo "Usage: $0 <Winthorpe.app path>"
   exit 1
 fi
 
 APP_BUNDLE="$1"
-CLI_PATH="${APP_BUNDLE}/Contents/MacOS/helmor-cli"
+CLI_PATH="${APP_BUNDLE}/Contents/MacOS/winthorpe-cli"
 
 if [[ ! -d "${APP_BUNDLE}" ]]; then
   echo "App bundle not found: ${APP_BUNDLE}"

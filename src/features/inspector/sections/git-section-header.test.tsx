@@ -5,7 +5,7 @@ import type {
 	ForgeCliStatus,
 	ForgeDetection,
 } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { renderWithProviders } from "@/test/render-with-providers";
 import { GitSectionHeader } from "./git-section-header";
 
@@ -27,7 +27,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
 });
 
 const changeRequest: ChangeRequestInfo = {
-	url: "https://gitlab.com/helmor/helmor/-/merge_requests/182",
+	url: "https://gitlab.com/winthorpe/winthorpe/-/merge_requests/182",
 	number: 182,
 	state: "OPEN",
 	title: "Add GitLab forge support",
@@ -38,9 +38,9 @@ function gitlabDetection(patch: Partial<ForgeDetection> = {}): ForgeDetection {
 	return {
 		provider: "gitlab",
 		host: "gitlab.com",
-		namespace: "helmor",
-		repo: "helmor",
-		remoteUrl: "git@gitlab.com:helmor/helmor.git",
+		namespace: "winthorpe",
+		repo: "winthorpe",
+		remoteUrl: "git@gitlab.com:winthorpe/winthorpe.git",
 		labels: {
 			providerName: "GitLab",
 			cliName: "glab",
@@ -66,9 +66,9 @@ function githubDetection(patch: Partial<ForgeDetection> = {}): ForgeDetection {
 	return {
 		provider: "github",
 		host: "github.com",
-		namespace: "helmor",
-		repo: "helmor",
-		remoteUrl: "git@github.com:helmor/helmor.git",
+		namespace: "winthorpe",
+		repo: "winthorpe",
+		remoteUrl: "git@github.com:winthorpe/winthorpe.git",
 		labels: {
 			providerName: "GitHub",
 			cliName: "gh",
@@ -228,16 +228,16 @@ describe("GitSectionHeader forge onboarding", () => {
 		// Hook fans out: forgeCliStatusAll + every workspaceForge entry,
 		// onReady adds the workspace-scoped change request + action status.
 		expect(invalidateQueries).toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.forgeCliStatusAll,
+			queryKey: winthorpeQueryKeys.forgeCliStatusAll,
 		});
 		expect(invalidateQueries).toHaveBeenCalledWith(
 			expect.objectContaining({ predicate: expect.any(Function) }),
 		);
 		expect(invalidateQueries).toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.workspaceChangeRequest("workspace-1"),
+			queryKey: winthorpeQueryKeys.workspaceChangeRequest("workspace-1"),
 		});
 		expect(invalidateQueries).toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.workspaceForgeActionStatus("workspace-1"),
+			queryKey: winthorpeQueryKeys.workspaceForgeActionStatus("workspace-1"),
 		});
 	});
 

@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import { helmorQueryKeys } from "./query-client";
+import { winthorpeQueryKeys } from "./query-client";
 
 // Module-level counter: any code path about to mutate the sidebar lists
 // (archive, restore, create, delete, pin) wraps the async work in
@@ -27,10 +27,10 @@ export function isSidebarMutationInFlight(): boolean {
  * completes (counter has hit 0) and wants the server to reconcile. */
 export function flushSidebarLists(queryClient: QueryClient): void {
 	void queryClient.invalidateQueries({
-		queryKey: helmorQueryKeys.workspaceGroups,
+		queryKey: winthorpeQueryKeys.workspaceGroups,
 	});
 	void queryClient.invalidateQueries({
-		queryKey: helmorQueryKeys.archivedWorkspaces,
+		queryKey: winthorpeQueryKeys.archivedWorkspaces,
 	});
 }
 

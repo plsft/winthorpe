@@ -1,5 +1,5 @@
 /**
- * Baseline tests for `readImageWithResize`. Helmor ships macOS-only so
+ * Baseline tests for `readImageWithResize`. Winthorpe ships Windows so
  * the single resize path here is `sips`; the tests only need to confirm
  * graceful behavior (pass-through on small / unrecognized / tool-failure).
  */
@@ -32,7 +32,7 @@ function makePng(width: number, height: number): Buffer {
 
 describe("readImageWithResize baseline", () => {
 	test("small images pass through without resize", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "helmor-img-test-"));
+		const dir = await mkdtemp(join(tmpdir(), "winthorpe-img-test-"));
 		const path = join(dir, "small.png");
 		const png = makePng(100, 100);
 		await writeFile(path, png);
@@ -45,7 +45,7 @@ describe("readImageWithResize baseline", () => {
 	});
 
 	test("unrecognized formats pass through unchanged", async () => {
-		const dir = await mkdtemp(join(tmpdir(), "helmor-img-test-"));
+		const dir = await mkdtemp(join(tmpdir(), "winthorpe-img-test-"));
 		const path = join(dir, "weird.bin");
 		const payload = Buffer.from("not an image at all, just bytes");
 		await writeFile(path, payload);
@@ -61,7 +61,7 @@ describe("readImageWithResize baseline", () => {
 		// Synthetic PNG with 3000×3000 header — parseDimensions reads the header
 		// and dispatches to sips. The malformed file will be rejected, so the
 		// code must fall back to returning the original buffer.
-		const dir = await mkdtemp(join(tmpdir(), "helmor-img-test-"));
+		const dir = await mkdtemp(join(tmpdir(), "winthorpe-img-test-"));
 		const path = join(dir, "huge.png");
 		const png = makePng(3000, 3000);
 		await writeFile(path, png);

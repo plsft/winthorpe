@@ -1,0 +1,6 @@
+{
+	"scripts": {
+		"setup": "cp \"$WINTHORPE_ROOT_PATH/.env.local\" \"$WINTHORPE_WORKSPACE_PATH/.env.local\"\ncp -r \"$WINTHORPE_ROOT_PATH/sidecar/dist\" \"$WINTHORPE_WORKSPACE_PATH/sidecar/dist\"\nbun install",
+		"run": "bun run dev:analyze"
+	}
+}

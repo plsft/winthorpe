@@ -1,4 +1,4 @@
-//! `helmor conductor` — migrate from Helmor v1 (Conductor).
+//! `winthorpe conductor` — migrate from Winthorpe v1 (Conductor).
 
 use anyhow::Result;
 

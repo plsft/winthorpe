@@ -537,7 +537,7 @@ function ScriptsSection({
 					placeholder="e.g., npm install"
 					value={setupScript}
 					locked={setupLocked}
-					lockedMessage="Set by this workspace's helmor.json — edit it there"
+					lockedMessage="Set by this workspace's winthorpe.json — edit it there"
 					onChange={handleSetupChange}
 					headerRight={
 						<div className="flex items-center gap-1.5">
@@ -574,7 +574,7 @@ function ScriptsSection({
 					placeholder="e.g., npm run dev"
 					value={runScript}
 					locked={runLocked}
-					lockedMessage="Set by this workspace's helmor.json — edit it there"
+					lockedMessage="Set by this workspace's winthorpe.json — edit it there"
 					onChange={handleRunChange}
 				/>
 				<ScriptField
@@ -583,7 +583,7 @@ function ScriptsSection({
 					placeholder="e.g., docker compose down"
 					value={archiveScript}
 					locked={archiveLocked}
-					lockedMessage="Set by this workspace's helmor.json — edit it there"
+					lockedMessage="Set by this workspace's winthorpe.json — edit it there"
 					onChange={handleArchiveChange}
 				/>
 			</div>

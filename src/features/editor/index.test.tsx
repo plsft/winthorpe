@@ -93,7 +93,7 @@ function EditorSurfaceHarness({
 	return (
 		<WorkspaceEditorSurface
 			editorSession={session}
-			workspaceRootPath="/tmp/helmor-workspace"
+			workspaceRootPath="/tmp/winthorpe-workspace"
 			onChangeSession={(next) => {
 				onChangeSpy(next);
 				setSession(next);
@@ -118,7 +118,7 @@ describe("WorkspaceEditorSurface", () => {
 		const onChangeSpy = vi.fn();
 
 		apiMocks.readEditorFile.mockResolvedValue({
-			path: "/tmp/helmor-workspace/src/App.tsx",
+			path: "/tmp/winthorpe-workspace/src/App.tsx",
 			content: "const value = 1;\n",
 			mtimeMs: 10,
 		});
@@ -128,7 +128,7 @@ describe("WorkspaceEditorSurface", () => {
 				<EditorSurfaceHarness
 					initialSession={{
 						kind: "file",
-						path: "/tmp/helmor-workspace/src/App.tsx",
+						path: "/tmp/winthorpe-workspace/src/App.tsx",
 					}}
 					onChangeSpy={onChangeSpy}
 				/>
@@ -137,7 +137,7 @@ describe("WorkspaceEditorSurface", () => {
 
 		await waitFor(() => {
 			expect(apiMocks.readEditorFile).toHaveBeenCalledWith(
-				"/tmp/helmor-workspace/src/App.tsx",
+				"/tmp/winthorpe-workspace/src/App.tsx",
 			);
 			expect(runtimeMocks.createFileEditor).toHaveBeenCalled();
 		});
@@ -166,7 +166,7 @@ describe("WorkspaceEditorSurface", () => {
 				<EditorSurfaceHarness
 					initialSession={{
 						kind: "file",
-						path: "/tmp/helmor-workspace/src/missing.ts",
+						path: "/tmp/winthorpe-workspace/src/missing.ts",
 					}}
 					onChangeSpy={onChangeSpy}
 					onError={onError}

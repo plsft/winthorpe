@@ -1,7 +1,7 @@
 import type { Preview } from "@storybook/react-vite";
 
 // Import the project's global CSS so Tailwind utilities, shadcn tokens,
-// and the Helmor color theme are available in every story.
+// and the Winthorpe color theme are available in every story.
 import "../src/App.css";
 
 const preview: Preview = {

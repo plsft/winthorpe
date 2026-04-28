@@ -17,7 +17,7 @@ control_events:
       question: Pick one
     toolName: AskUserQuestion
     toolUseId: tool-1
-    working_directory: /tmp/helmor
+    working_directory: /tmp/winthorpe
 final_messages:
   - role: assistant
     id: msg-1

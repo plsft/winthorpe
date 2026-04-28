@@ -242,7 +242,7 @@ export function RepositoryCliStep({
 					Set up repository CLIs
 				</h2>
 				<p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-					Install and authenticate your GitHub or GitLab CLI so Helmor can open
+					Install and authenticate your GitHub or GitLab CLI so Winthorpe can open
 					pull requests and keep repository actions local.
 				</p>
 

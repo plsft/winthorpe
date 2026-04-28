@@ -1,6 +1,6 @@
-//! Command-line interface for Helmor.
+//! Command-line interface for Winthorpe.
 //!
-//! The binary at `src/bin/helmor-cli.rs` is a thin dispatcher — every
+//! The binary at `src/bin/winthorpe-cli.rs` is a thin dispatcher — every
 //! command body lives here so it can reach crate-private domain logic
 //! (`workspace::*`, `models::*`, `agents::*`, `github::*`, `git::*`).
 //!
@@ -36,9 +36,9 @@ use crate::ui_sync::UiMutationEvent;
 
 fn installed_cli_name() -> &'static str {
     if crate::data_dir::is_dev() {
-        "helmor-dev"
+        "winthorpe-dev"
     } else {
-        "helmor"
+        "winthorpe"
     }
 }
 
@@ -66,7 +66,7 @@ pub fn run() -> ExitCode {
 
     if let Some(ref dir) = cli.data_dir {
         // SAFETY: called in main() before any threads are spawned.
-        unsafe { std::env::set_var("HELMOR_DATA_DIR", dir) };
+        unsafe { std::env::set_var("WINTHORPE_DATA_DIR", dir) };
     }
 
     match dispatch(&cli) {

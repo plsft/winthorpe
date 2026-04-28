@@ -90,7 +90,7 @@ function mockWorkspaceData() {
 				{
 					id: "workspace-1",
 					title: "Authenticated workspace",
-					repoName: "helmor-core",
+					repoName: "winthorpe-core",
 					state: "ready",
 				},
 			],
@@ -103,7 +103,7 @@ function mockWorkspaceData() {
 		id: "workspace-1",
 		title: "Authenticated workspace",
 		repoId: "repo-1",
-		repoName: "helmor-core",
+		repoName: "winthorpe-core",
 		directoryName: "authenticated-workspace",
 		state: "ready",
 		hasUnread: false,
@@ -213,10 +213,10 @@ describe("App GitHub identity states", () => {
 		render(<App />);
 
 		expect(
-			await screen.findByRole("main", { name: "Helmor onboarding" }),
+			await screen.findByRole("main", { name: "Winthorpe onboarding" }),
 		).toBeInTheDocument();
 		expect(
-			screen.getByLabelText("Helmor workspace preview"),
+			screen.getByLabelText("Winthorpe workspace preview"),
 		).toBeInTheDocument();
 		expect(screen.getByText("Auth feature plan")).toBeInTheDocument();
 		expect(screen.getByText("Actions")).toBeInTheDocument();
@@ -228,7 +228,7 @@ describe("App GitHub identity states", () => {
 		await user.click(screen.getByRole("button", { name: "Explore" }));
 
 		expect(
-			await screen.findByRole("main", { name: "Helmor onboarding" }),
+			await screen.findByRole("main", { name: "Winthorpe onboarding" }),
 		).toBeInTheDocument();
 		expect(apiMocks.loadGithubIdentitySession).not.toHaveBeenCalled();
 		expect(invokeMock).not.toHaveBeenCalledWith("update_app_settings", {

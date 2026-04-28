@@ -76,7 +76,7 @@ describe("App add repository flow", () => {
 							{
 								id: "workspace-existing",
 								title: "Existing workspace",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 								state: "ready",
 							},
 							{
@@ -91,7 +91,7 @@ describe("App add repository flow", () => {
 							{
 								id: "workspace-existing",
 								title: "Existing workspace",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 								state: "ready",
 							},
 						],
@@ -104,7 +104,7 @@ describe("App add repository flow", () => {
 				? [
 						{
 							id: "repo-existing",
-							name: "helmor-core",
+							name: "winthorpe-core",
 							defaultBranch: "main",
 							repoInitials: "HC",
 						},
@@ -118,7 +118,7 @@ describe("App add repository flow", () => {
 				: [
 						{
 							id: "repo-existing",
-							name: "helmor-core",
+							name: "winthorpe-core",
 							defaultBranch: "main",
 							repoInitials: "HC",
 						},
@@ -157,7 +157,7 @@ describe("App add repository flow", () => {
 					id: "workspace-existing",
 					title: "Existing workspace",
 					repoId: "repo-existing",
-					repoName: "helmor-core",
+					repoName: "winthorpe-core",
 					directoryName: "existing-workspace",
 					state: "ready",
 					hasUnread: false,

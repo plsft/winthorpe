@@ -1,4 +1,4 @@
-//! Database schema initialization for Helmor.
+//! Database schema initialization for Winthorpe.
 //!
 //! Creates all required tables if they don't exist, matching the Conductor
 //! schema for data compatibility.

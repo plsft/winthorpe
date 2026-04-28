@@ -1,7 +1,7 @@
 name: Refresh marketing site
 
 # Calls the marketing site's on-demand ISR revalidation endpoint so
-# helmor.ai reflects a new version within seconds of a release going live,
+# winthorpe.ai reflects a new version within seconds of a release going live,
 # instead of waiting for the 3600s ISR window in `apps/marketing/lib/github.ts`.
 #
 # Triggered on `release.published` for manual releases or a draft being
@@ -12,7 +12,7 @@ name: Refresh marketing site
 # `workflow_dispatch` is kept for first-time verification and manual recovery.
 #
 # Failure mode: if this workflow fails, the 3600s ISR fallback still works --
-# helmor.ai is at worst ~1 hour stale, never broken.
+# winthorpe.ai is at worst ~1 hour stale, never broken.
 
 on:
   release:
@@ -33,18 +33,18 @@ jobs:
     steps:
       - name: Call revalidate endpoint
         env:
-          SECRET: ${{ secrets.HELMOR_MARKETING_REVALIDATE_SECRET }}
+          SECRET: ${{ secrets.WINTHORPE_MARKETING_REVALIDATE_SECRET }}
         # curl --fail makes non-2xx return an exit code; --retry handles
         # transient Vercel cold starts. The secret is passed via env and
         # injected into a header (never argv or URL) to keep it out of
         # process listings and access logs.
         run: |
           if [ -z "${SECRET}" ]; then
-            echo "HELMOR_MARKETING_REVALIDATE_SECRET is not set"
+            echo "WINTHORPE_MARKETING_REVALIDATE_SECRET is not set"
             exit 1
           fi
           curl --fail --silent --show-error \
             --retry 3 --retry-delay 10 --retry-connrefused \
-            -X POST "https://helmor.ai/api/revalidate" \
+            -X POST "https://winthorpe.ai/api/revalidate" \
             -H "x-revalidate-secret: ${SECRET}" \
             -H "content-type: application/json"

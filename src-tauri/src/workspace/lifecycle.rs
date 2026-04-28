@@ -73,7 +73,7 @@ pub struct PrepareWorkspaceResponse {
     pub default_branch: String,
     pub state: WorkspaceState,
     /// DB-level repo scripts. After Phase 2 (worktree creation) the frontend
-    /// may refetch to pick up any `helmor.json` overrides copied into the
+    /// may refetch to pick up any `winthorpe.json` overrides copied into the
     /// worktree, but for a freshly cloned workspace these match exactly.
     pub repo_scripts: repos::RepoScripts,
 }
@@ -157,7 +157,7 @@ pub fn prepare_workspace_from_repo_impl(repo_id: &str) -> Result<PrepareWorkspac
 
     // `load_repo_scripts` is the single truth source. The worktree
     // doesn't exist yet, but the function knows to fall back to the
-    // source repo root's `helmor.json` when the worktree dir is missing
+    // source repo root's `winthorpe.json` when the worktree dir is missing
     // — so the frontend gets the correct "missing script" count from
     // the first paint.
     let repo_scripts = match repos::load_repo_scripts(repo_id, Some(&workspace_id)) {
@@ -190,7 +190,7 @@ pub fn prepare_workspace_from_repo_impl(repo_id: &str) -> Result<PrepareWorkspac
 }
 
 /// Phase 2 of workspace creation: creates the git worktree, probes
-/// `helmor.json` for a setup script, and
+/// `winthorpe.json` for a setup script, and
 /// upgrades the workspace row from `Initializing` to `Ready` /
 /// `SetupPending`. On failure, cleans up the worktree + DB rows so the
 /// caller can surface the error without leaving a broken workspace
@@ -442,11 +442,11 @@ pub(crate) fn run_archive_hook_inner(
         .arg(shell_flag)
         .arg(&script)
         .current_dir(workspace_dir)
-        .env("HELMOR_ROOT_PATH", repo_root.display().to_string())
-        .env("HELMOR_WORKSPACE_PATH", workspace_dir.display().to_string())
-        .env("HELMOR_WORKSPACE_NAME", &record.directory_name)
+        .env("WINTHORPE_ROOT_PATH", repo_root.display().to_string())
+        .env("WINTHORPE_WORKSPACE_PATH", workspace_dir.display().to_string())
+        .env("WINTHORPE_WORKSPACE_NAME", &record.directory_name)
         .env(
-            "HELMOR_DEFAULT_BRANCH",
+            "WINTHORPE_DEFAULT_BRANCH",
             record.default_branch.as_deref().unwrap_or("main"),
         )
         .status();
@@ -880,7 +880,7 @@ fn resolve_setup_hook(
 }
 
 fn load_setup_script_from_project_config(workspace_dir: &Path) -> Result<Option<String>> {
-    let config_path = workspace_dir.join("helmor.json");
+    let config_path = workspace_dir.join("winthorpe.json");
     if !config_path.is_file() {
         return Ok(None);
     }

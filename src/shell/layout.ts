@@ -5,9 +5,9 @@ import type {
 } from "@/lib/api";
 import type { GithubIdentityState } from "./types";
 
-export const SIDEBAR_WIDTH_STORAGE_KEY = "helmor.workspaceSidebarWidth";
-export const INSPECTOR_WIDTH_STORAGE_KEY = "helmor.workspaceInspectorWidth";
-export const PREFERRED_EDITOR_STORAGE_KEY = "helmor.preferredEditorId";
+export const SIDEBAR_WIDTH_STORAGE_KEY = "winthorpe.workspaceSidebarWidth";
+export const INSPECTOR_WIDTH_STORAGE_KEY = "winthorpe.workspaceInspectorWidth";
+export const PREFERRED_EDITOR_STORAGE_KEY = "winthorpe.preferredEditorId";
 export const DEFAULT_SIDEBAR_WIDTH = 336;
 export const MIN_SIDEBAR_WIDTH = 220;
 export const MAX_SIDEBAR_WIDTH = 520;

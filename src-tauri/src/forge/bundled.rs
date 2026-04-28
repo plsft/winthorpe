@@ -3,8 +3,8 @@
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-pub const GH_PATH_ENV: &str = "HELMOR_GH_BIN_PATH";
-pub const GLAB_PATH_ENV: &str = "HELMOR_GLAB_BIN_PATH";
+pub const GH_PATH_ENV: &str = "WINTHORPE_GH_BIN_PATH";
+pub const GLAB_PATH_ENV: &str = "WINTHORPE_GLAB_BIN_PATH";
 
 #[derive(Debug, Default, Clone)]
 pub struct BundledForgeCliPaths {
@@ -127,8 +127,8 @@ mod tests {
     #[test]
     fn resolve_finds_binaries_under_resources_vendor() {
         let root = tempfile::tempdir().unwrap();
-        let exe = root.path().join("Helmor.app/Contents/MacOS/Helmor");
-        let vendor = root.path().join("Helmor.app/Contents/Resources/vendor");
+        let exe = root.path().join("Winthorpe.app/Contents/MacOS/Winthorpe");
+        let vendor = root.path().join("Winthorpe.app/Contents/Resources/vendor");
         std::fs::create_dir_all(vendor.join("gh")).unwrap();
         std::fs::create_dir_all(vendor.join("glab")).unwrap();
         std::fs::write(vendor.join("gh/gh"), "").unwrap();
@@ -139,19 +139,19 @@ mod tests {
         assert_eq!(
             paths.gh.unwrap(),
             root.path()
-                .join("Helmor.app/Contents/Resources/vendor/gh/gh")
+                .join("Winthorpe.app/Contents/Resources/vendor/gh/gh")
         );
         assert_eq!(
             paths.glab.unwrap(),
             root.path()
-                .join("Helmor.app/Contents/Resources/vendor/glab/glab")
+                .join("Winthorpe.app/Contents/Resources/vendor/glab/glab")
         );
     }
 
     #[test]
     fn resolve_returns_none_when_binaries_missing() {
         let root = tempfile::tempdir().unwrap();
-        let exe = root.path().join("Helmor.app/Contents/MacOS/Helmor");
+        let exe = root.path().join("Winthorpe.app/Contents/MacOS/Winthorpe");
         let paths = resolve_for_exe(&exe).unwrap();
         assert!(paths.gh.is_none());
         assert!(paths.glab.is_none());
@@ -177,8 +177,8 @@ mod tests {
     #[test]
     fn app_bundle_paths_win_over_debug_vendor() {
         let root = tempfile::tempdir().unwrap();
-        let exe = root.path().join("Helmor.app/Contents/MacOS/Helmor");
-        let app_vendor = root.path().join("Helmor.app/Contents/Resources/vendor");
+        let exe = root.path().join("Winthorpe.app/Contents/MacOS/Winthorpe");
+        let app_vendor = root.path().join("Winthorpe.app/Contents/Resources/vendor");
         let dev_vendor = root.path().join("sidecar/dist/vendor");
         std::fs::create_dir_all(app_vendor.join("gh")).unwrap();
         std::fs::create_dir_all(app_vendor.join("glab")).unwrap();

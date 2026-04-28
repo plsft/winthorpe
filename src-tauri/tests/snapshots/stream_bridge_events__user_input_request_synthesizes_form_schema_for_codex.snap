@@ -30,6 +30,6 @@ control_events:
     serverName: Codex
     session_id: provider-session-1
     url: ~
-    working_directory: /tmp/helmor
+    working_directory: /tmp/winthorpe
 final_messages: []
 dropped_event_types: []

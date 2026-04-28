@@ -85,7 +85,7 @@ fn bundled_program_token(program: &str) -> Result<String> {
     if cfg!(debug_assertions) {
         return Ok(program.to_string());
     }
-    bail!("Bundled `{program}` is missing; reinstall Helmor to recover")
+    bail!("Bundled `{program}` is missing; reinstall Winthorpe to recover")
 }
 
 /// `'foo'\''bar'`-style single quoting safe for /bin/sh.
@@ -166,7 +166,7 @@ fn github_status_from(status: github_cli::GithubCliStatus) -> Result<ForgeCliSta
             cli_name: "gh".to_string(),
             version: None,
             message: format!(
-                "Bundled GitHub CLI was not found. Reinstall Helmor to recover. ({message})"
+                "Bundled GitHub CLI was not found. Reinstall Winthorpe to recover. ({message})"
             ),
         },
         github_cli::GithubCliStatus::Error {
@@ -204,7 +204,7 @@ fn gitlab_status_raw(host: &str) -> Result<ForgeCliStatus> {
                 host: host.to_string(),
                 cli_name: "glab".to_string(),
                 version: None,
-                message: "Bundled GitLab CLI was not found. Reinstall Helmor to recover."
+                message: "Bundled GitLab CLI was not found. Reinstall Winthorpe to recover."
                     .to_string(),
             });
         }
@@ -398,8 +398,8 @@ mod tests {
     fn shell_single_quote_handles_embedded_single_quotes() {
         assert_eq!(shell_single_quote("/usr/bin/gh"), "'/usr/bin/gh'");
         assert_eq!(
-            shell_single_quote("/Apps/Tom's Stuff/Helmor.app/Contents/Resources/vendor/gh/gh"),
-            "'/Apps/Tom'\\''s Stuff/Helmor.app/Contents/Resources/vendor/gh/gh'"
+            shell_single_quote("/Apps/Tom's Stuff/Winthorpe.app/Contents/Resources/vendor/gh/gh"),
+            "'/Apps/Tom'\\''s Stuff/Winthorpe.app/Contents/Resources/vendor/gh/gh'"
         );
         assert_eq!(shell_single_quote("a'b'c"), "'a'\\''b'\\''c'");
     }

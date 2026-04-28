@@ -92,7 +92,7 @@ fn create_workspace_from_repo_defers_setup_when_script_configured_by_default() {
 
     // Setup script configured. auto_run_setup defaults to true (DB default
     // 1), so the workspace defers to the frontend inspector for auto-run.
-    harness.commit_repo_files(&[("helmor.json", r#"{"scripts":{"setup":"echo hello"}}"#)]);
+    harness.commit_repo_files(&[("winthorpe.json", r#"{"scripts":{"setup":"echo hello"}}"#)]);
 
     let response = workspaces::create_workspace_from_repo_impl(&harness.repo_id).unwrap();
 
@@ -116,7 +116,7 @@ fn create_workspace_from_repo_stays_ready_when_auto_run_setup_disabled() {
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let harness = CreateTestHarness::new();
 
-    harness.commit_repo_files(&[("helmor.json", r#"{"scripts":{"setup":"echo hello"}}"#)]);
+    harness.commit_repo_files(&[("winthorpe.json", r#"{"scripts":{"setup":"echo hello"}}"#)]);
     repos::update_repo_auto_run_setup(&harness.repo_id, false).unwrap();
 
     let response = workspaces::create_workspace_from_repo_impl(&harness.repo_id).unwrap();
@@ -192,7 +192,7 @@ fn prepare_workspace_inserts_initializing_row_without_creating_worktree() {
     let harness = CreateTestHarness::new();
 
     harness.commit_repo_files(&[(
-        "helmor.json",
+        "winthorpe.json",
         r#"{"scripts":{"setup":"bun install","run":"bun run dev"}}"#,
     )]);
 
@@ -227,7 +227,7 @@ fn prepare_workspace_inserts_initializing_row_without_creating_worktree() {
         "Phase 1 must not create the worktree"
     );
 
-    // Repo scripts came from the source repo root's helmor.json (worktree
+    // Repo scripts came from the source repo root's winthorpe.json (worktree
     // is still missing, so the 3-tier priority falls back to repo root).
     assert_eq!(
         prepared.repo_scripts.setup_script.as_deref(),
@@ -274,15 +274,15 @@ fn finalize_workspace_transitions_initializing_to_ready_and_creates_worktree() {
 }
 
 #[test]
-fn finalize_workspace_reports_setup_pending_when_helmor_json_has_setup() {
+fn finalize_workspace_reports_setup_pending_when_winthorpe_json_has_setup() {
     let _guard = TEST_LOCK
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let harness = CreateTestHarness::new();
 
-    // Default behavior: auto_run_setup=true, helmor.json sets a setup script
+    // Default behavior: auto_run_setup=true, winthorpe.json sets a setup script
     // → workspace defers to frontend inspector.
-    harness.commit_repo_files(&[("helmor.json", r#"{"scripts":{"setup":"echo hi"}}"#)]);
+    harness.commit_repo_files(&[("winthorpe.json", r#"{"scripts":{"setup":"echo hi"}}"#)]);
 
     let prepared = workspaces::prepare_workspace_from_repo_impl(&harness.repo_id).unwrap();
     let finalized = workspaces::finalize_workspace_from_repo_impl(&prepared.workspace_id).unwrap();
@@ -291,13 +291,13 @@ fn finalize_workspace_reports_setup_pending_when_helmor_json_has_setup() {
 }
 
 #[test]
-fn finalize_workspace_stays_ready_when_helmor_json_has_setup_but_auto_run_disabled() {
+fn finalize_workspace_stays_ready_when_winthorpe_json_has_setup_but_auto_run_disabled() {
     let _guard = TEST_LOCK
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let harness = CreateTestHarness::new();
 
-    harness.commit_repo_files(&[("helmor.json", r#"{"scripts":{"setup":"echo hi"}}"#)]);
+    harness.commit_repo_files(&[("winthorpe.json", r#"{"scripts":{"setup":"echo hi"}}"#)]);
     repos::update_repo_auto_run_setup(&harness.repo_id, false).unwrap();
 
     let prepared = workspaces::prepare_workspace_from_repo_impl(&harness.repo_id).unwrap();
@@ -485,20 +485,20 @@ fn pr_lookups_short_circuit_for_initializing_workspace_without_network() {
 
 // ---------------------------------------------------------------------------
 // `load_repo_scripts` three-tier priority
-// (worktree helmor.json > source repo root helmor.json > DB override)
+// (worktree winthorpe.json > source repo root winthorpe.json > DB override)
 // ---------------------------------------------------------------------------
 
 #[test]
-fn load_repo_scripts_priority_1_worktree_helmor_json_wins() {
+fn load_repo_scripts_priority_1_worktree_winthorpe_json_wins() {
     let _guard = TEST_LOCK
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let harness = CreateTestHarness::new();
 
-    // Commit a repo-root helmor.json and seed a DB script override — both
-    // should be SHADOWED by the worktree's own helmor.json.
+    // Commit a repo-root winthorpe.json and seed a DB script override — both
+    // should be SHADOWED by the worktree's own winthorpe.json.
     harness.commit_repo_files(&[(
-        "helmor.json",
+        "winthorpe.json",
         r#"{"scripts":{"setup":"source-root-setup","run":"source-root-run"}}"#,
     )]);
     Connection::open(harness.db_path())
@@ -510,12 +510,12 @@ fn load_repo_scripts_priority_1_worktree_helmor_json_wins() {
         .unwrap();
 
     // Finalize so the worktree exists, then rewrite the worktree's
-    // helmor.json to a distinctly different value.
+    // winthorpe.json to a distinctly different value.
     let prepared = workspaces::prepare_workspace_from_repo_impl(&harness.repo_id).unwrap();
     workspaces::finalize_workspace_from_repo_impl(&prepared.workspace_id).unwrap();
     let worktree_dir = harness.workspace_dir(&prepared.directory_name);
     fs::write(
-        worktree_dir.join("helmor.json"),
+        worktree_dir.join("winthorpe.json"),
         r#"{"scripts":{"setup":"worktree-setup","run":"worktree-run"}}"#,
     )
     .unwrap();
@@ -535,10 +535,10 @@ fn load_repo_scripts_priority_2_repo_root_wins_when_worktree_missing() {
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let harness = CreateTestHarness::new();
 
-    // Repo root has helmor.json, DB has its own overrides. Workspace is
+    // Repo root has winthorpe.json, DB has its own overrides. Workspace is
     // still in Phase 1 — worktree directory does not exist yet.
     harness.commit_repo_files(&[(
-        "helmor.json",
+        "winthorpe.json",
         r#"{"scripts":{"setup":"source-root-setup"}}"#,
     )]);
     Connection::open(harness.db_path())
@@ -564,13 +564,13 @@ fn load_repo_scripts_priority_2_repo_root_wins_when_worktree_missing() {
 }
 
 #[test]
-fn load_repo_scripts_priority_3_falls_through_to_db_when_no_helmor_json_anywhere() {
+fn load_repo_scripts_priority_3_falls_through_to_db_when_no_winthorpe_json_anywhere() {
     let _guard = TEST_LOCK
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
     let harness = CreateTestHarness::new();
 
-    // Neither repo root nor worktree has a helmor.json — DB override is
+    // Neither repo root nor worktree has a winthorpe.json — DB override is
     // the only source.
     Connection::open(harness.db_path())
         .unwrap()

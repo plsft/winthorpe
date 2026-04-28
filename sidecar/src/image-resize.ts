@@ -133,7 +133,7 @@ export async function readImageWithResize(
 	});
 
 	const ext = extname(filePath) || ".png";
-	const tmpDir = await mkdtemp(join(tmpdir(), "helmor-img-"));
+	const tmpDir = await mkdtemp(join(tmpdir(), "winthorpe-img-"));
 	const tmpPath = join(tmpDir, `resized${ext}`);
 
 	const ok = await resizeWithSips(filePath, tmpPath);

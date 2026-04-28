@@ -9,7 +9,7 @@ import type {
 	WorkspaceGitActionStatus,
 	WorkspaceGroup,
 } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { useWorkspaceCommitLifecycle } from "./use-commit-lifecycle";
 
 const apiMocks = vi.hoisted(() => ({
@@ -110,7 +110,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 		});
 		const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
 		queryClient.setQueryData<WorkspaceDetail | null>(
-			helmorQueryKeys.workspaceDetail("workspace-1"),
+			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			{
 				id: "workspace-1",
 				activeSessionId: "session-after-close",
@@ -119,7 +119,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 		);
 		// Seed the sidebar so we can assert the optimistic move to "review".
 		queryClient.setQueryData<WorkspaceGroup[]>(
-			helmorQueryKeys.workspaceGroups,
+			winthorpeQueryKeys.workspaceGroups,
 			[
 				{
 					id: "progress",
@@ -218,16 +218,16 @@ describe("useWorkspaceCommitLifecycle", () => {
 			// from the awaited refresh result, not invalidated (which would
 			// trigger a duplicate `gh pr view`).
 			const cached = queryClient.getQueryData<ChangeRequestInfo | null>(
-				helmorQueryKeys.workspaceChangeRequest("workspace-1"),
+				winthorpeQueryKeys.workspaceChangeRequest("workspace-1"),
 			);
 			expect(cached).toMatchObject({ state: "OPEN", number: 53 });
 		});
 		expect(invalidateQueriesSpy).not.toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.workspaceChangeRequest("workspace-1"),
+			queryKey: winthorpeQueryKeys.workspaceChangeRequest("workspace-1"),
 		});
 		await waitFor(() => {
 			expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceForgeActionStatus("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus("workspace-1"),
 			});
 		});
 		// Optimistic group + detail moves: workspace-1 should now sit in the
@@ -235,7 +235,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 		// event-driven invalidation has had a chance to refetch.
 		await waitFor(() => {
 			const groups = queryClient.getQueryData<WorkspaceGroup[]>(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 			);
 			const reviewIds = groups
 				?.find((g) => g.id === "review")
@@ -248,7 +248,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 		});
 		await waitFor(() => {
 			const detail = queryClient.getQueryData<WorkspaceDetail | null>(
-				helmorQueryKeys.workspaceDetail("workspace-1"),
+				winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			);
 			expect(detail?.status).toBe("review");
 		});
@@ -381,16 +381,16 @@ describe("useWorkspaceCommitLifecycle", () => {
 
 		await waitFor(() => {
 			expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceGitActionStatus("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceGitActionStatus("workspace-1"),
 			});
 			expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceForgeActionStatus("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus("workspace-1"),
 			});
 			expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceDetail("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			});
 			expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceGroups,
+				queryKey: winthorpeQueryKeys.workspaceGroups,
 			});
 			expect(invalidateQueriesSpy).toHaveBeenCalledWith({
 				queryKey: ["workspaceChanges"],
@@ -399,7 +399,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 		// Push doesn't change PR state — no workspaceChangeRequest invalidation
 		// (which would trigger a redundant `gh pr view`).
 		expect(invalidateQueriesSpy).not.toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.workspaceChangeRequest("workspace-1"),
+			queryKey: winthorpeQueryKeys.workspaceChangeRequest("workspace-1"),
 		});
 		expect(pushToast).not.toHaveBeenCalled();
 	});
@@ -504,7 +504,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 			defaultOptions: { queries: { retry: false } },
 		});
 		queryClient.setQueryData<ChangeRequestInfo | null>(
-			helmorQueryKeys.workspaceChangeRequest("workspace-1"),
+			winthorpeQueryKeys.workspaceChangeRequest("workspace-1"),
 			{
 				number: 53,
 				title: "Fix overflow",
@@ -514,14 +514,14 @@ describe("useWorkspaceCommitLifecycle", () => {
 			},
 		);
 		queryClient.setQueryData<WorkspaceDetail | null>(
-			helmorQueryKeys.workspaceDetail("workspace-1"),
+			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			{
 				id: "workspace-1",
 				status: "review",
 			} as unknown as WorkspaceDetail,
 		);
 		queryClient.setQueryData<WorkspaceGroup[]>(
-			helmorQueryKeys.workspaceGroups,
+			winthorpeQueryKeys.workspaceGroups,
 			[
 				{
 					id: "review",
@@ -583,7 +583,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 
 		// Optimistic move happens synchronously in handleInspectorCommitAction.
 		const groups = queryClient.getQueryData<WorkspaceGroup[]>(
-			helmorQueryKeys.workspaceGroups,
+			winthorpeQueryKeys.workspaceGroups,
 		);
 		expect(groups?.find((g) => g.id === "done")?.rows.map((r) => r.id)).toEqual(
 			["workspace-1"],
@@ -593,12 +593,12 @@ describe("useWorkspaceCommitLifecycle", () => {
 		).toEqual([]);
 		expect(
 			queryClient.getQueryData<WorkspaceDetail | null>(
-				helmorQueryKeys.workspaceDetail("workspace-1"),
+				winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			)?.status,
 		).toBe("done");
 		expect(
 			queryClient.getQueryData<ChangeRequestInfo | null>(
-				helmorQueryKeys.workspaceChangeRequest("workspace-1"),
+				winthorpeQueryKeys.workspaceChangeRequest("workspace-1"),
 			),
 		).toMatchObject({ state: "MERGED", isMerged: true });
 
@@ -640,10 +640,10 @@ describe("useWorkspaceCommitLifecycle", () => {
 			{ id: "done", label: "Done", tone: "done", rows: [] },
 		] as WorkspaceGroup[];
 		queryClient.setQueryData(
-			helmorQueryKeys.workspaceDetail("workspace-1"),
+			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			initialDetail,
 		);
-		queryClient.setQueryData(helmorQueryKeys.workspaceGroups, initialGroups);
+		queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, initialGroups);
 
 		apiMocks.mergeWorkspaceChangeRequest.mockRejectedValueOnce(
 			new Error("GitHub merge failed"),
@@ -683,7 +683,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 
 		await waitFor(() => {
 			const groups = queryClient.getQueryData<WorkspaceGroup[]>(
-				helmorQueryKeys.workspaceGroups,
+				winthorpeQueryKeys.workspaceGroups,
 			);
 			expect(
 				groups?.find((g) => g.id === "review")?.rows.map((r) => r.id),
@@ -694,7 +694,7 @@ describe("useWorkspaceCommitLifecycle", () => {
 		});
 		expect(
 			queryClient.getQueryData<WorkspaceDetail | null>(
-				helmorQueryKeys.workspaceDetail("workspace-1"),
+				winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			)?.status,
 		).toBe("review");
 	});

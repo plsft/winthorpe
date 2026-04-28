@@ -189,7 +189,7 @@ export function parseGetContextUsageParams(
 	params: Record<string, unknown>,
 ): GetContextUsageParams {
 	return {
-		helmorSessionId: requireString(params, "sessionId"),
+		winthorpeSessionId: requireString(params, "sessionId"),
 		providerSessionId: optionalString(params, "providerSessionId") ?? null,
 		model: requireString(params, "model"),
 		cwd: optionalString(params, "cwd"),

@@ -1,5 +1,5 @@
 // Browser stand-in for `@tauri-apps/api/core`. Vite alias redirects every
-// import of the real module here when `VITE_HELMOR_E2E=1`.
+// import of the real module here when `VITE_WINTHORPE_E2E=1`.
 
 import { runInvoke } from "./invoke-defaults";
 
@@ -14,7 +14,7 @@ export class Channel<T = unknown> {
 	onmessage: ((event: T) => void) | null = null;
 
 	toJSON(): string {
-		return "__HELMOR_E2E_CHANNEL__";
+		return "__WINTHORPE_E2E_CHANNEL__";
 	}
 }
 

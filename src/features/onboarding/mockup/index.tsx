@@ -4,7 +4,7 @@ import { MockInspector } from "./inspector";
 import { MockSidebar } from "./sidebar";
 
 /**
- * Logical size of the mockup viewport. Chosen to match a typical real Helmor
+ * Logical size of the mockup viewport. Chosen to match a typical real Winthorpe
  * window (≈1300×900) so all `.ui.tsx` primitives lay out exactly as they
  * would in production — same flex distribution, same text wrapping, same
  * `min-width` / `max-w-[75%]` outcomes. We then visually shrink the result
@@ -15,7 +15,7 @@ const MOCKUP_LOGICAL_HEIGHT = 900;
 const MOCKUP_SIDEBAR_WIDTH = 240;
 const MOCKUP_INSPECTOR_WIDTH = 280;
 
-export function HelmorOnboardingMockup({
+export function WinthorpeOnboardingMockup({
 	interactive = false,
 	providerSpotlight = false,
 	gitHeaderSpotlight = false,
@@ -54,7 +54,7 @@ export function HelmorOnboardingMockup({
 	return (
 		<div
 			ref={containerRef}
-			aria-label="Helmor workspace preview"
+			aria-label="Winthorpe workspace preview"
 			className={`aspect-[1300/900] w-full overflow-hidden text-foreground transition-colors duration-1000 ${
 				spotlightActive ? "bg-black/42" : "bg-background"
 			}`}

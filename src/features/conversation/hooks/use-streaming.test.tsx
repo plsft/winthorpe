@@ -9,7 +9,7 @@ import type {
 	ThreadMessageLike,
 	ToolCallPart,
 } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { sessionThreadCacheKey } from "@/lib/session-thread-cache";
 import type {
 	QueuedSubmitContext,
@@ -73,7 +73,7 @@ function createDeferredTool(): PendingDeferredTool {
 		modelId: "opus-1m",
 		resolvedModel: "opus-1m",
 		providerSessionId: "provider-session-1",
-		workingDirectory: "/tmp/helmor",
+		workingDirectory: "/tmp/winthorpe",
 		permissionMode: "default",
 		toolUseId: "tool-1",
 		toolName: "AskUserQuestion",
@@ -89,7 +89,7 @@ function createPendingElicitation(): PendingElicitation {
 		modelId: "opus-1m",
 		resolvedModel: "opus-1m",
 		providerSessionId: "provider-session-1",
-		workingDirectory: "/tmp/helmor",
+		workingDirectory: "/tmp/winthorpe",
 		elicitationId: "elicitation-1",
 		serverName: "design-server",
 		message: "Need structured input",
@@ -235,7 +235,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -292,7 +292,7 @@ describe("useConversationStreaming", () => {
 		expect(getLastInteractionSnapshot(interactionSnapshots)).toEqual(new Map());
 	});
 
-	it("uses the Helmor session id when stopping a resumed deferred stream", async () => {
+	it("uses the Winthorpe session id when stopping a resumed deferred stream", async () => {
 		apiMocks.startAgentMessageStream.mockImplementation(
 			async (_payload: unknown, _onEvent: (event: unknown) => void) => {
 				return undefined;
@@ -327,7 +327,7 @@ describe("useConversationStreaming", () => {
 				modelId: "opus-1m",
 				resumeOnly: true,
 				sessionId: "provider-session-1",
-				helmorSessionId: "session-1",
+				winthorpeSessionId: "session-1",
 			}),
 			expect.any(Function),
 		);
@@ -375,7 +375,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "plan",
 				fastMode: false,
@@ -414,7 +414,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "plan",
 				fastMode: false,
@@ -434,7 +434,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "bypassPermissions",
 				fastMode: false,
@@ -478,7 +478,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -495,7 +495,7 @@ describe("useConversationStreaming", () => {
 				filePaths: ["src/foo.ts"],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -519,7 +519,7 @@ describe("useConversationStreaming", () => {
 		apiMocks.startAgentMessageStream.mockImplementation(async () => {});
 
 		const { Wrapper, queryClient } = createWrapper();
-		queryClient.setQueryData(helmorQueryKeys.workspaceSessions("workspace-1"), [
+		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
 			{
 				id: "session-1",
 				title: "Untitled",
@@ -602,7 +602,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -619,7 +619,7 @@ describe("useConversationStreaming", () => {
 				filePaths: ["src/foo.ts"],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -642,7 +642,7 @@ describe("useConversationStreaming", () => {
 		apiMocks.startAgentMessageStream.mockImplementation(async () => {});
 
 		const { Wrapper, queryClient } = createWrapper();
-		queryClient.setQueryData(helmorQueryKeys.workspaceSessions("workspace-1"), [
+		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
 			{
 				id: "session-1",
 				workspaceId: "workspace-1",
@@ -663,18 +663,18 @@ describe("useConversationStreaming", () => {
 				active: true,
 			},
 		]);
-		queryClient.setQueryData(helmorQueryKeys.workspaceDetail("workspace-1"), {
+		queryClient.setQueryData(winthorpeQueryKeys.workspaceDetail("workspace-1"), {
 			id: "workspace-1",
 			title: "Workspace 1",
 			repoId: "repo-1",
-			repoName: "helmor",
+			repoName: "winthorpe",
 			repoIconSrc: null,
 			repoInitials: "HE",
 			remote: "origin",
 			remoteUrl: null,
 			defaultBranch: "main",
-			rootPath: "/tmp/helmor",
-			directoryName: "helmor",
+			rootPath: "/tmp/winthorpe",
+			directoryName: "winthorpe",
 			state: "ready",
 			hasUnread: false,
 			workspaceUnread: 0,
@@ -693,7 +693,7 @@ describe("useConversationStreaming", () => {
 			sessionCount: 1,
 			messageCount: 0,
 		});
-		queryClient.setQueryData(helmorQueryKeys.workspaceGroups, [
+		queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, [
 			{
 				id: "progress",
 				label: "In progress",
@@ -702,7 +702,7 @@ describe("useConversationStreaming", () => {
 					{
 						id: "workspace-1",
 						title: "Workspace 1",
-						repoName: "helmor",
+						repoName: "winthorpe",
 						repoInitials: "HE",
 						state: "ready",
 						hasUnread: false,
@@ -743,7 +743,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -761,13 +761,13 @@ describe("useConversationStreaming", () => {
 		);
 		expect(
 			queryClient.getQueryData<Array<{ title: string }>>(
-				helmorQueryKeys.workspaceSessions("workspace-1"),
+				winthorpeQueryKeys.workspaceSessions("workspace-1"),
 			)?.[0]?.title,
 		).toBe("Investigate reconnect failures af...");
 		expect(
 			queryClient.getQueryData<
 				Array<{ rows: Array<{ activeSessionTitle: string }> }>
-			>(helmorQueryKeys.workspaceGroups)?.[0]?.rows[0]?.activeSessionTitle,
+			>(winthorpeQueryKeys.workspaceGroups)?.[0]?.rows[0]?.activeSessionTitle,
 		).toBe("Investigate reconnect failures af...");
 	});
 
@@ -805,7 +805,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -819,7 +819,7 @@ describe("useConversationStreaming", () => {
 				modelId: "",
 				resolvedModel: "opus-1m",
 				sessionId: "provider-session-1",
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				elicitationId: "elicitation-1",
 				serverName: "design-server",
 				message: "Need structured input",
@@ -894,7 +894,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -993,7 +993,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -1047,7 +1047,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -1133,7 +1133,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -1160,7 +1160,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -1201,7 +1201,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: false,
@@ -1258,7 +1258,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: true,
@@ -1314,7 +1314,7 @@ describe("useConversationStreaming", () => {
 				modelId: MODEL.id,
 				resolvedModel: MODEL.cliModel,
 				sessionId: "provider-session-1",
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				persisted: false,
 			});
 		});
@@ -1354,7 +1354,7 @@ describe("useConversationStreaming", () => {
 				filePaths: [],
 				customTags: [],
 				model: MODEL,
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				effortLevel: "medium",
 				permissionMode: "default",
 				fastMode: true,
@@ -1370,7 +1370,7 @@ describe("useConversationStreaming", () => {
 				modelId: MODEL.id,
 				resolvedModel: MODEL.cliModel,
 				sessionId: "provider-session-1",
-				workingDirectory: "/tmp/helmor",
+				workingDirectory: "/tmp/winthorpe",
 				persisted: false,
 			});
 		});
@@ -1400,14 +1400,14 @@ describe("useConversationStreaming", () => {
 			await result.current.handleElicitationResponse(
 				createPendingElicitation(),
 				"accept",
-				{ name: "Helmor" },
+				{ name: "Winthorpe" },
 			);
 		});
 
 		expect(apiMocks.respondToElicitationRequest).toHaveBeenCalledWith(
 			"elicitation-1",
 			"accept",
-			{ name: "Helmor" },
+			{ name: "Winthorpe" },
 		);
 		expect(result.current.pendingElicitation).toBeNull();
 		expect(result.current.isSending).toBe(true);
@@ -1538,7 +1538,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1555,7 +1555,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1607,7 +1607,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1622,7 +1622,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1638,7 +1638,7 @@ describe("useConversationStreaming", () => {
 					modelId: MODEL.id,
 					resolvedModel: MODEL.cliModel,
 					sessionId: "provider-session-1",
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					persisted: false,
 				});
 			});
@@ -1669,7 +1669,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1732,7 +1732,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1747,7 +1747,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1805,7 +1805,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1819,7 +1819,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1842,7 +1842,7 @@ describe("useConversationStreaming", () => {
 					modelId: MODEL.id,
 					resolvedModel: MODEL.cliModel,
 					sessionId: "provider-session-A",
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					persisted: false,
 				});
 			});
@@ -1854,13 +1854,13 @@ describe("useConversationStreaming", () => {
 			expect(queue.snapshot().has("session-A")).toBe(false);
 			expect(queue.snapshot().has("session-B")).toBe(false);
 			// The drained submit targeted session A (NOT B, which is
-			// currently displayed) — verified via the helmorSessionId
+			// currently displayed) — verified via the winthorpeSessionId
 			// passed to the second `startAgentMessageStream` call.
 			expect(apiMocks.startAgentMessageStream).toHaveBeenCalledTimes(2);
 			const drainedPayload = apiMocks.startAgentMessageStream.mock
-				.calls[1][0] as { prompt: string; helmorSessionId: string };
+				.calls[1][0] as { prompt: string; winthorpeSessionId: string };
 			expect(drainedPayload.prompt).toBe("A follow-up");
-			expect(drainedPayload.helmorSessionId).toBe("session-A");
+			expect(drainedPayload.winthorpeSessionId).toBe("session-A");
 		});
 
 		it("forceQueue bypasses followUpBehavior='steer' and always queues", async () => {
@@ -1897,7 +1897,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1913,7 +1913,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1966,7 +1966,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -1979,7 +1979,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -2039,7 +2039,7 @@ describe("useConversationStreaming", () => {
 						filePaths: [],
 						customTags: [],
 						model: MODEL,
-						workingDirectory: "/tmp/helmor",
+						workingDirectory: "/tmp/winthorpe",
 						effortLevel: "medium",
 						permissionMode: "default",
 						fastMode: false,
@@ -2059,10 +2059,10 @@ describe("useConversationStreaming", () => {
 			expect(apiMocks.startAgentMessageStream).toHaveBeenCalledTimes(1);
 			const firstCall = apiMocks.startAgentMessageStream.mock.calls[0][0] as {
 				prompt: string;
-				helmorSessionId: string;
+				winthorpeSessionId: string;
 			};
 			expect(firstCall.prompt).toContain("Orphan");
-			expect(firstCall.helmorSessionId).toBe("session-1");
+			expect(firstCall.winthorpeSessionId).toBe("session-1");
 			expect(queue.snapshot().has("session-1")).toBe(false);
 		});
 
@@ -2098,7 +2098,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -2113,7 +2113,7 @@ describe("useConversationStreaming", () => {
 						filePaths: [],
 						customTags: [],
 						model: MODEL,
-						workingDirectory: "/tmp/helmor",
+						workingDirectory: "/tmp/winthorpe",
 						effortLevel: "medium",
 						permissionMode: "default",
 						fastMode: false,
@@ -2130,7 +2130,7 @@ describe("useConversationStreaming", () => {
 					modelId: MODEL.id,
 					resolvedModel: MODEL.cliModel,
 					sessionId: "provider-session-1",
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					persisted: false,
 				});
 			});
@@ -2148,7 +2148,7 @@ describe("useConversationStreaming", () => {
 					modelId: MODEL.id,
 					resolvedModel: MODEL.cliModel,
 					sessionId: "provider-session-1",
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					persisted: false,
 				});
 			});
@@ -2193,7 +2193,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,
@@ -2206,7 +2206,7 @@ describe("useConversationStreaming", () => {
 					filePaths: [],
 					customTags: [],
 					model: MODEL,
-					workingDirectory: "/tmp/helmor",
+					workingDirectory: "/tmp/winthorpe",
 					effortLevel: "medium",
 					permissionMode: "default",
 					fastMode: false,

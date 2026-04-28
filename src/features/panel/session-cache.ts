@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { WorkspaceDetail, WorkspaceSessionSummary } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 
 export function buildOptimisticSession(
 	workspaceId: string,
@@ -52,7 +52,7 @@ export function seedNewSessionInCache({
 	);
 
 	queryClient.setQueryData(
-		helmorQueryKeys.workspaceDetail(workspaceId),
+		winthorpeQueryKeys.workspaceDetail(workspaceId),
 		(current: WorkspaceDetail | null | undefined) => {
 			const base = current ?? workspace;
 			if (!base) {
@@ -73,7 +73,7 @@ export function seedNewSessionInCache({
 		},
 	);
 	queryClient.setQueryData(
-		helmorQueryKeys.workspaceSessions(workspaceId),
+		winthorpeQueryKeys.workspaceSessions(workspaceId),
 		(current: WorkspaceSessionSummary[] | undefined) => {
 			const resolvedSessions = current ?? existingSessions ?? [];
 			if (resolvedSessions.some((session) => session.id === sessionId)) {
@@ -93,7 +93,7 @@ export function seedNewSessionInCache({
 		},
 	);
 	queryClient.setQueryData(
-		[...helmorQueryKeys.sessionMessages(sessionId), "thread"],
+		[...winthorpeQueryKeys.sessionMessages(sessionId), "thread"],
 		[],
 	);
 

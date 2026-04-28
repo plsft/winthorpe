@@ -144,7 +144,7 @@ export function AppUpdatesPanel() {
 							.then((nextStatus) => {
 								setStatus(nextStatus);
 								if (nextStatus.stage === "idle") {
-									toast.success("Helmor is up to date");
+									toast.success("Winthorpe is up to date");
 								}
 								if (nextStatus.stage === "error") {
 									toast.error("Update check failed", {

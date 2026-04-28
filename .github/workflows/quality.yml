@@ -1,6 +1,6 @@
 name: Quality
 
-# Lint + typecheck run on macOS. Helmor is macOS-only; Windows and Linux
+# Lint + typecheck run on macOS. Winthorpe is macOS-only; Windows and Linux
 # quality gates were removed when we dropped cross-platform support.
 
 on:

@@ -52,7 +52,7 @@ vi.mock("./App.css", () => ({}));
 vi.mock("@tauri-apps/plugin-dialog", () => ({
 	open: vi.fn(),
 }));
-// Helmor is macOS-only; `./lib/platform` already returns `isMac: () => true`
+// Winthorpe is macOS-only; `./lib/platform` already returns `isMac: () => true`
 // unconditionally. No mock needed, but keep this vi.mock stub to document the
 // shortcut suite's dependency on that assumption.
 vi.mock("./lib/platform", () => ({
@@ -240,7 +240,7 @@ function createWorkspaceDetail(
 		id: workspaceId,
 		title: workspaceId,
 		repoId: `repo-${workspaceId}`,
-		repoName: "helmor",
+		repoName: "winthorpe",
 		directoryName: workspaceId,
 		state: archived ? "archived" : "ready",
 		hasUnread: false,
@@ -449,7 +449,7 @@ describe("App global navigation shortcuts", () => {
 					{
 						id: WORKSPACE_IDS.done,
 						title: "Done workspace",
-						repoName: "helmor",
+						repoName: "winthorpe",
 						state: "ready",
 					},
 				],
@@ -462,7 +462,7 @@ describe("App global navigation shortcuts", () => {
 					{
 						id: WORKSPACE_IDS.review,
 						title: "Review workspace",
-						repoName: "helmor",
+						repoName: "winthorpe",
 						state: "ready",
 					},
 				],
@@ -475,7 +475,7 @@ describe("App global navigation shortcuts", () => {
 					{
 						id: WORKSPACE_IDS.progress,
 						title: "Progress workspace",
-						repoName: "helmor",
+						repoName: "winthorpe",
 						state: "ready",
 					},
 				],
@@ -498,7 +498,7 @@ describe("App global navigation shortcuts", () => {
 				id: WORKSPACE_IDS.archived1,
 				title: "Archived workspace 1",
 				directoryName: "archived-workspace-1",
-				repoName: "helmor",
+				repoName: "winthorpe",
 				repoIconSrc: null,
 				repoInitials: "H",
 				state: "archived",
@@ -519,7 +519,7 @@ describe("App global navigation shortcuts", () => {
 				id: WORKSPACE_IDS.archived2,
 				title: "Archived workspace 2",
 				directoryName: "archived-workspace-2",
-				repoName: "helmor",
+				repoName: "winthorpe",
 				repoIconSrc: null,
 				repoInitials: "H",
 				state: "archived",
@@ -948,7 +948,7 @@ describe("App global navigation shortcuts", () => {
 		apiMocks.requestQuit.mockReset();
 		await renderAppReady();
 
-		emitTauriEvent("helmor://quit-requested");
+		emitTauriEvent("winthorpe://quit-requested");
 
 		await waitFor(() => {
 			expect(apiMocks.requestQuit).toHaveBeenCalledWith(false);
@@ -958,7 +958,7 @@ describe("App global navigation shortcuts", () => {
 	it("closes the current session when macOS emits the close-current-session event", async () => {
 		await renderAppReady();
 
-		emitTauriEvent("helmor://close-current-session");
+		emitTauriEvent("winthorpe://close-current-session");
 
 		await waitFor(() => {
 			expectSelectedSession("Done session 2");

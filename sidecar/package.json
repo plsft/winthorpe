@@ -1,11 +1,11 @@
 {
-	"name": "@helmor/sidecar",
-	"description": "Helmor's agent-orchestration sidecar process (Claude Agent SDK + Codex SDK).",
+	"name": "@winthorpe/sidecar",
+	"description": "Winthorpe's agent-orchestration sidecar process (Claude Agent SDK + Codex SDK).",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "bun run scripts/stage-vendor.ts && bun build --compile src/index.ts --outfile dist/helmor-sidecar",
+		"build": "bun run scripts/stage-vendor.ts && bun build --compile src/index.ts --outfile dist/winthorpe-sidecar",
 		"dev:prepare": "bun run stage-vendor",
 		"stage-vendor": "bun run scripts/stage-vendor.ts",
 		"dev": "bun run src/index.ts",

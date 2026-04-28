@@ -2,12 +2,12 @@
  * On-demand ISR revalidation webhook for the marketing site.
  *
  * Triggered by `.github/workflows/refresh-marketing.yml` on GitHub Release
- * `published` events, so helmor.ai reflects new versions within seconds
+ * `published` events, so winthorpe.ai reflects new versions within seconds
  * instead of waiting for the hourly `revalidate: 3600` window in
  * `app/page.tsx` + `lib/github.ts`.
  *
  * Security:
- *   - Shared secret `HELMOR_MARKETING_REVALIDATE_SECRET` must match on both
+ *   - Shared secret `WINTHORPE_MARKETING_REVALIDATE_SECRET` must match on both
  *     sides (Vercel env var + GitHub Actions secret).
  *   - Secret is read from the `x-revalidate-secret` HEADER (never query
  *     string), compared via `crypto.timingSafeEqual` to avoid timing attacks.
@@ -29,7 +29,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request): Promise<NextResponse> {
-	const expected = process.env.HELMOR_MARKETING_REVALIDATE_SECRET;
+	const expected = process.env.WINTHORPE_MARKETING_REVALIDATE_SECRET;
 	if (!expected) {
 		return NextResponse.json(
 			{ ok: false, error: "not_configured" },

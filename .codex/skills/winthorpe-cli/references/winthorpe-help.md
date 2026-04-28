@@ -1,11 +1,11 @@
-# Helmor CLI Top-Level Help
+# Winthorpe CLI Top-Level Help
 
-Captured from `helmor --help`.
+Captured from `winthorpe --help`.
 
 ```text
-Remote-control Helmor from the terminal. Works against the same SQLite database the desktop app uses — run commands even while the app is running.
+Remote-control Winthorpe from the terminal. Works against the same SQLite database the desktop app uses — run commands even while the app is running.
 
-Usage: helmor [OPTIONS] <COMMAND>
+Usage: winthorpe [OPTIONS] <COMMAND>
 
 Commands:
   data         Data directory, database, and mode info
@@ -18,10 +18,10 @@ Commands:
   models       List available AI models
   github       GitHub integration — auth, PR lookup, merge
   scripts      Inspect repo-level setup/run/archive scripts
-  conductor    Migrate from Helmor v1 (Conductor)
+  conductor    Migrate from Winthorpe v1 (Conductor)
   completions  Shell completion scripts
-  cli-status   Report whether the current Helmor CLI entrypoint is installed to PATH and which data mode it uses
-  quit         Ask a running Helmor app to quit (noop when it isn't running)
+  cli-status   Report whether the current Winthorpe CLI entrypoint is installed to PATH and which data mode it uses
+  quit         Ask a running Winthorpe app to quit (noop when it isn't running)
   mcp          Run as an MCP (Model Context Protocol) server over stdio
   help         Print this message or the help of the given subcommand(s)
 
@@ -33,7 +33,7 @@ Options:
           Reduce output to IDs / nothing. Useful for scripting
 
       --data-dir <DIR>
-          Override the data directory (default: ~/helmor or ~/helmor-dev)
+          Override the data directory (default: ~/winthorpe or ~/winthorpe-dev)
 
   -h, --help
           Print help (see a summary with '-h')

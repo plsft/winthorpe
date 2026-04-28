@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
-import helmorLogoSrc from "@/assets/helmor-logo-light.png";
+import winthorpeLogoSrc from "@/assets/winthorpe-logo-light.png";
 import { Button } from "@/components/ui/button";
-import { HelmorOnboardingMockup } from "../mockup";
+import { WinthorpeOnboardingMockup } from "../mockup";
 import type { OnboardingStep } from "../types";
 
 export function IntroPreview({
@@ -24,16 +24,16 @@ export function IntroPreview({
 				className={`flex min-w-0 flex-col items-start transition-transform duration-1000 ease-[cubic-bezier(.22,.82,.2,1)] ${step !== "intro" ? "pointer-events-none -translate-x-[58vw]" : "translate-x-0"}`}
 			>
 				<img
-					src={helmorLogoSrc}
-					alt="Helmor"
+					src={winthorpeLogoSrc}
+					alt="Winthorpe"
 					draggable={false}
 					className="size-14 rounded-[10px] opacity-95"
 				/>
 				<h1 className="mt-7 text-[2.625rem] font-semibold leading-[1.1] tracking-normal text-foreground max-lg:text-3xl">
-					Hi, Helmor!
+					Hi, Winthorpe!
 				</h1>
 				<p className="mt-6 max-w-md text-base font-medium leading-7 text-muted-foreground">
-					AI generates the code. Helmor is where you orchestrate, review, and
+					AI generates the code. Winthorpe is where you orchestrate, review, and
 					ship it.
 				</p>
 
@@ -49,7 +49,7 @@ export function IntroPreview({
 			</section>
 
 			<section
-				aria-label="Helmor preview"
+				aria-label="Winthorpe preview"
 				className={`relative flex min-h-[560px] min-w-0 items-center justify-center transition-transform duration-1000 ease-[cubic-bezier(.22,.82,.2,1)] max-lg:hidden ${
 					step === "skills"
 						? "translate-x-[28vw] translate-y-0"
@@ -93,7 +93,7 @@ export function IntroPreview({
 													: "scale-100"
 					}`}
 				>
-					<HelmorOnboardingMockup
+					<WinthorpeOnboardingMockup
 						interactive={step !== "intro"}
 						providerSpotlight={step === "agents"}
 						gitHeaderSpotlight={step === "corner"}

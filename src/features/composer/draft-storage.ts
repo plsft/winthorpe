@@ -1,6 +1,6 @@
 import type { SerializedEditorState } from "lexical";
 
-const STORAGE_PREFIX = "helmor:composer-draft:";
+const STORAGE_PREFIX = "winthorpe:composer-draft:";
 
 export function getComposerDraftStorageKey(contextKey: string): string {
 	return `${STORAGE_PREFIX}${contextKey}`;
@@ -39,7 +39,7 @@ export function savePersistedDraft(
 	try {
 		window.localStorage.setItem(key, JSON.stringify(editorState));
 	} catch (error) {
-		console.error(`[helmor] composer draft save failed for "${key}"`, error);
+		console.error(`[winthorpe] composer draft save failed for "${key}"`, error);
 	}
 }
 
@@ -52,6 +52,6 @@ export function clearPersistedDraft(contextKey: string): void {
 	try {
 		window.localStorage.removeItem(key);
 	} catch (error) {
-		console.error(`[helmor] composer draft clear failed for "${key}"`, error);
+		console.error(`[winthorpe] composer draft clear failed for "${key}"`, error);
 	}
 }

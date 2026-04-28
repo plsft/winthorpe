@@ -13,8 +13,8 @@ pub(super) struct TestDataDir {
 
 impl TestDataDir {
     pub(super) fn new(name: &str) -> Self {
-        let root = std::env::temp_dir().join(format!("helmor-test-{name}-{}", Uuid::new_v4()));
-        std::env::set_var("HELMOR_DATA_DIR", root.display().to_string());
+        let root = std::env::temp_dir().join(format!("winthorpe-test-{name}-{}", Uuid::new_v4()));
+        std::env::set_var("WINTHORPE_DATA_DIR", root.display().to_string());
         crate::data_dir::ensure_directory_structure().unwrap();
 
         let connection = Connection::open(crate::data_dir::db_path().unwrap()).unwrap();
@@ -26,7 +26,7 @@ impl TestDataDir {
 
 impl Drop for TestDataDir {
     fn drop(&mut self) {
-        std::env::remove_var("HELMOR_DATA_DIR");
+        std::env::remove_var("WINTHORPE_DATA_DIR");
         let _ = fs::remove_dir_all(&self.root);
     }
 }
@@ -46,7 +46,7 @@ impl EditorFilesHarness {
         let connection = Connection::open(crate::data_dir::db_path().unwrap()).unwrap();
         connection
             .execute(
-                "INSERT INTO repos (id, name, root_path) VALUES ('repo-1', 'helmor', ?1)",
+                "INSERT INTO repos (id, name, root_path) VALUES ('repo-1', 'winthorpe', ?1)",
                 [source_repo_root.display().to_string()],
             )
             .unwrap();
@@ -57,7 +57,7 @@ impl EditorFilesHarness {
 			)
 			.unwrap();
 
-        let workspace_dir = crate::data_dir::workspace_dir("helmor", "editor-mode").unwrap();
+        let workspace_dir = crate::data_dir::workspace_dir("winthorpe", "editor-mode").unwrap();
         fs::create_dir_all(&workspace_dir).unwrap();
 
         let outside_dir = test_dir.root.join("outside");
@@ -82,7 +82,7 @@ impl GitRepoHarness {
         let root = temp.path().to_path_buf();
 
         git_ops::run_git(["init", "-b", "main"], Some(&root)).unwrap();
-        git_ops::run_git(["config", "user.email", "test@helmor.test"], Some(&root)).unwrap();
+        git_ops::run_git(["config", "user.email", "test@winthorpe.test"], Some(&root)).unwrap();
         git_ops::run_git(["config", "user.name", "Test"], Some(&root)).unwrap();
         git_ops::run_git(["config", "commit.gpgsign", "false"], Some(&root)).unwrap();
 

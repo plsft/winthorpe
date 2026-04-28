@@ -26,7 +26,7 @@ export type MockWorkspaceRow = {
 	/**
 	 * When true, this row is a spotlight target during the `cliSplitSpotlight`
 	 * onboarding pass — used to highlight the three workspaces the assistant
-	 * just spun up via `helmor workspace new` so the punch-through effect
+	 * just spun up via `winthorpe workspace new` so the punch-through effect
 	 * draws the eye to them.
 	 */
 	cliSplitTarget?: boolean;
@@ -214,19 +214,19 @@ export const mockConversation: {
 				{
 					type: "tool",
 					name: "Bash",
-					detail: "helmor workspace new --repo helmor  # DB",
+					detail: "winthorpe workspace new --repo winthorpe  # DB",
 					cliSplitTarget: true,
 				},
 				{
 					type: "tool",
 					name: "Bash",
-					detail: "helmor workspace new --repo helmor  # backend",
+					detail: "winthorpe workspace new --repo winthorpe  # backend",
 					cliSplitTarget: true,
 				},
 				{
 					type: "tool",
 					name: "Bash",
-					detail: "helmor workspace new --repo helmor  # frontend",
+					detail: "winthorpe workspace new --repo winthorpe  # frontend",
 					cliSplitTarget: true,
 				},
 				{

@@ -363,12 +363,12 @@ export const WorkspacesSidebar = memo(function WorkspacesSidebar({
 		};
 
 		window.addEventListener(
-			"helmor:open-new-workspace",
+			"winthorpe:open-new-workspace",
 			handleOpenNewWorkspace,
 		);
 		return () =>
 			window.removeEventListener(
-				"helmor:open-new-workspace",
+				"winthorpe:open-new-workspace",
 				handleOpenNewWorkspace,
 			);
 	}, [addRepositoryBusy, createBusy, workspaceActionsBusy]);
@@ -380,12 +380,12 @@ export const WorkspacesSidebar = memo(function WorkspacesSidebar({
 		};
 
 		window.addEventListener(
-			"helmor:open-add-repository",
+			"winthorpe:open-add-repository",
 			handleOpenAddRepository,
 		);
 		return () =>
 			window.removeEventListener(
-				"helmor:open-add-repository",
+				"winthorpe:open-add-repository",
 				handleOpenAddRepository,
 			);
 	}, [addRepositoryBusy, createBusy, workspaceActionsBusy]);

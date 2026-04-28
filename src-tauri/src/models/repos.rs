@@ -516,7 +516,7 @@ pub struct RepoScripts {
     pub run_from_project: bool,
     pub archive_from_project: bool,
     /// Auto-run setup on workspace creation. DB-only — not configurable
-    /// from `helmor.json`. Defaults to true.
+    /// from `winthorpe.json`. Defaults to true.
     pub auto_run_setup: bool,
 }
 
@@ -532,37 +532,37 @@ pub struct RepoPreferences {
 
 /// Resolve repo scripts using a fixed priority:
 ///
-///   1. The workspace's worktree `helmor.json` — highest priority, only
+///   1. The workspace's worktree `winthorpe.json` — highest priority, only
 ///      consulted when `workspace_id` is supplied AND the worktree dir
 ///      exists on disk.
-///   2. The source repo root's `helmor.json` — used whenever (1) can't
+///   2. The source repo root's `winthorpe.json` — used whenever (1) can't
 ///      apply: no `workspace_id`, unknown workspace, or worktree missing
 ///      (archived / broken / pre-Phase-2 creation).
 ///   3. DB-level config (`repos.setup_script/run_script/archive_script`) —
 ///      the per-user override set via the Settings UI, used as a final
-///      fallback when neither `helmor.json` source provides a value.
+///      fallback when neither `winthorpe.json` source provides a value.
 ///
 /// The same rule applies regardless of caller (runtime panel, settings
 /// page, script execution, archive hook) — there is no special-case
 /// branch for "creation in flight" or "no workspace context".
 pub fn load_repo_scripts(repo_id: &str, workspace_id: Option<&str>) -> Result<RepoScripts> {
-    // Priority 1: workspace worktree helmor.json.
+    // Priority 1: workspace worktree winthorpe.json.
     let worktree_project = workspace_id.and_then(|ws_id| {
         crate::models::workspaces::load_workspace_record_by_id(ws_id)
             .ok()
             .flatten()
             .and_then(|ws| crate::data_dir::workspace_dir(&ws.repo_name, &ws.directory_name).ok())
             .filter(|dir| dir.is_dir())
-            .and_then(|dir| load_helmor_json_scripts(&dir))
+            .and_then(|dir| load_winthorpe_json_scripts(&dir))
     });
 
-    // Priority 2: source repo root helmor.json (worktree missing or no
+    // Priority 2: source repo root winthorpe.json (worktree missing or no
     // workspace context at all).
     let project = worktree_project.or_else(|| {
         load_repository_by_id(repo_id)
             .ok()
             .flatten()
-            .and_then(|repo| load_helmor_json_scripts(&PathBuf::from(repo.root_path.trim())))
+            .and_then(|repo| load_winthorpe_json_scripts(&PathBuf::from(repo.root_path.trim())))
     });
 
     // Priority 3: DB values — picked up by `pick_script` when the project
@@ -613,17 +613,17 @@ fn pick_script(project_value: Option<&str>, db_value: Option<String>) -> (Option
     }
 }
 
-struct HelmorJsonScripts {
+struct WinthorpeJsonScripts {
     setup: Option<String>,
     run: Option<String>,
     archive: Option<String>,
 }
 
-fn load_helmor_json_scripts(root_path: &Path) -> Option<HelmorJsonScripts> {
-    parse_project_config_scripts(&root_path.join("helmor.json"))
+fn load_winthorpe_json_scripts(root_path: &Path) -> Option<WinthorpeJsonScripts> {
+    parse_project_config_scripts(&root_path.join("winthorpe.json"))
 }
 
-fn parse_project_config_scripts(config_path: &Path) -> Option<HelmorJsonScripts> {
+fn parse_project_config_scripts(config_path: &Path) -> Option<WinthorpeJsonScripts> {
     if !config_path.is_file() {
         return None;
     }
@@ -642,7 +642,7 @@ fn parse_project_config_scripts(config_path: &Path) -> Option<HelmorJsonScripts>
         }
     };
     let scripts = json.get("scripts")?;
-    Some(HelmorJsonScripts {
+    Some(WinthorpeJsonScripts {
         setup: scripts
             .get("setup")
             .and_then(Value::as_str)

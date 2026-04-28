@@ -1,4 +1,4 @@
-//! Public service facade for non-Tauri consumers (e.g. `helmorctl`).
+//! Public service facade for non-Tauri consumers (e.g. `winthorpectl`).
 //!
 //! Re-exports domain types and functions from the core backend modules so
 //! that `[[bin]]` targets can use them without going through Tauri commands.
@@ -100,7 +100,7 @@ fn looks_like_uuid(s: &str) -> bool {
 }
 
 // ---------------------------------------------------------------------------
-// Agent streaming — `helmor send`
+// Agent streaming — `winthorpe send`
 // ---------------------------------------------------------------------------
 
 pub struct SendMessageParams {
@@ -123,7 +123,7 @@ pub struct SendMessageResult {
     pub persisted: bool,
 }
 
-/// Send a prompt to an AI agent. When the Helmor desktop app is running,
+/// Send a prompt to an AI agent. When the Winthorpe desktop app is running,
 /// the message is queued as a pending CLI send so the app's shared sidecar
 /// handles it — this gives the frontend live streaming updates. When the
 /// app is not running, falls back to creating an independent sidecar.
@@ -589,7 +589,7 @@ pub fn drain_pending_cli_sends() -> Result<Vec<PendingCliSend>> {
     Ok(rows)
 }
 
-/// Check if the Helmor App is running by testing the MCP bridge port.
+/// Check if the Winthorpe App is running by testing the MCP bridge port.
 pub fn is_app_running() -> bool {
     crate::ui_sync::is_listener_running()
 }
@@ -605,7 +605,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    /// Helper: set HELMOR_DATA_DIR to a temp dir for tests that hit the DB.
+    /// Helper: set WINTHORPE_DATA_DIR to a temp dir for tests that hit the DB.
     struct TestDataDir {
         root: PathBuf,
     }
@@ -613,8 +613,8 @@ mod tests {
     impl TestDataDir {
         fn new(name: &str) -> Self {
             let root =
-                std::env::temp_dir().join(format!("helmor-test-{name}-{}", uuid::Uuid::new_v4()));
-            std::env::set_var("HELMOR_DATA_DIR", root.display().to_string());
+                std::env::temp_dir().join(format!("winthorpe-test-{name}-{}", uuid::Uuid::new_v4()));
+            std::env::set_var("WINTHORPE_DATA_DIR", root.display().to_string());
             crate::data_dir::ensure_directory_structure().unwrap();
             let db_path = crate::data_dir::db_path().unwrap();
             let conn = rusqlite::Connection::open(&db_path).unwrap();
@@ -636,7 +636,7 @@ mod tests {
 
     impl Drop for TestDataDir {
         fn drop(&mut self) {
-            std::env::remove_var("HELMOR_DATA_DIR");
+            std::env::remove_var("WINTHORPE_DATA_DIR");
             let _ = fs::remove_dir_all(&self.root);
         }
     }

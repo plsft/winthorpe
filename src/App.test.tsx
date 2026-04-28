@@ -19,8 +19,8 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 	open: vi.fn(),
 }));
 
-const SIDEBAR_WIDTH_STORAGE_KEY = "helmor.workspaceSidebarWidth";
-const INSPECTOR_WIDTH_STORAGE_KEY = "helmor.workspaceInspectorWidth";
+const SIDEBAR_WIDTH_STORAGE_KEY = "winthorpe.workspaceSidebarWidth";
+const INSPECTOR_WIDTH_STORAGE_KEY = "winthorpe.workspaceInspectorWidth";
 
 describe("App", () => {
 	beforeEach(() => {
@@ -265,7 +265,7 @@ describe("App", () => {
 			await screen.findByRole("main", { name: "Application shell" });
 
 			expect(
-				screen.getByRole("button", { name: "Update Helmor to 1.1.0" }),
+				screen.getByRole("button", { name: "Update Winthorpe to 1.1.0" }),
 			).toBeInTheDocument();
 
 			await user.click(
@@ -273,7 +273,7 @@ describe("App", () => {
 			);
 
 			expect(
-				screen.getByRole("button", { name: "Update Helmor to 1.1.0" }),
+				screen.getByRole("button", { name: "Update Winthorpe to 1.1.0" }),
 			).toBeInTheDocument();
 		} finally {
 			invokeMock.mockImplementation(baseInvokeImpl ?? (async () => undefined));
@@ -290,7 +290,7 @@ describe("App", () => {
 					{
 						id: "repo-avatar",
 						title: "Investigate repo avatar fallback",
-						repoName: "helmor-core",
+						repoName: "winthorpe-core",
 					},
 				],
 			},
@@ -321,7 +321,7 @@ describe("App", () => {
 						id: "archived-workspace",
 						title: "Archived workspace",
 						state: "archived",
-						repoName: "helmor-core",
+						repoName: "winthorpe-core",
 					},
 				]}
 				onRestoreWorkspace={onRestoreWorkspace}
@@ -350,7 +350,7 @@ describe("App", () => {
 								id: "ready-workspace",
 								title: "Ready workspace",
 								state: "ready",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 							},
 						],
 					},
@@ -377,7 +377,7 @@ describe("App", () => {
 			},
 			{
 				id: "repo-2",
-				name: "helmor",
+				name: "winthorpe",
 				defaultBranch: "main",
 				repoInitials: "H",
 			},
@@ -421,7 +421,7 @@ describe("App", () => {
 								id: "ready-workspace",
 								title: "Ready workspace",
 								state: "ready",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 								hasUnread: false,
 							},
 						],
@@ -456,7 +456,7 @@ describe("App", () => {
 								id: "selected-workspace",
 								title: "Selected workspace",
 								state: "ready",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 								hasUnread: false,
 							},
 						],
@@ -489,14 +489,14 @@ describe("App", () => {
 								id: "selected-read",
 								title: "Selected read",
 								state: "ready",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 								hasUnread: false,
 							},
 							{
 								id: "unselected-unread",
 								title: "Unselected unread",
 								state: "ready",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 								hasUnread: true,
 							},
 						],
@@ -534,7 +534,7 @@ describe("App", () => {
 						id: "review-workspace",
 						title: "Review workspace",
 						state: "ready",
-						repoName: "helmor-core",
+						repoName: "winthorpe-core",
 					},
 				],
 			},
@@ -547,7 +547,7 @@ describe("App", () => {
 						id: "progress-workspace",
 						title: "Progress workspace",
 						state: "ready",
-						repoName: "helmor-core",
+						repoName: "winthorpe-core",
 					},
 				],
 			},
@@ -587,7 +587,7 @@ describe("App", () => {
 				id: "archived-workspace",
 				title: "Archived workspace",
 				state: "archived" as const,
-				repoName: "helmor-core",
+				repoName: "winthorpe-core",
 			},
 		];
 
@@ -622,7 +622,7 @@ describe("App", () => {
 						id: "archived-workspace",
 						title: "Archived workspace",
 						state: "archived",
-						repoName: "helmor-core",
+						repoName: "winthorpe-core",
 					},
 				]}
 				onRestoreWorkspace={onRestoreWorkspace}
@@ -656,7 +656,7 @@ describe("App", () => {
 								id: "ready-workspace",
 								title: "Ready workspace",
 								state: "ready",
-								repoName: "helmor-core",
+								repoName: "winthorpe-core",
 							},
 						],
 					},

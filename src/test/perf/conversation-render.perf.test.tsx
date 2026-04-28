@@ -2,7 +2,7 @@
  * Autoresearch perf harness — DO NOT delete or weaken without authorization.
  *
  * This test exists to give the autoresearch loop a single mechanical number
- * for HELMOR_PERF_TOTAL: the total number of "wasted" or "expected" renders
+ * for WINTHORPE_PERF_TOTAL: the total number of "wasted" or "expected" renders
  * accumulated by `dev-render-debug` while a real WorkspacePanel is exercised
  * through three scenarios:
  *
@@ -12,7 +12,7 @@
  *      response.
  *
  * The render counters live in `src/lib/dev-render-debug.ts` and write to
- * `window.__HELMOR_DEV_RENDER_STATS__` once `?debugRenderCounts=1` is in the
+ * `window.__WINTHORPE_DEV_RENDER_STATS__` once `?debugRenderCounts=1` is in the
  * URL. We set that URL before importing the panel so the gate flips before any
  * memoised closures capture `false`.
  *
@@ -21,7 +21,7 @@
  *   - sum of `composer.rendersByContext` values
  *   - sum of `sidebarRows` values
  *
- * The single line `HELMOR_PERF_TOTAL=<n>` is what the verify command greps.
+ * The single line `WINTHORPE_PERF_TOTAL=<n>` is what the verify command greps.
  */
 
 // Flip the dev-render-debug gate BEFORE any module that calls
@@ -31,8 +31,8 @@ if (typeof window !== "undefined") {
 	url.searchParams.set("debugRenderCounts", "1");
 	window.history.replaceState(null, "", url.toString());
 	(
-		window as unknown as { __HELMOR_DEV_RENDER_STATS__?: unknown }
-	).__HELMOR_DEV_RENDER_STATS__ = undefined;
+		window as unknown as { __WINTHORPE_DEV_RENDER_STATS__?: unknown }
+	).__WINTHORPE_DEV_RENDER_STATS__ = undefined;
 
 	// jsdom returns 0 for every layout-derived measurement, which makes
 	// ProgressiveConversationViewport's visible-window calculation degenerate
@@ -76,7 +76,7 @@ import type {
 	WorkspaceDetail,
 	WorkspaceSessionSummary,
 } from "@/lib/api";
-import { createHelmorQueryClient } from "@/lib/query-client";
+import { createWinthorpeQueryClient } from "@/lib/query-client";
 
 // ---------------------------------------------------------------------------
 // Module mocks — keep heavy deps from blowing up jsdom and from doing real IPC.
@@ -207,8 +207,8 @@ type DevRenderStats = {
 function readStats(): DevRenderStats | null {
 	if (typeof window === "undefined") return null;
 	const stats = (
-		window as unknown as { __HELMOR_DEV_RENDER_STATS__?: DevRenderStats }
-	).__HELMOR_DEV_RENDER_STATS__;
+		window as unknown as { __WINTHORPE_DEV_RENDER_STATS__?: DevRenderStats }
+	).__WINTHORPE_DEV_RENDER_STATS__;
 	return stats ?? null;
 }
 
@@ -226,8 +226,8 @@ function sumStats(stats: DevRenderStats | null): number {
 function resetStats() {
 	if (typeof window === "undefined") return;
 	(
-		window as unknown as { __HELMOR_DEV_RENDER_STATS__?: unknown }
-	).__HELMOR_DEV_RENDER_STATS__ = undefined;
+		window as unknown as { __WINTHORPE_DEV_RENDER_STATS__?: unknown }
+	).__WINTHORPE_DEV_RENDER_STATS__ = undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -266,7 +266,7 @@ describe("conversation render perf", () => {
 		// container never produces.
 		let streamingThread: ThreadMessageLike[] = initialThread.slice();
 
-		const queryClient = createHelmorQueryClient();
+		const queryClient = createWinthorpeQueryClient();
 		queryClient.setDefaultOptions({
 			queries: {
 				...queryClient.getDefaultOptions().queries,
@@ -374,7 +374,7 @@ describe("conversation render perf", () => {
 		const total = sumStats(readStats());
 
 		// eslint-disable-next-line no-console
-		console.log(`HELMOR_PERF_TOTAL=${total}`);
+		console.log(`WINTHORPE_PERF_TOTAL=${total}`);
 
 		// The harness must always emit a number; even 0 is valid output for the
 		// verify command. Sanity check: stats object must exist (i.e. the gate

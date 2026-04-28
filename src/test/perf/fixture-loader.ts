@@ -15,7 +15,7 @@
  * For perf testing we only care about the `stream_event` rows because they
  * are what drive the live streaming render path. We replay them into a
  * synthetic `ThreadMessageLike` snapshot that grows over time, mirroring how
- * the Helmor pipeline (Rust agents.rs → frontend `liveMessages`) builds an
+ * the Winthorpe pipeline (Rust agents.rs → frontend `liveMessages`) builds an
  * incremental assistant message. After every meaningful delta we emit a new
  * snapshot so the perf test can rerender the panel exactly as the production
  * stream would.

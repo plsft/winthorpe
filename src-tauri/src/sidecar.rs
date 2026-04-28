@@ -139,12 +139,12 @@ impl SidecarProcess {
 
         // Pass log config to the sidecar process
         if let Ok(dir) = crate::data_dir::logs_dir() {
-            cmd.env("HELMOR_LOG_DIR", dir);
+            cmd.env("WINTHORPE_LOG_DIR", dir);
         }
-        if let Ok(level) = std::env::var("HELMOR_LOG") {
-            cmd.env("HELMOR_LOG", level);
+        if let Ok(level) = std::env::var("WINTHORPE_LOG") {
+            cmd.env("WINTHORPE_LOG", level);
         } else if crate::data_dir::is_dev() {
-            cmd.env("HELMOR_LOG", "debug");
+            cmd.env("WINTHORPE_LOG", "debug");
         }
 
         if !is_dev {
@@ -158,13 +158,13 @@ impl SidecarProcess {
                 "Resolved bundled agent paths"
             );
             if let Some(path) = bundled_paths.claude_cli {
-                cmd.env("HELMOR_CLAUDE_CODE_CLI_PATH", &path);
+                cmd.env("WINTHORPE_CLAUDE_CODE_CLI_PATH", &path);
             }
             if let Some(path) = bundled_paths.codex_bin {
-                cmd.env("HELMOR_CODEX_BIN_PATH", &path);
+                cmd.env("WINTHORPE_CODEX_BIN_PATH", &path);
             }
             if let Some(path) = bundled_paths.bun_bin {
-                cmd.env("HELMOR_BUN_PATH", &path);
+                cmd.env("WINTHORPE_BUN_PATH", &path);
             }
         }
 
@@ -571,7 +571,7 @@ impl ManagedSidecar {
 
 fn resolve_sidecar_path() -> Result<PathBuf> {
     // 1. Environment variable override
-    if let Ok(path) = std::env::var("HELMOR_SIDECAR_PATH") {
+    if let Ok(path) = std::env::var("WINTHORPE_SIDECAR_PATH") {
         let p = PathBuf::from(path);
         if p.is_file() {
             return Ok(p);
@@ -591,16 +591,16 @@ fn resolve_sidecar_path() -> Result<PathBuf> {
 
     // 3. Production: compiled binary placed by Tauri externalBin.
     //    Tauri puts external binaries next to the main executable
-    //    (e.g. Helmor.app/Contents/MacOS/helmor-sidecar on macOS,
-    //     C:\Program Files\Helmor\helmor-sidecar.exe on Windows).
+    //    (e.g. Winthorpe.app/Contents/MacOS/winthorpe-sidecar on macOS,
+    //     C:\Program Files\Winthorpe\winthorpe-sidecar.exe on Windows).
     if let Ok(exe) = std::env::current_exe() {
         if let Some(exe_dir) = exe.parent() {
             // Windows: Tauri CLI emits externalBins with the same .exe suffix
-            // as the parent Helmor binary. On Unix, no extension.
+            // as the parent Winthorpe binary. On Unix, no extension.
             let binary_name = if cfg!(windows) {
-                "helmor-sidecar.exe"
+                "winthorpe-sidecar.exe"
             } else {
-                "helmor-sidecar"
+                "winthorpe-sidecar"
             };
             let binary = exe_dir.join(binary_name);
             if binary.is_file() {
@@ -609,7 +609,7 @@ fn resolve_sidecar_path() -> Result<PathBuf> {
         }
     }
 
-    bail!("Sidecar not found. In dev, ensure sidecar/src/index.ts exists. Set HELMOR_SIDECAR_PATH to override.")
+    bail!("Sidecar not found. In dev, ensure sidecar/src/index.ts exists. Set WINTHORPE_SIDECAR_PATH to override.")
 }
 
 #[cfg(test)]
@@ -794,8 +794,8 @@ mod tests {
     #[test]
     fn bundled_agent_paths_resolve_from_running_app() {
         let root = tempfile::tempdir().unwrap();
-        let exe = root.path().join("Helmor.app/Contents/MacOS/Helmor");
-        let resources = root.path().join("Helmor.app/Contents/Resources/vendor");
+        let exe = root.path().join("Winthorpe.app/Contents/MacOS/Winthorpe");
+        let resources = root.path().join("Winthorpe.app/Contents/Resources/vendor");
         std::fs::create_dir_all(resources.join("claude-code")).unwrap();
         std::fs::create_dir_all(resources.join("codex")).unwrap();
         std::fs::create_dir_all(resources.join("bun")).unwrap();
@@ -808,17 +808,17 @@ mod tests {
         assert_eq!(
             paths.claude_cli.unwrap(),
             root.path()
-                .join("Helmor.app/Contents/Resources/vendor/claude-code/cli.js")
+                .join("Winthorpe.app/Contents/Resources/vendor/claude-code/cli.js")
         );
         assert_eq!(
             paths.codex_bin.unwrap(),
             root.path()
-                .join("Helmor.app/Contents/Resources/vendor/codex/codex")
+                .join("Winthorpe.app/Contents/Resources/vendor/codex/codex")
         );
         assert_eq!(
             paths.bun_bin.unwrap(),
             root.path()
-                .join("Helmor.app/Contents/Resources/vendor/bun/bun")
+                .join("Winthorpe.app/Contents/Resources/vendor/bun/bun")
         );
     }
 }

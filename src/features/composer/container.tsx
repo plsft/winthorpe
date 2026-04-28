@@ -31,7 +31,7 @@ import type {
 import {
 	agentModelSectionsQueryOptions,
 	autoCloseActionKindsQueryOptions,
-	helmorQueryKeys,
+	winthorpeQueryKeys,
 	slashCommandsQueryOptions,
 	workspaceCandidateDirectoriesQueryOptions,
 	workspaceDetailQueryOptions,
@@ -232,7 +232,7 @@ export const WorkspaceComposerContainer = memo(
 			onSuccess: (returned) => {
 				if (!displayedWorkspaceId) return;
 				queryClient.setQueryData(
-					helmorQueryKeys.workspaceLinkedDirectories(displayedWorkspaceId),
+					winthorpeQueryKeys.workspaceLinkedDirectories(displayedWorkspaceId),
 					returned,
 				);
 				void queryClient.invalidateQueries({
@@ -437,7 +437,7 @@ export const WorkspaceComposerContainer = memo(
 				await saveAutoCloseActionKinds(nextKinds);
 			} finally {
 				queryClient.invalidateQueries({
-					queryKey: helmorQueryKeys.autoCloseActionKinds,
+					queryKey: winthorpeQueryKeys.autoCloseActionKinds,
 				});
 			}
 		}, [
@@ -469,12 +469,12 @@ export const WorkspaceComposerContainer = memo(
 						await Promise.all([
 							queryClient.invalidateQueries({
 								queryKey:
-									helmorQueryKeys.workspaceSessions(displayedWorkspaceId),
+									winthorpeQueryKeys.workspaceSessions(displayedWorkspaceId),
 							}),
 							...(workspaceDetailQuery.data?.repoId
 								? [
 										queryClient.invalidateQueries({
-											queryKey: helmorQueryKeys.repoScripts(
+											queryKey: winthorpeQueryKeys.repoScripts(
 												workspaceDetailQuery.data.repoId,
 												displayedWorkspaceId,
 											),
@@ -535,7 +535,7 @@ export const WorkspaceComposerContainer = memo(
 		const slashCommandsResponse = slashCommandsQuery.data;
 		const agentSlashCommands =
 			slashCommandsResponse?.commands ?? EMPTY_SLASH_COMMANDS;
-		// Prepend Helmor's host-app commands (e.g. /add-dir) so they always
+		// Prepend Winthorpe's host-app commands (e.g. /add-dir) so they always
 		// show at the top of the popup, even before the agent-supplied list
 		// has loaded.
 		const slashCommands = useMemo<readonly SlashCommandEntry[]>(

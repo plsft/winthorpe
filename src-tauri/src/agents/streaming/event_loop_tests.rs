@@ -191,11 +191,11 @@ fn make_ctx(provider: &str) -> TurnContext {
     TurnContext {
         provider: provider.into(),
         model_id: "model-id".into(),
-        working_directory: "/tmp/helmor".into(),
+        working_directory: "/tmp/winthorpe".into(),
         effort_level: None,
         permission_mode: None,
         fast_mode: false,
-        helmor_session_id: Some("session-1".into()),
+        winthorpe_session_id: Some("session-1".into()),
         resolved_session_id: None,
         resolved_model: "test-model".into(),
         persisted_turn_count: 0,

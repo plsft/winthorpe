@@ -3,7 +3,7 @@
 //!
 //! Unlike `github_cli.rs`, which shells out to `gh`, this module goes straight
 //! to the v4 GraphQL endpoint using the OAuth access token persisted by the
-//! device-flow identity stored in `auth.rs`. It exists so Helmor can look up
+//! device-flow identity stored in `auth.rs`. It exists so Winthorpe can look up
 //! PR state without requiring `gh` to be installed on the user's machine.
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -146,7 +146,7 @@ query($owner: String!, $name: String!, $head: String!) {
     let response = send_with_retry(
         client
             .post("https://api.github.com/graphql")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
@@ -400,7 +400,7 @@ query($owner: String!, $name: String!, $head: String!) {
     let response = send_with_retry(
         client
             .post("https://api.github.com/graphql")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
@@ -468,7 +468,7 @@ fn query_check_run_detail(
             .get(format!(
                 "https://api.github.com/repos/{owner}/{name}/check-runs/{check_run_id}"
             ))
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/vnd.github+json")
             .header(AUTHORIZATION, format!("Bearer {access_token}")),
     )
@@ -540,7 +540,7 @@ query($owner: String!, $name: String!, $head: String!) {
     let id_response: GraphqlEnvelope = send_with_retry(
         client
             .post("https://api.github.com/graphql")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
@@ -575,7 +575,7 @@ mutation($prId: ID!) {
     let merge_response: serde_json::Value = send_with_retry(
         client
             .post("https://api.github.com/graphql")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
@@ -652,7 +652,7 @@ query($owner: String!, $name: String!, $head: String!) {
     let id_response: GraphqlEnvelope = send_with_retry(
         client
             .post("https://api.github.com/graphql")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))
@@ -686,7 +686,7 @@ mutation($prId: ID!) {
     let close_response: serde_json::Value = send_with_retry(
         client
             .post("https://api.github.com/graphql")
-            .header(USER_AGENT, "Helmor")
+            .header(USER_AGENT, "Winthorpe")
             .header(ACCEPT, "application/json")
             .header(CONTENT_TYPE, "application/json")
             .header(AUTHORIZATION, format!("Bearer {access_token}"))

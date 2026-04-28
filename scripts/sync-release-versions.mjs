@@ -27,14 +27,14 @@ if (cargoToml === nextCargoToml) {
 	console.log(`Updated src-tauri/Cargo.toml to ${version}`);
 }
 
-// Cargo.lock keeps a `[[package]]` entry for the helmor crate with its own
+// Cargo.lock keeps a `[[package]]` entry for the winthorpe crate with its own
 // version field. CI never runs cargo, so without this step the lockfile
 // drifts and everyone regenerates it locally via rust-analyzer.
 const cargoLock = fs.readFileSync(cargoLockPath, "utf8");
-const cargoLockPattern = /(^name = "helmor"\nversion = )"[^"]*"/m;
+const cargoLockPattern = /(^name = "winthorpe"\nversion = )"[^"]*"/m;
 if (!cargoLockPattern.test(cargoLock)) {
 	throw new Error(
-		'src-tauri/Cargo.lock is missing the `name = "helmor"` package entry',
+		'src-tauri/Cargo.lock is missing the `name = "winthorpe"` package entry',
 	);
 }
 const nextCargoLock = cargoLock.replace(cargoLockPattern, `$1"${version}"`);

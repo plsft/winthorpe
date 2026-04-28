@@ -164,7 +164,7 @@ export const REPO_PREFERENCE_DESCRIPTIONS: Record<RepoPreferenceKey, string> = {
 	resolveConflicts:
 		"Add custom instructions sent to the agent when you click the Resolve conflicts button.",
 	branchRename:
-		"Add custom instructions used when Helmor generates the first branch rename suggestion for a new chat.",
+		"Add custom instructions used when Winthorpe generates the first branch rename suggestion for a new chat.",
 	general:
 		"Add custom instructions sent to the agent at the start of every new chat.",
 };

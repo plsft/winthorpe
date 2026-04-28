@@ -9,7 +9,7 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { HelmorThinkingIndicator } from "@/components/helmor-thinking-indicator";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import {
 	LazyStreamdown,
 	preloadStreamdown,
@@ -283,7 +283,7 @@ export function formatElapsed(ms: number): string {
 	return remMin > 0 ? `${hr}h ${remMin}m` : `${hr}h`;
 }
 
-/** "Running for X" timer next to the Helmor logo. Start time = last user
+/** "Running for X" timer next to the Winthorpe logo. Start time = last user
  *  message's optimistic createdAt (in thread cache the moment Send is hit). */
 function StreamingElapsed({
 	workspaceId,
@@ -501,7 +501,7 @@ export function WorkspaceHoverCard({
 			);
 			if (!rowEl) return;
 			const sidebarEl = rowEl.closest<HTMLElement>(
-				"[data-helmor-sidebar-root]",
+				"[data-winthorpe-sidebar-root]",
 			);
 			if (!sidebarEl) return;
 			const rowRight = rowEl.getBoundingClientRect().right;
@@ -596,10 +596,10 @@ export function WorkspaceHoverCard({
 						</div>
 					</div>
 
-					{/* Title row + Helmor logo + elapsed timer (when streaming). */}
+					{/* Title row + Winthorpe logo + elapsed timer (when streaming). */}
 					<div className="flex items-start gap-2">
 						{isSending ? (
-							<HelmorThinkingIndicator size={14} className="mt-0.5 shrink-0" />
+							<WinthorpeThinkingIndicator size={14} className="mt-0.5 shrink-0" />
 						) : null}
 						<div className="min-w-0 flex-1 text-sm font-semibold leading-snug text-foreground line-clamp-2">
 							{title}

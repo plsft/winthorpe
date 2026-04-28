@@ -1,4 +1,4 @@
-//! Workspace-granular import of Conductor data into Helmor.
+//! Workspace-granular import of Conductor data into Winthorpe.
 //!
 //! Users browse Conductor repos/workspaces, select individual workspaces,
 //! and import both database records and filesystem context files.
@@ -58,9 +58,9 @@ pub struct ImportWorkspacesResult {
 
 /// List all repositories in the Conductor database with workspace counts.
 pub fn list_conductor_repos() -> Result<Vec<ConductorRepo>> {
-    let (helmor_conn, _source_path) = open_with_conductor_attached()?;
+    let (winthorpe_conn, _source_path) = open_with_conductor_attached()?;
 
-    let mut stmt = helmor_conn
+    let mut stmt = winthorpe_conn
         .prepare(
             r#"
             SELECT
@@ -97,16 +97,16 @@ pub fn list_conductor_repos() -> Result<Vec<ConductorRepo>> {
 
     drop(stmt);
 
-    helmor_conn.execute("DETACH DATABASE source", []).ok();
+    winthorpe_conn.execute("DETACH DATABASE source", []).ok();
 
     Ok(repos)
 }
 
 /// List workspaces for a given repo in the Conductor database.
 pub fn list_conductor_workspaces(repo_id: &str) -> Result<Vec<ConductorWorkspace>> {
-    let (helmor_conn, _source_path) = open_with_conductor_attached()?;
+    let (winthorpe_conn, _source_path) = open_with_conductor_attached()?;
 
-    let mut stmt = helmor_conn
+    let mut stmt = winthorpe_conn
         .prepare(
             r#"
             SELECT
@@ -165,16 +165,16 @@ pub fn list_conductor_workspaces(repo_id: &str) -> Result<Vec<ConductorWorkspace
         })
         .collect();
 
-    helmor_conn.execute("DETACH DATABASE source", []).ok();
+    winthorpe_conn.execute("DETACH DATABASE source", []).ok();
 
     Ok(workspaces)
 }
 
 // ---------------------------------------------------------------------------
-// Import — copy selected workspaces into Helmor
+// Import — copy selected workspaces into Winthorpe
 // ---------------------------------------------------------------------------
 
-/// Import selected workspaces from Conductor into Helmor.
+/// Import selected workspaces from Conductor into Winthorpe.
 ///
 /// For each workspace:
 /// 1. Copies database records (repo, workspace, sessions, messages)
@@ -189,10 +189,10 @@ pub fn import_conductor_workspaces(workspace_ids: &[String]) -> Result<ImportWor
         });
     }
 
-    let (helmor_conn, _source_path) = open_with_conductor_attached()?;
+    let (winthorpe_conn, _source_path) = open_with_conductor_attached()?;
 
     let conductor_root = crate::data_dir::conductor_root_path();
-    let helmor_data_dir = crate::data_dir::data_dir()?;
+    let winthorpe_data_dir = crate::data_dir::data_dir()?;
 
     let mut imported_count: i64 = 0;
     let mut skipped_count: i64 = 0;
@@ -200,7 +200,7 @@ pub fn import_conductor_workspaces(workspace_ids: &[String]) -> Result<ImportWor
 
     // Phase 1: Import DB records in a transaction.
     // Git and filesystem operations happen in Phase 2 (after commit).
-    helmor_conn
+    winthorpe_conn
         .execute_batch("BEGIN IMMEDIATE")
         .context("Failed to start transaction")?;
 
@@ -209,27 +209,27 @@ pub fn import_conductor_workspaces(workspace_ids: &[String]) -> Result<ImportWor
 
     for ws_id in workspace_ids {
         // Savepoint per workspace so a partial failure rolls back only this workspace's rows
-        helmor_conn.execute_batch("SAVEPOINT ws_import").ok();
+        winthorpe_conn.execute_batch("SAVEPOINT ws_import").ok();
 
-        match import_workspace_db_records(&helmor_conn, ws_id) {
+        match import_workspace_db_records(&winthorpe_conn, ws_id) {
             Ok(ImportDbResult::Imported(meta)) => {
-                helmor_conn
+                winthorpe_conn
                     .execute_batch("RELEASE SAVEPOINT ws_import")
                     .ok();
                 imported_workspaces.push(meta);
                 imported_count += 1;
             }
             Ok(ImportDbResult::Skipped) => {
-                helmor_conn
+                winthorpe_conn
                     .execute_batch("RELEASE SAVEPOINT ws_import")
                     .ok();
                 skipped_count += 1;
             }
             Err(error) => {
-                helmor_conn
+                winthorpe_conn
                     .execute_batch("ROLLBACK TO SAVEPOINT ws_import")
                     .ok();
-                helmor_conn
+                winthorpe_conn
                     .execute_batch("RELEASE SAVEPOINT ws_import")
                     .ok();
                 errors.push(format!("{ws_id}: {error}"));
@@ -238,14 +238,14 @@ pub fn import_conductor_workspaces(workspace_ids: &[String]) -> Result<ImportWor
     }
 
     if imported_count > 0 || skipped_count > 0 {
-        helmor_conn
+        winthorpe_conn
             .execute_batch("COMMIT")
             .context("Failed to commit")?;
     } else {
-        helmor_conn.execute_batch("ROLLBACK").ok();
+        winthorpe_conn.execute_batch("ROLLBACK").ok();
     }
 
-    helmor_conn.execute("DETACH DATABASE source", []).ok();
+    winthorpe_conn.execute("DETACH DATABASE source", []).ok();
 
     // Phase 2: Git worktree and filesystem copy.
     // If a workspace cannot be materialized locally, clean up the imported DB
@@ -259,7 +259,7 @@ pub fn import_conductor_workspaces(workspace_ids: &[String]) -> Result<ImportWor
             meta.branch.as_deref(),
             meta.repo_root.as_deref(),
             conductor_root.as_deref(),
-            &helmor_data_dir,
+            &winthorpe_data_dir,
         ) {
             if let Err(cleanup_error) = delete_imported_workspace_records(&meta.workspace_id) {
                 errors.push(format!(
@@ -452,7 +452,7 @@ fn setup_workspace_filesystem(
     branch: Option<&str>,
     repo_root: Option<&Path>,
     conductor_root: Option<&Path>,
-    helmor_data_dir: &Path,
+    winthorpe_data_dir: &Path,
 ) -> Result<()> {
     if state != "archived" {
         // Active workspace: create the git worktree.
@@ -505,12 +505,12 @@ fn setup_workspace_filesystem(
         }
     }
 
-    // Copy Claude Code session files from Conductor's project dir to Helmor's.
+    // Copy Claude Code session files from Conductor's project dir to Winthorpe's.
     // Claude Code stores sessions under ~/.claude/projects/{encoded-cwd}/ and
-    // the cwd changed from Conductor's worktree to Helmor's worktree, so
+    // the cwd changed from Conductor's worktree to Winthorpe's worktree, so
     // sessions are invisible unless we copy them over.
     if let Some(root) = conductor_root {
-        copy_claude_sessions_for_workspace(root, helmor_data_dir, repo_name, directory_name);
+        copy_claude_sessions_for_workspace(root, winthorpe_data_dir, repo_name, directory_name);
     }
 
     Ok(())
@@ -558,10 +558,10 @@ fn encode_claude_project_dir(path: &Path) -> String {
 }
 
 /// Copy Claude Code session .jsonl files from the Conductor project dir
-/// to the Helmor project dir so that imported sessions can be resumed.
+/// to the Winthorpe project dir so that imported sessions can be resumed.
 fn copy_claude_sessions_for_workspace(
     conductor_root: &Path,
-    helmor_data_dir: &Path,
+    winthorpe_data_dir: &Path,
     repo_name: &str,
     directory_name: &str,
 ) {
@@ -579,13 +579,13 @@ fn copy_claude_sessions_for_workspace(
         .join("workspaces")
         .join(repo_name)
         .join(directory_name);
-    let helmor_ws_path = helmor_data_dir
+    let winthorpe_ws_path = winthorpe_data_dir
         .join("workspaces")
         .join(repo_name)
         .join(directory_name);
 
     let src_dir = claude_projects.join(encode_claude_project_dir(&conductor_ws_path));
-    let dst_dir = claude_projects.join(encode_claude_project_dir(&helmor_ws_path));
+    let dst_dir = claude_projects.join(encode_claude_project_dir(&winthorpe_ws_path));
 
     if !src_dir.is_dir() {
         return;
@@ -701,7 +701,7 @@ fn setup_imported_worktree(
     Ok(())
 }
 
-/// Open the Helmor DB and attach Conductor DB as `source`.
+/// Open the Winthorpe DB and attach Conductor DB as `source`.
 fn open_with_conductor_attached() -> Result<(Connection, String)> {
     let source_path =
         crate::data_dir::conductor_source_db_path().context("Conductor database not found")?;
@@ -712,7 +712,7 @@ fn open_with_conductor_attached() -> Result<(Connection, String)> {
         &dest_path,
         OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX,
     )
-    .context("Failed to open Helmor database")?;
+    .context("Failed to open Winthorpe database")?;
 
     conn.busy_timeout(std::time::Duration::from_secs(5))
         .context("Failed to set busy timeout")?;
@@ -745,12 +745,12 @@ fn get_table_columns(conn: &Connection, table: &str) -> Result<Vec<String>> {
     Ok(columns)
 }
 
-/// Column name mappings from Conductor (source) → Helmor (main).
+/// Column name mappings from Conductor (source) → Winthorpe (main).
 /// Used during import to bridge schema renames.
 const COLUMN_RENAMES: &[(&str, &str)] = &[("claude_session_id", "provider_session_id")];
 
 /// Build INSERT-SELECT column lists that handle renamed columns between
-/// source (Conductor) and main (Helmor) schemas.
+/// source (Conductor) and main (Winthorpe) schemas.
 ///
 /// Returns `(main_col_list, source_col_list)` where renamed columns use
 /// `source_name AS main_name` in the SELECT list.
@@ -823,7 +823,7 @@ fn resolve_canonical_repo(
                 source_repo_id,
                 canonical_repo_id = %repo.id,
                 root_path,
-                "Resolved Conductor repo to existing Helmor repo by root_path"
+                "Resolved Conductor repo to existing Winthorpe repo by root_path"
             );
             return Ok(repo);
         }
@@ -840,7 +840,7 @@ fn resolve_canonical_repo(
 
     load_main_repo(conn, "id = ?1", [source_repo_id])?.with_context(|| {
         format!(
-            "Repo import did not create or resolve a Helmor repo for source repo {source_repo_name} ({source_repo_id})"
+            "Repo import did not create or resolve a Winthorpe repo for source repo {source_repo_name} ({source_repo_id})"
         )
     })
 }
@@ -1031,7 +1031,7 @@ mod tests {
         conn.execute_batch(
             r#"
             INSERT INTO main.repos (id, name, root_path)
-            VALUES ('r-main', 'helmor', '/tmp/helmor');
+            VALUES ('r-main', 'winthorpe', '/tmp/winthorpe');
 
             ATTACH DATABASE ':memory:' AS source;
             CREATE TABLE source.repos AS SELECT * FROM main.repos WHERE 0;
@@ -1040,7 +1040,7 @@ mod tests {
             CREATE TABLE source.session_messages AS SELECT * FROM main.session_messages WHERE 0;
 
             INSERT INTO source.repos (id, name, root_path, created_at, updated_at)
-            VALUES ('r-source', 'conductor-helmor', '/tmp/helmor', datetime('now'), datetime('now'));
+            VALUES ('r-source', 'conductor-winthorpe', '/tmp/winthorpe', datetime('now'), datetime('now'));
             INSERT INTO source.workspaces (id, repository_id, directory_name, state, created_at, updated_at)
             VALUES ('w1', 'r-source', 'hyperion', 'ready', datetime('now'), datetime('now'));
             "#,
@@ -1065,8 +1065,8 @@ mod tests {
 
         assert_eq!(repo_count, 1);
         assert_eq!(workspace_repo_id, "r-main");
-        assert_eq!(meta.repo_name, "helmor");
-        assert_eq!(meta.repo_root, Some(PathBuf::from("/tmp/helmor")));
+        assert_eq!(meta.repo_name, "winthorpe");
+        assert_eq!(meta.repo_root, Some(PathBuf::from("/tmp/winthorpe")));
     }
 
     #[test]
@@ -1213,9 +1213,9 @@ mod tests {
         let encoded = encode_claude_project_dir(&path);
         assert_eq!(encoded, "-Users-me-conductor-workspaces-repo-ws");
 
-        let path2 = PathBuf::from("/Users/me/helmor-dev/workspaces/repo/ws");
+        let path2 = PathBuf::from("/Users/me/winthorpe-dev/workspaces/repo/ws");
         let encoded2 = encode_claude_project_dir(&path2);
-        assert_eq!(encoded2, "-Users-me-helmor-dev-workspaces-repo-ws");
+        assert_eq!(encoded2, "-Users-me-winthorpe-dev-workspaces-repo-ws");
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! Serde DTOs mapping GitLab REST responses (via `glab api …`) into Rust.
 //!
 //! Kept field-for-field close to the REST payload — transformations into
-//! Helmor's neutral `ChangeRequestInfo` / `ForgeActionItem` shapes
+//! Winthorpe's neutral `ChangeRequestInfo` / `ForgeActionItem` shapes
 //! live in the sibling modules (`merge_request`, `pipeline`, `review`).
 
 use serde::Deserialize;

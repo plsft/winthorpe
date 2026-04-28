@@ -4,12 +4,12 @@
 **Keep Streamdown.** Do not switch the streaming tail to a direct DOM `textContent` path.
 
 ## Confidence
-**Medium-High.** The library guidance and architectural reasoning are unanimous and align with how Helmor already uses Streamdown (block-memoized, lazy-loaded, behind a single `memo`'d `AssistantText` component, flushed via rAF coalescing). What is **thin** is a Helmor-specific micro-benchmark proving the gap is small in our actual WKWebView. If A1/A3 micro-benches show the streaming tail is a real hot spot, escalate to a Phase 2 controlled bench.
+**Medium-High.** The library guidance and architectural reasoning are unanimous and align with how Winthorpe already uses Streamdown (block-memoized, lazy-loaded, behind a single `memo`'d `AssistantText` component, flushed via rAF coalescing). What is **thin** is a Winthorpe-specific micro-benchmark proving the gap is small in our actual WKWebView. If A1/A3 micro-benches show the streaming tail is a real hot spot, escalate to a Phase 2 controlled bench.
 
 ## Evidence
 
 ### Tauri v2 official guidance
-Tauri v2's perf docs talk about IPC throughput (Channel API, custom-protocol IPC replacing the v1 stringified bridge) and bundle/startup, **not** about bypassing the framework renderer in the webview. There is no Tauri guidance recommending direct DOM mutation for streaming text; the canonical streaming pattern is "Rust `Channel<T>` -> frontend handler -> framework state". Helmor already follows this in `workspace-conversation-container.tsx` (rAF-coalesced `setLiveMessagesByContext`).
+Tauri v2's perf docs talk about IPC throughput (Channel API, custom-protocol IPC replacing the v1 stringified bridge) and bundle/startup, **not** about bypassing the framework renderer in the webview. There is no Tauri guidance recommending direct DOM mutation for streaming text; the canonical streaming pattern is "Rust `Channel<T>` -> frontend handler -> framework state". Winthorpe already follows this in `workspace-conversation-container.tsx` (rAF-coalesced `setLiveMessagesByContext`).
 - https://v2.tauri.app/reference/webview-versions/
 - https://github.com/tauri-apps/tauri-docs/blob/v2/src/content/docs/develop/calling-frontend.mdx (Channel pattern)
 - https://v2.tauri.app/concept/architecture/
@@ -21,7 +21,7 @@ Streamdown is **explicitly designed** to make per-token React re-renders cheap. 
 - https://ai-sdk.dev/cookbook/next/markdown-chatbot-with-memoization
 
 ### assistant-ui guidance
-assistant-ui ships its own `@assistant-ui/react-streamdown` wrapper and the `StreamdownTextPrimitive`. Their custom external-store streaming example does exactly what Helmor does: rebuild the assistant `text` part on each chunk via `setMessages` and let the memoized Streamdown subtree absorb the diff. They do **not** recommend imperative DOM writes anywhere.
+assistant-ui ships its own `@assistant-ui/react-streamdown` wrapper and the `StreamdownTextPrimitive`. Their custom external-store streaming example does exactly what Winthorpe does: rebuild the assistant `text` part on each chunk via `setMessages` and let the memoized Streamdown subtree absorb the diff. They do **not** recommend imperative DOM writes anywhere.
 - https://github.com/assistant-ui/assistant-ui/blob/main/packages/react-streamdown/README.md
 - https://github.com/assistant-ui/assistant-ui/blob/main/apps/docs/content/docs/runtimes/custom/external-store.mdx
 
@@ -29,7 +29,7 @@ assistant-ui ships its own `@assistant-ui/react-streamdown` wrapper and the `Str
 No quantitative head-to-head numbers exist. The closest data points: SitePoint's streaming-React article notes "5-15ms commits in a simple app, 50ms+ in real trees" for unbuffered token streams, and reports that **DOM size** (not React reconciliation) dominates once you have thousands of nodes. Both points argue for memoization + virtualization, **not** for bypassing React.
 - https://www.sitepoint.com/streaming-backends-react-controlling-re-render-chaos/
 
-### How Helmor currently uses Streamdown
+### How Winthorpe currently uses Streamdown
 - One call site: `LazyStreamdown` inside `AssistantText` (`src/components/workspace-panel.tsx:1569-1599`).
 - `AssistantText` is wrapped in `React.memo`; `STREAMING_ANIMATED` is module-level (no per-render object); table overrides are imported once in `streamdown-components.tsx`.
 - Loaded via `lazy()` + `Suspense`, with idle preload (`preloadStreamdown`).
@@ -58,4 +58,4 @@ No quantitative head-to-head numbers exist. The closest data points: SitePoint's
 **Cons:** Whatever residual cost Streamdown still has on each frame in WKWebView — unmeasured.
 
 ## Final answer
-**Keep Streamdown.** Every authority points the same way: the right lever for streaming markdown perf is *block-level memoization + commit coalescing*, both of which Helmor already has. Direct-DOM `textContent` is only worth doing for plain-text high-frequency updates (price tickers, log tails) where you can throw away markdown semantics; that is not the chat tail. Given the team's prior 21 iterations and the calibration note that the real hot spots are in sidebar Radix/Lucide and the dev/release gap, A4 should not justify this rewrite. **If A1/A3 benches show the streaming tail is still meaningful, do a Phase 2 micro-bench (replace `LazyStreamdown` with `<pre>{text}</pre>` behind a feature flag, measure FPS in Tauri release, decide from numbers).** Until then, this is hand-waving territory and Streamdown stays.
+**Keep Streamdown.** Every authority points the same way: the right lever for streaming markdown perf is *block-level memoization + commit coalescing*, both of which Winthorpe already has. Direct-DOM `textContent` is only worth doing for plain-text high-frequency updates (price tickers, log tails) where you can throw away markdown semantics; that is not the chat tail. Given the team's prior 21 iterations and the calibration note that the real hot spots are in sidebar Radix/Lucide and the dev/release gap, A4 should not justify this rewrite. **If A1/A3 benches show the streaming tail is still meaningful, do a Phase 2 micro-bench (replace `LazyStreamdown` with `<pre>{text}</pre>` behind a feature flag, measure FPS in Tauri release, decide from numbers).** Until then, this is hand-waving territory and Streamdown stays.

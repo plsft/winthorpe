@@ -14,7 +14,7 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { createSidecarEmitter, type SidecarEmitter } from "../src/emitter.js";
 
-process.env.HELMOR_LOG_DIR = resolve(tmpdir(), "helmor-sidecar-test-logs");
+process.env.WINTHORPE_LOG_DIR = resolve(tmpdir(), "winthorpe-sidecar-test-logs");
 
 // ---------------------------------------------------------------------------
 // Mock the Claude Agent SDK BEFORE importing anything that uses it.
@@ -207,7 +207,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-1",
 			{
-				sessionId: "helmor-sess-1",
+				sessionId: "winthorpe-sess-1",
 				prompt: "what is this code",
 				model: undefined,
 				cwd: undefined,
@@ -254,7 +254,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-ctx",
 			{
-				sessionId: "helmor-sess-ctx",
+				sessionId: "winthorpe-sess-ctx",
 				prompt: "hi",
 				model: "claude-opus-4-7[1m]",
 				cwd: undefined,
@@ -269,7 +269,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		const ctxUsage = captured.find((e) => e.type === "contextUsageUpdated");
 		expect(ctxUsage).toBeDefined();
 		expect(ctxUsage?.id).toBe("REQ-ctx");
-		expect(ctxUsage?.sessionId).toBe("helmor-sess-ctx");
+		expect(ctxUsage?.sessionId).toBe("winthorpe-sess-ctx");
 		const meta = JSON.parse(ctxUsage?.meta as string);
 		expect(meta).toEqual({
 			modelId: "claude-opus-4-7[1m]",
@@ -330,7 +330,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		void manager.sendMessage(
 			"REQ-live",
 			{
-				sessionId: "helmor-live",
+				sessionId: "winthorpe-live",
 				prompt: "hi",
 				model: undefined,
 				cwd: undefined,
@@ -351,7 +351,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		);
 
 		const json = await manager.getContextUsage({
-			helmorSessionId: "helmor-live",
+			winthorpeSessionId: "winthorpe-live",
 			providerSessionId: null,
 			model: "claude-opus-4-7",
 			cwd: undefined,
@@ -373,7 +373,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 	});
 
 	test("getContextUsage slow path spawns a transient Query + returns rich meta", async () => {
-		// No live session for this helmor id — slow path kicks in. The
+		// No live session for this winthorpe id — slow path kicks in. The
 		// mock query is reused for the transient spawn; `getContextUsage`
 		// resolves immediately so no real 30s timer ever fires.
 		mockQueryImpl = () =>
@@ -391,7 +391,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 			});
 
 		const json = await manager.getContextUsage({
-			helmorSessionId: "no-live-session",
+			winthorpeSessionId: "no-live-session",
 			providerSessionId: "provider-xyz",
 			model: "claude-opus-4-7",
 			cwd: undefined,
@@ -437,7 +437,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-err",
 			{
-				sessionId: "helmor-sess-err",
+				sessionId: "winthorpe-sess-err",
 				prompt: "hi",
 				model: "claude-sonnet-4-5",
 				cwd: undefined,
@@ -474,7 +474,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-fast-sonnet",
 			{
-				sessionId: "helmor-sess-fast-sonnet",
+				sessionId: "winthorpe-sess-fast-sonnet",
 				prompt: "test",
 				model: "claude-sonnet-4-7",
 				cwd: undefined,
@@ -504,7 +504,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			`REQ-effort-${level}`,
 			{
-				sessionId: `helmor-sess-effort-${level}`,
+				sessionId: `winthorpe-sess-effort-${level}`,
 				prompt: "test",
 				model: "default",
 				cwd: undefined,
@@ -526,7 +526,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-effort-bogus",
 			{
-				sessionId: "helmor-sess-effort-bogus",
+				sessionId: "winthorpe-sess-effort-bogus",
 				prompt: "test",
 				model: "default",
 				cwd: undefined,
@@ -576,7 +576,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-2",
 			{
-				sessionId: "helmor-sess",
+				sessionId: "winthorpe-sess",
 				prompt: "x",
 				model: undefined,
 				cwd: undefined,
@@ -669,8 +669,8 @@ describe("ClaudeSessionManager.sendMessage", () => {
 	});
 
 	test("forwards only user-linked directories to Claude query options", async () => {
-		const userDirA = makeTempDir("helmor-claude-user-a-");
-		const userDirB = makeTempDir("helmor-claude-user-b-");
+		const userDirA = makeTempDir("winthorpe-claude-user-a-");
+		const userDirB = makeTempDir("winthorpe-claude-user-b-");
 
 		mockQueryImpl = () => asyncIterableFrom([{ type: "result", result: "ok" }]);
 
@@ -703,8 +703,8 @@ describe("ClaudeSessionManager.sendMessage", () => {
 	});
 
 	test("prepends the linked-directories preamble to Claude's first user message", async () => {
-		const linkedDirA = makeTempDir("helmor-claude-prompt-a-");
-		const linkedDirB = makeTempDir("helmor-claude-prompt-b-");
+		const linkedDirA = makeTempDir("winthorpe-claude-prompt-a-");
+		const linkedDirB = makeTempDir("winthorpe-claude-prompt-b-");
 
 		mockQueryImpl = () => asyncIterableFrom([{ type: "result", result: "ok" }]);
 
@@ -743,8 +743,8 @@ describe("ClaudeSessionManager.sendMessage", () => {
 	});
 
 	test("listSlashCommands forwards additionalDirectories and env", async () => {
-		const workspaceDir = makeTempDir("helmor-claude-slash-");
-		const linkedDir = makeTempDir("helmor-claude-slash-linked-");
+		const workspaceDir = makeTempDir("winthorpe-claude-slash-");
+		const linkedDir = makeTempDir("winthorpe-claude-slash-linked-");
 
 		mockQueryImpl = () =>
 			makeMockQuery({
@@ -808,7 +808,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-DEFER",
 			{
-				sessionId: "helmor-sess-defer",
+				sessionId: "winthorpe-sess-defer",
 				prompt: "x",
 				model: undefined,
 				cwd: undefined,
@@ -887,7 +887,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-RESUME",
 			{
-				sessionId: "helmor-sess-defer",
+				sessionId: "winthorpe-sess-defer",
 				prompt: "",
 				model: undefined,
 				cwd: undefined,
@@ -970,7 +970,7 @@ describe("ClaudeSessionManager.sendMessage", () => {
 		await manager.sendMessage(
 			"REQ-RESULT-END",
 			{
-				sessionId: "helmor-sess-result",
+				sessionId: "winthorpe-sess-result",
 				prompt: "x",
 				model: undefined,
 				cwd: undefined,
@@ -1107,7 +1107,7 @@ describe("ClaudeSessionManager.stopSession", () => {
 
 		manager.resolveElicitation("elicitation-1", {
 			action: "accept",
-			content: { name: "Helmor" },
+			content: { name: "Winthorpe" },
 		});
 
 		await sendPromise;
@@ -1121,7 +1121,7 @@ describe("ClaudeSessionManager.stopSession", () => {
 				content: [
 					{
 						type: "text",
-						text: '{"action":"accept","content":{"name":"Helmor"}}',
+						text: '{"action":"accept","content":{"name":"Winthorpe"}}',
 					},
 				],
 			},
@@ -1395,7 +1395,7 @@ describe("Claude full-fixture round-trip", () => {
 			await manager.sendMessage(
 				`REQ-${fixture}`,
 				{
-					sessionId: `helmor-${fixture}`,
+					sessionId: `winthorpe-${fixture}`,
 					prompt: "fixture replay",
 					model: undefined,
 					cwd: undefined,

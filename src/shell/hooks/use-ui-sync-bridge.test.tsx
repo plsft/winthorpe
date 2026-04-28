@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UiMutationEvent } from "@/lib/api";
-import { helmorQueryKeys } from "@/lib/query-client";
+import { winthorpeQueryKeys } from "@/lib/query-client";
 import { useUiSyncBridge } from "./use-ui-sync-bridge";
 
 const apiMocks = vi.hoisted(() => ({
@@ -60,16 +60,16 @@ describe("useUiSyncBridge", () => {
 
 		await waitFor(() => {
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceGroups,
+				queryKey: winthorpeQueryKeys.workspaceGroups,
 			});
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceDetail("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			});
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceGitActionStatus("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceGitActionStatus("workspace-1"),
 			});
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceForgeActionStatus("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus("workspace-1"),
 			});
 			expect(invalidateQueries).toHaveBeenCalledWith({
 				predicate: expect.any(Function),
@@ -128,14 +128,14 @@ describe("useUiSyncBridge", () => {
 
 		await waitFor(() => {
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.workspaceForge("workspace-1"),
+				queryKey: winthorpeQueryKeys.workspaceForge("workspace-1"),
 			});
 		});
 		// Settings → Account stores CLI auth under a separate cache key; the
 		// bridge fans the same backend signal out to it so a stale "ready"
 		// in Account can't survive an auth flip detected elsewhere.
 		expect(invalidateQueries).toHaveBeenCalledWith({
-			queryKey: helmorQueryKeys.forgeCliStatusAll,
+			queryKey: winthorpeQueryKeys.forgeCliStatusAll,
 		});
 	});
 
@@ -161,7 +161,7 @@ describe("useUiSyncBridge", () => {
 
 		await waitFor(() => {
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.sessionContextUsage("session-7"),
+				queryKey: winthorpeQueryKeys.sessionContextUsage("session-7"),
 			});
 		});
 		// And a predicate-based invalidate for rich entries scoped to
@@ -196,10 +196,10 @@ describe("useUiSyncBridge", () => {
 		await waitFor(() => {
 			expect(reloadSettings).not.toHaveBeenCalled();
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.autoCloseActionKinds,
+				queryKey: winthorpeQueryKeys.autoCloseActionKinds,
 			});
 			expect(invalidateQueries).toHaveBeenCalledWith({
-				queryKey: helmorQueryKeys.autoCloseOptInAsked,
+				queryKey: winthorpeQueryKeys.autoCloseOptInAsked,
 			});
 		});
 
