@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Winthorpe.Sidecar</RootNamespace>
+    <AssemblyName>winthorpe-dotnet-sidecar</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- AOT publish settings — enable single-file native exe with no JIT,
+         no .NET runtime to install, smaller image. Trim/AOT analyzers run
+         at build time so we catch reflection issues early. -->
+    <PublishAot>true</PublishAot>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <StripSymbols>true</StripSymbols>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IsAotCompatible>true</IsAotCompatible>
+
+    <!-- Treat warnings as errors so the build doesn't drift. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- System.Text.Json is in-box on net10. No external deps required for
+         the JSON-RPC stdin/stdout protocol — keeps AOT clean and the
+         resulting binary small. -->
+  </ItemGroup>
+
+</Project>

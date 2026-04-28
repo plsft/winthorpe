@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sidecarDir = resolve(repoRoot, "sidecar");
+const dotnetSidecarDir = resolve(repoRoot, "sidecar-dotnet");
 const srcTauriDir = resolve(repoRoot, "src-tauri");
 const bundledBinDir = resolve(srcTauriDir, "target", "bundled");
 const entitlementsPlist = resolve(repoRoot, "src-tauri", "Entitlements.plist");
@@ -90,8 +91,13 @@ function main() {
 	// 1. Install sidecar deps (idempotent; fast when lockfile matches).
 	run("bun install --frozen-lockfile", sidecarDir);
 
-	// 2. Build the compiled sidecar + staged vendor tree.
+	// 2. Build the compiled Bun sidecar + staged vendor tree.
 	run("bun run build", sidecarDir);
+
+	// 2b. Build + AOT-publish the .NET sidecar (sub-host for C# user skills).
+	//     Skipped if the dotnet SDK isn't on PATH — the .NET sidecar is
+	//     opt-in; users without .NET installed get the Bun-only experience.
+	maybeBuildDotnetSidecar();
 
 	const triple = detectTargetTriple();
 	const sidecarSource = resolve(sidecarDir, "dist", "winthorpe-sidecar");
@@ -143,6 +149,77 @@ function main() {
 
 	console.log(`[prepare-sidecar] staged sidecar → ${sidecarDestination}`);
 	console.log(`[prepare-sidecar] staged CLI → ${cliDestination}`);
+}
+
+function maybeBuildDotnetSidecar() {
+	if (!existsSync(dotnetSidecarDir)) {
+		console.log(
+			`[prepare-sidecar] sidecar-dotnet/ not present; skipping .NET sub-host build`,
+		);
+		return;
+	}
+
+	// Skip if dotnet SDK isn't installed. Don't fail — .NET is opt-in.
+	let dotnetVersion;
+	try {
+		dotnetVersion = execSync("dotnet --version", { encoding: "utf8" }).trim();
+	} catch {
+		console.warn(
+			`[prepare-sidecar] dotnet SDK not on PATH; skipping .NET sub-host build`,
+		);
+		return;
+	}
+	console.log(`[prepare-sidecar] dotnet SDK: ${dotnetVersion}`);
+
+	// Map Cargo's target triple to .NET's runtime identifier.
+	const triple = detectTargetTriple();
+	const rid = ridForTriple(triple);
+	if (!rid) {
+		console.warn(
+			`[prepare-sidecar] no dotnet RID mapping for triple ${triple}; skipping .NET sub-host build`,
+		);
+		return;
+	}
+
+	run(
+		`dotnet publish -c Release -r ${rid} --no-self-contained false /p:PublishAot=true`,
+		dotnetSidecarDir,
+	);
+
+	const exeName =
+		process.platform === "win32"
+			? "winthorpe-dotnet-sidecar.exe"
+			: "winthorpe-dotnet-sidecar";
+	const publishedExe = resolve(
+		dotnetSidecarDir,
+		"bin",
+		"Release",
+		"net10.0",
+		rid,
+		"publish",
+		exeName,
+	);
+	if (!existsSync(publishedExe)) {
+		throw new Error(
+			`[prepare-sidecar] expected published .NET sidecar at ${publishedExe} but it does not exist`,
+		);
+	}
+
+	// Stage next to the Bun sidecar so Tauri's bundler picks it up via the
+	// same `../sidecar/dist/` resources directory.
+	const dest = resolve(sidecarDir, "dist", exeName);
+	copyFileSync(publishedExe, dest);
+	console.log(`[prepare-sidecar] staged .NET sidecar → ${dest}`);
+}
+
+function ridForTriple(triple) {
+	if (triple === "x86_64-pc-windows-msvc") return "win-x64";
+	if (triple === "aarch64-pc-windows-msvc") return "win-arm64";
+	if (triple === "x86_64-apple-darwin") return "osx-x64";
+	if (triple === "aarch64-apple-darwin") return "osx-arm64";
+	if (triple === "x86_64-unknown-linux-gnu") return "linux-x64";
+	if (triple === "aarch64-unknown-linux-gnu") return "linux-arm64";
+	return null;
 }
 
 main();

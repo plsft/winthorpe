@@ -4,6 +4,7 @@ pub mod files;
 pub mod helpers;
 pub(crate) mod lifecycle;
 pub mod pr_sync;
+pub mod project_kind;
 pub mod scripts;
 pub mod state;
 pub mod status;
