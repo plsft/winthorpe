@@ -71,6 +71,7 @@ import {
 	SIDEBAR_RESIZE_HIT_AREA,
 } from "@/shell/layout";
 import { clampZoom, useZoom, ZOOM_STEP } from "@/shell/use-zoom";
+import { WindowTitleBar } from "@/shell/window-title-bar";
 import {
 	createSession,
 	drainPendingCliSends,
@@ -98,9 +99,9 @@ import {
 	archivedWorkspacesQueryOptions,
 	createWinthorpeQueryClient,
 	detectedEditorsQueryOptions,
+	sessionThreadMessagesQueryOptions,
 	winthorpeQueryKeys,
 	winthorpeQueryPersister,
-	sessionThreadMessagesQueryOptions,
 	workspaceChangeRequestQueryOptions,
 	workspaceDetailQueryOptions,
 	workspaceForgeActionStatusQueryOptions,
@@ -305,19 +306,30 @@ function MainApp() {
 					});
 				}}
 			>
-				{appSettings === null ? null : !appSettings.onboardingCompleted ? (
-					<AppOnboarding onComplete={completeOnboarding} />
-				) : (
-					<AppShell
-						onOpenSettings={(workspaceId, workspaceRepoId) => {
-							setSettingsInitialSection(undefined);
-							setSettingsWorkspaceId(workspaceId);
-							setSettingsWorkspaceRepoId(workspaceRepoId);
-							setSettingsOpen(true);
-						}}
-					/>
-				)}
-				{splashMounted && <SplashScreen visible={splashVisible} />}
+				{/* Custom window chrome wraps every shell branch so the
+				    title bar is visible during onboarding, splash, and the
+				    main app. tauri.conf.json sets decorations: false on
+				    every platform — the OS contributes the rounded corners
+				    + Mica backdrop, this bar contributes the brand + drag
+				    region + min/max/close. */}
+				<div className="flex h-screen flex-col">
+					<WindowTitleBar />
+					<div className="relative min-h-0 flex-1 overflow-hidden">
+						{appSettings === null ? null : !appSettings.onboardingCompleted ? (
+							<AppOnboarding onComplete={completeOnboarding} />
+						) : (
+							<AppShell
+								onOpenSettings={(workspaceId, workspaceRepoId) => {
+									setSettingsInitialSection(undefined);
+									setSettingsWorkspaceId(workspaceId);
+									setSettingsWorkspaceRepoId(workspaceRepoId);
+									setSettingsOpen(true);
+								}}
+							/>
+						)}
+						{splashMounted && <SplashScreen visible={splashVisible} />}
+					</div>
+				</div>
 				<SettingsDialog
 					open={settingsOpen}
 					workspaceId={settingsWorkspaceId}
@@ -532,10 +544,14 @@ function AppShell({
 			winthorpeQueryKeys.workspaceGroups,
 		);
 		const previousDetail = workspaceId
-			? queryClient.getQueryData(winthorpeQueryKeys.workspaceDetail(workspaceId))
+			? queryClient.getQueryData(
+					winthorpeQueryKeys.workspaceDetail(workspaceId),
+				)
 			: undefined;
 		const previousSessions = workspaceId
-			? queryClient.getQueryData(winthorpeQueryKeys.workspaceSessions(workspaceId))
+			? queryClient.getQueryData(
+					winthorpeQueryKeys.workspaceSessions(workspaceId),
+				)
 			: undefined;
 
 		// Optimistic: clear this session's unread in the sessions cache, then
@@ -717,7 +733,8 @@ function AppShell({
 						winthorpeQueryKeys.workspaceGitActionStatus(selectedWorkspaceId),
 				}),
 				queryClient.invalidateQueries({
-					queryKey: winthorpeQueryKeys.workspaceChangeRequest(selectedWorkspaceId),
+					queryKey:
+						winthorpeQueryKeys.workspaceChangeRequest(selectedWorkspaceId),
 				}),
 				queryClient.invalidateQueries({
 					queryKey:
@@ -1694,7 +1711,10 @@ function AppShell({
 						queryKey: winthorpeQueryKeys.workspaceGroups,
 					}),
 					queryClient.invalidateQueries({
-						queryKey: [...winthorpeQueryKeys.sessionMessages(sessionId), "thread"],
+						queryKey: [
+							...winthorpeQueryKeys.sessionMessages(sessionId),
+							"thread",
+						],
 					}),
 				]);
 			},
@@ -2182,7 +2202,7 @@ function AppShell({
 						) : (
 							<main
 								aria-label="Application shell"
-								className="relative h-screen overflow-hidden bg-background font-sans text-foreground antialiased"
+								className="relative h-full overflow-hidden bg-background font-sans text-foreground antialiased"
 							>
 								<div className="relative flex h-full min-h-0 bg-background">
 									{workspaceViewMode === "conversation" && (
@@ -2292,13 +2312,11 @@ function AppShell({
 										aria-label="Workspace panel"
 										className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background"
 									>
-										{workspaceViewMode === "conversation" && (
-											<div
-												aria-label="Workspace panel drag region"
-												className="absolute inset-x-0 top-0 z-10 h-9 bg-transparent"
-												data-tauri-drag-region
-											/>
-										)}
+										{/* Drag region removed — the custom WindowTitleBar at
+										    the app root now owns dragging. Adding a competing
+										    drag region below it confuses WebView2 on Windows
+										    (clicks on conversation-header buttons would get
+										    intercepted as drags). */}
 
 										<div
 											aria-label="Workspace viewport"

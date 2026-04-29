@@ -1,8 +1,8 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { useCallback, useState } from "react";
-import winthorpeLogoSrc from "@/assets/winthorpe-logo.png";
 import bannerHtml from "@/assets/render-banner.html?raw";
+import winthorpeLogoSrc from "@/assets/winthorpe-logo.png";
 import { GithubBrandIcon } from "@/components/brand-icon";
 import { TrafficLightSpacer } from "@/components/chrome/traffic-light-spacer";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ export function GithubIdentityGate({
 	return (
 		<main
 			aria-label="GitHub identity gate"
-			className="relative h-screen overflow-hidden bg-background font-sans text-foreground antialiased"
+			className="relative h-full overflow-hidden bg-background font-sans text-foreground antialiased"
 		>
 			<iframe
 				title="Winthorpe branding animation"

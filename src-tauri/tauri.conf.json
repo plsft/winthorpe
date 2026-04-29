@@ -28,16 +28,13 @@
 				"title": "Winthorpe",
 				"width": 1300,
 				"height": 810,
-				"titleBarStyle": "Overlay",
-				"trafficLightPosition": {
-					"x": 12,
-					"y": 20
-				},
+				"minWidth": 900,
+				"minHeight": 600,
 				"hiddenTitle": true,
 				"center": true,
 				"backgroundColor": "#0E0E0E",
 				"transparent": true,
-				"decorations": true,
+				"decorations": false,
 				"shadow": true,
 				"windowEffects": {
 					"effects": ["mica"],

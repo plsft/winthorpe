@@ -257,7 +257,7 @@ export function AppOnboarding({ onComplete }: AppOnboardingProps) {
 	return (
 		<main
 			aria-label="Winthorpe onboarding"
-			className="relative h-screen overflow-hidden bg-background font-sans text-foreground antialiased"
+			className="relative h-full overflow-hidden bg-background font-sans text-foreground antialiased"
 		>
 			<div
 				aria-label="Winthorpe onboarding drag region"
