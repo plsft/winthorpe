@@ -454,13 +454,23 @@ fn platform_shell_for_script(script: &str) -> (String, Vec<String>) {
         if let Some(pwsh) = which_in_path("pwsh") {
             return (
                 pwsh.to_string_lossy().to_string(),
-                vec!["-NoLogo".into(), "-NoProfile".into(), "-Command".into(), script.to_string()],
+                vec![
+                    "-NoLogo".into(),
+                    "-NoProfile".into(),
+                    "-Command".into(),
+                    script.to_string(),
+                ],
             );
         }
         if let Some(ps) = which_in_path("powershell") {
             return (
                 ps.to_string_lossy().to_string(),
-                vec!["-NoLogo".into(), "-NoProfile".into(), "-Command".into(), script.to_string()],
+                vec![
+                    "-NoLogo".into(),
+                    "-NoProfile".into(),
+                    "-Command".into(),
+                    script.to_string(),
+                ],
             );
         }
         // cmd.exe last resort
@@ -480,16 +490,10 @@ fn platform_shell_for_terminal() -> (String, Vec<String>) {
     #[cfg(windows)]
     {
         if let Some(pwsh) = which_in_path("pwsh") {
-            return (
-                pwsh.to_string_lossy().to_string(),
-                vec!["-NoLogo".into()],
-            );
+            return (pwsh.to_string_lossy().to_string(), vec!["-NoLogo".into()]);
         }
         if let Some(ps) = which_in_path("powershell") {
-            return (
-                ps.to_string_lossy().to_string(),
-                vec!["-NoLogo".into()],
-            );
+            return (ps.to_string_lossy().to_string(), vec!["-NoLogo".into()]);
         }
         ("cmd".into(), vec![])
     }
@@ -506,7 +510,11 @@ fn platform_shell_for_terminal() -> (String, Vec<String>) {
 /// pwsh and POSIX sh diverge here — this is intentionally per-shell.
 fn wrap_script_for_shell(shell_program: &str, script: &str) -> String {
     let lower = shell_program.to_ascii_lowercase();
-    if lower.ends_with("pwsh") || lower.ends_with("pwsh.exe") || lower.ends_with("powershell") || lower.ends_with("powershell.exe") {
+    if lower.ends_with("pwsh")
+        || lower.ends_with("pwsh.exe")
+        || lower.ends_with("powershell")
+        || lower.ends_with("powershell.exe")
+    {
         // PowerShell: $LASTEXITCODE for native binaries, $? for cmdlets.
         // Use try/catch to capture either.
         format!(

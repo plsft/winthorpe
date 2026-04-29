@@ -14,9 +14,9 @@
 mod common;
 
 use common::*;
+use serde_json::{json, Value};
 use winthorpe_lib::pipeline::types::{ExtendedMessagePart, MessagePart};
 use winthorpe_lib::pipeline::PipelineEmit;
-use serde_json::{json, Value};
 
 /// Feed an event and return the fully rendered thread snapshot.
 ///

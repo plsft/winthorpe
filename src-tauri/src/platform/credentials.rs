@@ -92,7 +92,10 @@ impl CredentialStore {
     ) -> Result<()> {
         let ciphertext = encrypt_at_rest(secret)?;
         let now = Utc::now().timestamp_millis();
-        let conn = self.pool.get().context("Failed to acquire SQLite connection")?;
+        let conn = self
+            .pool
+            .get()
+            .context("Failed to acquire SQLite connection")?;
         conn.execute(
             r#"
             INSERT INTO credentials (namespace, name, ciphertext, metadata, created_at, updated_at)
@@ -109,7 +112,10 @@ impl CredentialStore {
     }
 
     pub fn get(&self, namespace: &str, name: &str) -> Result<Option<CredentialRecord>> {
-        let conn = self.pool.get().context("Failed to acquire SQLite connection")?;
+        let conn = self
+            .pool
+            .get()
+            .context("Failed to acquire SQLite connection")?;
         let row = conn
             .query_row(
                 r#"
@@ -145,7 +151,10 @@ impl CredentialStore {
     }
 
     pub fn list(&self, namespace: &str) -> Result<Vec<CredentialSummary>> {
-        let conn = self.pool.get().context("Failed to acquire SQLite connection")?;
+        let conn = self
+            .pool
+            .get()
+            .context("Failed to acquire SQLite connection")?;
         let mut stmt = conn.prepare(
             r#"
             SELECT name, metadata, created_at, updated_at
@@ -169,7 +178,10 @@ impl CredentialStore {
     }
 
     pub fn delete(&self, namespace: &str, name: &str) -> Result<bool> {
-        let conn = self.pool.get().context("Failed to acquire SQLite connection")?;
+        let conn = self
+            .pool
+            .get()
+            .context("Failed to acquire SQLite connection")?;
         let affected = conn.execute(
             "DELETE FROM credentials WHERE namespace = ?1 AND name = ?2",
             params![namespace, name],
@@ -245,16 +257,8 @@ mod dpapi {
         };
         let mut out_blob = CRYPT_INTEGER_BLOB::default();
         unsafe {
-            CryptProtectData(
-                &in_blob,
-                None,
-                None,
-                None,
-                None,
-                0,
-                &mut out_blob,
-            )
-            .context("CryptProtectData failed")?;
+            CryptProtectData(&in_blob, None, None, None, None, 0, &mut out_blob)
+                .context("CryptProtectData failed")?;
         }
         Ok(blob_to_vec_freeing(out_blob))
     }
@@ -266,16 +270,8 @@ mod dpapi {
         };
         let mut out_blob = CRYPT_INTEGER_BLOB::default();
         unsafe {
-            CryptUnprotectData(
-                &in_blob,
-                None,
-                None,
-                None,
-                None,
-                0,
-                &mut out_blob,
-            )
-            .context("CryptUnprotectData failed")?;
+            CryptUnprotectData(&in_blob, None, None, None, None, 0, &mut out_blob)
+                .context("CryptUnprotectData failed")?;
         }
         Ok(blob_to_vec_freeing(out_blob))
     }
@@ -300,7 +296,9 @@ mod dpapi {
         let plaintext = b"winthorpe-dpapi-self-test-payload";
         let ct = protect(plaintext)?;
         if ct == plaintext {
-            return Err(anyhow!("DPAPI ciphertext equals plaintext (encryption did nothing)"));
+            return Err(anyhow!(
+                "DPAPI ciphertext equals plaintext (encryption did nothing)"
+            ));
         }
         let pt = unprotect(&ct)?;
         if pt != plaintext {
@@ -326,7 +324,14 @@ mod tests {
     #[test]
     fn put_then_get_roundtrips_secret() {
         let store = CredentialStore::new(in_memory_pool()).unwrap();
-        store.put("github", "default", b"my-token", Some(r#"{"scope":"repo"}"#)).unwrap();
+        store
+            .put(
+                "github",
+                "default",
+                b"my-token",
+                Some(r#"{"scope":"repo"}"#),
+            )
+            .unwrap();
         let got = store.get("github", "default").unwrap().unwrap();
         assert_eq!(got.secret, b"my-token");
         assert_eq!(got.metadata.as_deref(), Some(r#"{"scope":"repo"}"#));
@@ -382,7 +387,9 @@ mod tests {
         // After put(), the on-disk row should NOT equal plaintext on Windows.
         let pool = in_memory_pool();
         let store = CredentialStore::new(pool.clone()).unwrap();
-        store.put("ns", "n", b"plaintext-marker-12345", None).unwrap();
+        store
+            .put("ns", "n", b"plaintext-marker-12345", None)
+            .unwrap();
 
         let conn = pool.get().unwrap();
         let raw: Vec<u8> = conn

@@ -3,9 +3,9 @@
 //! `has_duration` boolean. Everything here is pure transformation; see
 //! `replay.rs` for the side-effectful driver that produces the raw form.
 
-use winthorpe_lib::pipeline::types::ThreadMessageLike;
 use serde::Serialize;
 use serde_json::Value;
+use winthorpe_lib::pipeline::types::ThreadMessageLike;
 
 use crate::common::normalize::{normalize_message, NormPart};
 

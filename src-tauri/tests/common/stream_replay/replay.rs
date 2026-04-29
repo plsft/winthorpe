@@ -3,9 +3,9 @@
 //! reload. Output is the raw `ThreadMessageLike` / JSON form — the
 //! `stabilize` sibling module converts it to snapshot-stable shape.
 
+use serde_json::Value;
 use winthorpe_lib::pipeline::types::{HistoricalRecord, ThreadMessageLike};
 use winthorpe_lib::pipeline::MessagePipeline;
-use serde_json::Value;
 
 /// A single emission observed while replaying stream events. Kept in raw
 /// `ThreadMessageLike` form so `normalize_stream_fingerprint` can

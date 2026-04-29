@@ -10,10 +10,10 @@
 //! through `cargo insta review` and the matching frontend type in
 //! `src/lib/api.ts` must be updated in the same PR.
 
-use winthorpe_lib::agents::AgentStreamEvent;
-use winthorpe_lib::pipeline::types::ThreadMessageLike;
 use insta::assert_yaml_snapshot;
 use serde_json::{json, Value};
+use winthorpe_lib::agents::AgentStreamEvent;
+use winthorpe_lib::pipeline::types::ThreadMessageLike;
 
 fn to_value(event: AgentStreamEvent) -> Value {
     serde_json::to_value(event).expect("AgentStreamEvent serializes")

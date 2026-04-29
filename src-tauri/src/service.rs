@@ -612,8 +612,8 @@ mod tests {
 
     impl TestDataDir {
         fn new(name: &str) -> Self {
-            let root =
-                std::env::temp_dir().join(format!("winthorpe-test-{name}-{}", uuid::Uuid::new_v4()));
+            let root = std::env::temp_dir()
+                .join(format!("winthorpe-test-{name}-{}", uuid::Uuid::new_v4()));
             std::env::set_var("WINTHORPE_DATA_DIR", root.display().to_string());
             crate::data_dir::ensure_directory_structure().unwrap();
             let db_path = crate::data_dir::db_path().unwrap();

@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use anyhow::{Context, Result};
-use winthorpe_lib::pipeline::types::HistoricalRecord;
-use winthorpe_lib::pipeline::MessagePipeline;
 use serde::Serialize;
 use serde_json::Value;
+use winthorpe_lib::pipeline::types::HistoricalRecord;
+use winthorpe_lib::pipeline::MessagePipeline;
 
 #[derive(Debug, Serialize)]
 struct HistoricalRecordFixture {

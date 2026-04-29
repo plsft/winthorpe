@@ -443,7 +443,10 @@ pub(crate) fn run_archive_hook_inner(
         .arg(&script)
         .current_dir(workspace_dir)
         .env("WINTHORPE_ROOT_PATH", repo_root.display().to_string())
-        .env("WINTHORPE_WORKSPACE_PATH", workspace_dir.display().to_string())
+        .env(
+            "WINTHORPE_WORKSPACE_PATH",
+            workspace_dir.display().to_string(),
+        )
         .env("WINTHORPE_WORKSPACE_NAME", &record.directory_name)
         .env(
             "WINTHORPE_DEFAULT_BRANCH",

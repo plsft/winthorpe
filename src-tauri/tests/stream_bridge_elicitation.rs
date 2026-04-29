@@ -1,11 +1,11 @@
 mod common;
 
 use common::*;
-use winthorpe_lib::agents::{bridge_elicitation_request_event, AgentStreamEvent};
-use winthorpe_lib::pipeline::PipelineEmit;
 use insta::assert_yaml_snapshot;
 use serde::Serialize;
 use serde_json::{json, Value};
+use winthorpe_lib::agents::{bridge_elicitation_request_event, AgentStreamEvent};
+use winthorpe_lib::pipeline::PipelineEmit;
 
 #[derive(Debug, Serialize)]
 struct StreamBridgeSnapshot {

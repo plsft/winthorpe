@@ -4,11 +4,11 @@
 //! exact text content. Strips IDs/timestamps, lowercases the role enum,
 //! truncates long strings, and reports tool args as sorted key sets.
 
+use serde::Serialize;
+use serde_json::Value;
 use winthorpe_lib::pipeline::types::{
     ExtendedMessagePart, ImageSource, MessagePart, MessageRole, StreamingStatus, ThreadMessageLike,
 };
-use serde::Serialize;
-use serde_json::Value;
 
 #[derive(Debug, Serialize)]
 pub struct NormThreadMessage {

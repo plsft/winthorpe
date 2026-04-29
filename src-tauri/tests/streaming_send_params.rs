@@ -10,11 +10,11 @@
 
 use std::sync::{Mutex, MutexGuard, OnceLock, PoisonError};
 
-use winthorpe_lib::agents::{build_send_message_params, BuildSendMessageParamsInput};
-use winthorpe_lib::data_dir;
 use insta::assert_yaml_snapshot;
 use serde_json::Value;
 use tempfile::TempDir;
+use winthorpe_lib::agents::{build_send_message_params, BuildSendMessageParamsInput};
+use winthorpe_lib::data_dir;
 
 /// Serialize intra-binary access to the process-wide `WINTHORPE_DATA_DIR`
 /// env var. Cargo runs each test binary in its own OS process, so we

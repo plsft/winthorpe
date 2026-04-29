@@ -41,7 +41,11 @@ fn ensure_external_bin_placeholders() {
     // Tauri's bundler appends `.exe` to externalBin entries when targeting
     // Windows. Mirror that here so `cargo check`/`cargo build` finds the
     // placeholder before the real artifacts have been staged.
-    let exe_suffix = if target.contains("windows") { ".exe" } else { "" };
+    let exe_suffix = if target.contains("windows") {
+        ".exe"
+    } else {
+        ""
+    };
 
     let manifest_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR should be set"));

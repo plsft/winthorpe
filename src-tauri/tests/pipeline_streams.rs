@@ -31,11 +31,11 @@
 mod common;
 
 use common::*;
-use winthorpe_lib::pipeline::PipelineEmit;
 use insta::{assert_yaml_snapshot, glob};
 use serde::Serialize;
 use serde_json::Value;
 use std::fs;
+use winthorpe_lib::pipeline::PipelineEmit;
 
 /// One snapshot per stream fixture, covering three stages of the pipeline:
 ///

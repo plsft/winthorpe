@@ -143,9 +143,7 @@ pub const CATALOG: &[EditorSpec] = &[
             "$HOME/Applications/PyCharm.app",
             "$HOME/Applications/PyCharm CE.app",
         ],
-        windows_paths: &[
-            r"%ProgramFiles%\JetBrains\PyCharm\bin\pycharm64.exe",
-        ],
+        windows_paths: &[r"%ProgramFiles%\JetBrains\PyCharm\bin\pycharm64.exe"],
         windows_app_paths_key: Some("pycharm64.exe"),
     },
     EditorSpec {
@@ -214,7 +212,7 @@ pub const CATALOG: &[EditorSpec] = &[
         name: "Xcode",
         bundle_ids: &["com.apple.dt.Xcode"],
         known_paths: &["/Applications/Xcode.app", "$HOME/Applications/Xcode.app"],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -278,7 +276,7 @@ pub const CATALOG: &[EditorSpec] = &[
         name: "MacVim",
         bundle_ids: &["org.vim.MacVim"],
         known_paths: &["/Applications/MacVim.app", "$HOME/Applications/MacVim.app"],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -289,7 +287,7 @@ pub const CATALOG: &[EditorSpec] = &[
             "/Applications/Neovide.app",
             "$HOME/Applications/Neovide.app",
         ],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -297,7 +295,7 @@ pub const CATALOG: &[EditorSpec] = &[
         name: "GNU Emacs",
         bundle_ids: &["org.gnu.Emacs"],
         known_paths: &["/Applications/Emacs.app", "$HOME/Applications/Emacs.app"],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     // --- Terminals --------------------------------------------------------
@@ -309,7 +307,7 @@ pub const CATALOG: &[EditorSpec] = &[
             "/System/Applications/Utilities/Terminal.app",
             "/Applications/Utilities/Terminal.app",
         ],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -317,7 +315,7 @@ pub const CATALOG: &[EditorSpec] = &[
         name: "iTerm",
         bundle_ids: &["com.googlecode.iterm2"],
         known_paths: &["/Applications/iTerm.app", "$HOME/Applications/iTerm.app"],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -347,7 +345,7 @@ pub const CATALOG: &[EditorSpec] = &[
             "/Applications/Ghostty.app",
             "$HOME/Applications/Ghostty.app",
         ],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -377,7 +375,7 @@ pub const CATALOG: &[EditorSpec] = &[
         name: "Hyper",
         bundle_ids: &["co.zeit.hyper"],
         known_paths: &["/Applications/Hyper.app", "$HOME/Applications/Hyper.app"],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     // --- Git GUIs ---------------------------------------------------------
@@ -386,7 +384,7 @@ pub const CATALOG: &[EditorSpec] = &[
         name: "Tower",
         bundle_ids: &["com.fournova.Tower3"],
         known_paths: &["/Applications/Tower.app", "$HOME/Applications/Tower.app"],
-            windows_paths: &[],
+        windows_paths: &[],
         windows_app_paths_key: None,
     },
     EditorSpec {
@@ -529,9 +527,7 @@ fn resolve_via_app_paths_registry(exe_name: &str) -> Option<String> {
     use winreg::enums::{HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
     use winreg::RegKey;
 
-    let subkey = format!(
-        r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{exe_name}"
-    );
+    let subkey = format!(r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{exe_name}");
     for hive in [HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER] {
         let root = RegKey::predef(hive);
         if let Ok(key) = root.open_subkey(&subkey) {
@@ -734,8 +730,7 @@ fn launch_editor(
     #[cfg(windows)]
     {
         let _ = app_name; // unused on Windows — we always require an absolute path
-        let exe = app_path
-            .ok_or_else(|| anyhow::anyhow!("Editor not found on disk"))?;
+        let exe = app_path.ok_or_else(|| anyhow::anyhow!("Editor not found on disk"))?;
         std::process::Command::new(exe)
             .arg(dir)
             .spawn()

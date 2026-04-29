@@ -142,8 +142,7 @@ mod tests {
     #[test]
     fn run_command_with_timeout_kills_stalled_command() {
         #[cfg(unix)]
-        let (program, args): (&str, Vec<String>) =
-            ("/bin/sh", vec!["-c".into(), "sleep 2".into()]);
+        let (program, args): (&str, Vec<String>) = ("/bin/sh", vec!["-c".into(), "sleep 2".into()]);
         #[cfg(windows)]
         let (program, args): (&str, Vec<String>) = (
             "pwsh.exe",
@@ -155,8 +154,8 @@ mod tests {
         );
 
         let started_at = std::time::Instant::now();
-        let error = run_command_with_timeout(program, args, Duration::from_millis(200))
-            .unwrap_err();
+        let error =
+            run_command_with_timeout(program, args, Duration::from_millis(200)).unwrap_err();
 
         assert_eq!(error.kind(), std::io::ErrorKind::TimedOut);
         // Generous bound for slow CI runners; the real signal is "much less

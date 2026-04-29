@@ -12,14 +12,14 @@
 mod common;
 
 use common::*;
+use insta::assert_yaml_snapshot;
+use serde::Serialize;
+use serde_json::{json, Value};
 use winthorpe_lib::agents::{
     bridge_aborted_event, bridge_deferred_tool_use_event, bridge_done_event, bridge_error_event,
     bridge_permission_request_event, bridge_user_input_request_event, AgentStreamEvent,
 };
 use winthorpe_lib::pipeline::PipelineEmit;
-use insta::assert_yaml_snapshot;
-use serde::Serialize;
-use serde_json::{json, Value};
 
 #[derive(Debug, Serialize)]
 struct StreamBridgeSnapshot {

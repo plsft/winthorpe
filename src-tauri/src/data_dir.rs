@@ -31,8 +31,12 @@ pub fn data_dir() -> Result<PathBuf> {
     let dir = resolve_data_dir()?;
 
     if !dir.exists() {
-        fs::create_dir_all(&dir)
-            .with_context(|| format!("Failed to create Winthorpe data directory {}", dir.display()))?;
+        fs::create_dir_all(&dir).with_context(|| {
+            format!(
+                "Failed to create Winthorpe data directory {}",
+                dir.display()
+            )
+        })?;
     }
 
     Ok(dir)

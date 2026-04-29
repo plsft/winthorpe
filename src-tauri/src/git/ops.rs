@@ -1071,8 +1071,10 @@ pub fn abort_merge(workspace_dir: &Path) -> Result<()> {
 
 pub fn preflight_merge_ref(workspace_dir: &Path, target_ref: &str) -> Result<MergePreflightResult> {
     let head_sha = current_workspace_head_commit(workspace_dir)?;
-    let preflight_dir =
-        std::env::temp_dir().join(format!("winthorpe-merge-preflight-{}", uuid::Uuid::new_v4()));
+    let preflight_dir = std::env::temp_dir().join(format!(
+        "winthorpe-merge-preflight-{}",
+        uuid::Uuid::new_v4()
+    ));
     refresh_repo_setup_root(workspace_dir, &preflight_dir, &head_sha)?;
 
     let merge_result = run_git(
@@ -1160,7 +1162,10 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         run(dir.path(), &["init"]);
         run(dir.path(), &["checkout", "-b", "main"]);
-        run(dir.path(), &["config", "user.email", "winthorpe@example.com"]);
+        run(
+            dir.path(),
+            &["config", "user.email", "winthorpe@example.com"],
+        );
         run(dir.path(), &["config", "user.name", "Winthorpe Test"]);
         run(dir.path(), &["config", "commit.gpgsign", "false"]);
         std::fs::write(dir.path().join("file.txt"), "base\n").unwrap();

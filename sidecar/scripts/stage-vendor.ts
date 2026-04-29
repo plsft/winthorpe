@@ -33,16 +33,14 @@ const GH_VERSION = "2.91.0";
 const GH_SHA256 = {
 	mac_arm64: "20446cd714d9fa1b69fbd410deade3731f38fe09a2b980c8488aa388dd320ada",
 	mac_amd64: "8806784f93603fe6d3f95c3583a08df38f175df9ebc123dc8b15f919329980e2",
-	// Windows amd64 — verify with: curl -sL https://github.com/cli/cli/releases/download/v2.91.0/gh_2.91.0_checksums.txt | grep windows_amd64.zip
-	win_amd64: "PLACEHOLDER_FILL_IN_AFTER_FIRST_DOWNLOAD",
+	win_amd64: "ced3e6f4bb5a9865056b594b7ad0cf42137dc92c494346f1ca705b5dbf14c88e",
 } as const;
 
 const GLAB_VERSION = "1.93.0";
 const GLAB_SHA256 = {
 	mac_arm64: "6d6ffa97d430b5e7ff912e64dbac14703acc57967df654be1950ae71858d5b6f",
 	mac_amd64: "79d1a4f933919689c5fb7774feb1dd08f30b9c896dff4283b4a7387689ee0531",
-	// Windows amd64 — verify with: curl -sL https://gitlab.com/gitlab-org/cli/-/releases/v1.93.0/downloads/checksums.txt | grep windows_amd64.zip
-	win_amd64: "PLACEHOLDER_FILL_IN_AFTER_FIRST_DOWNLOAD",
+	win_amd64: "e07ea21f9a3df8eac5e1c16136c186154769504355a44195b47c44e410a39097",
 } as const;
 
 const SKIP_SHA_CHECK = process.env.WINTHORPE_VENDOR_SKIP_SHA_CHECK === "1";
@@ -115,7 +113,9 @@ function detectTarget(): TargetInfo {
 			// Claude Code's npm vendor dirs use `<arch>-win32`. cli.js's runtime
 			// resolver inspects `process.platform === 'win32'` and picks `x64-win32`.
 			ccVendorArch: "x64-win32",
-			codexPkg: "@openai/codex-windows-x64",
+			// Codex's Windows package follows Node's `process.platform` value
+			// ("win32"), not the human-friendly "windows" naming.
+			codexPkg: "@openai/codex-win32-x64",
 			codexTriple: "x86_64-pc-windows-msvc",
 			ghArch: "amd64",
 			glabArch: "amd64",
@@ -199,20 +199,11 @@ function ensureCacheDir(): void {
 }
 
 function sha256OfFile(path: string): string {
-	if (isWin) {
-		// PowerShell's Get-FileHash produces upper-case hex; normalise to lower.
-		const out = execSync(
-			`powershell -NoProfile -Command "(Get-FileHash -Algorithm SHA256 -Path '${path}').Hash"`,
-			{ encoding: "utf8" },
-		);
-		return out.trim().toLowerCase();
-	}
-	const out = execFileSync("shasum", ["-a", "256", path], {
-		encoding: "utf8",
-	});
-	const digest = out.split(/\s+/)[0];
-	if (!digest) throw new Error(`[stage-vendor] empty shasum for ${path}`);
-	return digest;
+	// Use Node's crypto (synchronous, available on every Bun + Node runtime
+	// without depending on Get-FileHash / shasum being on PATH).
+	const { readFileSync } = require("node:fs") as typeof import("node:fs");
+	const { createHash } = require("node:crypto") as typeof import("node:crypto");
+	return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 function downloadAndVerify(
@@ -273,9 +264,13 @@ function freshExtractDir(path: string): void {
 
 function extractArchive(archive: string, extractDir: string): void {
 	if (isWin) {
-		// Use built-in tar (Windows 10+ ships bsdtar) for both .zip and .tar.gz.
-		// No need to special-case zip — bsdtar handles both.
-		execFileSync("tar.exe", ["-xf", archive, "-C", extractDir], {
+		// Use built-in bsdtar (Windows 10+ ships it at System32\tar.exe) for
+		// both .zip and .tar.gz. We pin to the absolute path so Git Bash
+		// PATH order doesn't accidentally invoke MSYS2's GNU tar (which
+		// can't read zip archives).
+		const winTar = "C:\\Windows\\System32\\tar.exe";
+		const tarBin = existsSync(winTar) ? winTar : "tar.exe";
+		execFileSync(tarBin, ["-xf", archive, "-C", extractDir], {
 			stdio: "inherit",
 		});
 	} else if (archive.endsWith(".zip")) {
@@ -411,9 +406,8 @@ function locateHostBun(): string {
 			// edge cases that the Node API doesn't always traverse.
 			return raw;
 		}
-		const raw = execSync("which bun", { encoding: "utf8" })
-			.trim()
-			.split("\n")[0] ?? "";
+		const raw =
+			execSync("which bun", { encoding: "utf8" }).trim().split("\n")[0] ?? "";
 		if (!raw) throw new Error("empty output");
 		// Homebrew ships bun as a symlink; resolve to the real Mach-O.
 		return realpathSync(raw);
@@ -458,21 +452,31 @@ for (const sub of ccVendorSubdirs) {
 
 // ----- Codex -----
 // Codex npm package layout: <pkg>/vendor/<triple>/codex/codex(.exe)
-const codexBinName = `codex${target.exeSuffix}`;
-const codexSrc = join(
+// Windows ships three companion exes alongside codex.exe (command-runner,
+// windows-sandbox-setup) — copy the whole codex/ subdir so they ride along.
+const codexVendorDir = join(
 	NODE_MODULES,
 	target.codexPkg,
 	"vendor",
 	target.codexTriple,
 	"codex",
-	codexBinName,
 );
+const codexBinName = `codex${target.exeSuffix}`;
+const codexSrc = join(codexVendorDir, codexBinName);
 ensureExists(codexSrc, `${target.codexPkg} ${codexBinName} binary`);
 
-const codexDest = join(DIST_VENDOR, "codex", codexBinName);
-copyFile(codexSrc, codexDest);
-chmodExecutable(codexDest);
-maybeSignMacBinary(codexDest, false);
+const codexDestDir = join(DIST_VENDOR, "codex");
+if (isWin) {
+	// Copy the entire codex/ folder so the helper exes land next to codex.exe.
+	copyDir(codexVendorDir, codexDestDir);
+	chmodExecutable(join(codexDestDir, codexBinName));
+} else {
+	// macOS ships a single codex Mach-O — copy just that file.
+	const codexDest = join(codexDestDir, codexBinName);
+	copyFile(codexSrc, codexDest);
+	chmodExecutable(codexDest);
+	maybeSignMacBinary(codexDest, false);
+}
 
 // ----- Bun (JS runtime for cli.js) -----
 const bunBinName = `bun${target.exeSuffix}`;
@@ -486,7 +490,13 @@ maybeSignMacBinary(bunDest, true);
 // host bun is a single Mach-O binary too.
 
 for (const rel of [
-	join(ccDest, "vendor", "ripgrep", target.ccVendorArch, `rg${target.exeSuffix}`),
+	join(
+		ccDest,
+		"vendor",
+		"ripgrep",
+		target.ccVendorArch,
+		`rg${target.exeSuffix}`,
+	),
 	join(
 		ccDest,
 		"vendor",

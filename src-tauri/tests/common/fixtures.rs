@@ -9,9 +9,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use winthorpe_lib::pipeline::types::HistoricalRecord;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use winthorpe_lib::pipeline::types::HistoricalRecord;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HistoricalRecordFixture {

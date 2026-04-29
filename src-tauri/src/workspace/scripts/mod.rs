@@ -13,6 +13,4 @@ mod pty;
 #[cfg(all(unix, feature = "legacy-pty"))]
 mod unix;
 
-pub use pty::{
-    run_script, run_terminal_session, ScriptContext, ScriptEvent, ScriptProcessManager,
-};
+pub use pty::{run_script, run_terminal_session, ScriptContext, ScriptEvent, ScriptProcessManager};
