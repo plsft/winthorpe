@@ -50,7 +50,16 @@ const ROWS = Math.ceil(H / RY) + 2;
 const OX = Math.round((W - COLS * CX) / 2);
 const OY = Math.round((H - ROWS * RY) / 2);
 
-const H_SHAPE = [[0,0],[0,1],[0,2],[1,1],[2,0],[2,1],[2,2]];
+// Stylized W made of 7 parallelogram tiles on a 7-col × 3-row footprint.
+// Mirrors the W formed by the static logo (two outer downstrokes, two
+// inner upstrokes, with a tile at the inner peak). The "tops" of the
+// outer corners + inner peak are on row 0; descent midpoints on row 1;
+// valley bottoms on row 2.
+//
+//   X . . X . . X     ← outer tops + inner peak
+//   . X . . . X .     ← descent midpoints
+//   . . X . X . .     ← valley bottoms
+const W_SHAPE = [[0,0],[3,0],[6,0],[1,1],[5,1],[2,2],[4,2]];
 const allTiles = [];
 const grid = {};
 
@@ -83,17 +92,23 @@ function toChaos(el) {
   el.style.animation = `chaos ${dur}s cubic-bezier(0.4,0,0.2,1) infinite ${delay}s`;
 }
 
+// Logo footprint is 7 cols × 3 rows. Pick base positions that fit and
+// keep at least 8 cols / 4 rows of separation between adjacent logos so
+// the W shapes never visually merge.
+const LOGO_W = 7, LOGO_H = 3;
 function placeLogos(n) {
   const placed = [];
+  const maxC = Math.max(0, COLS - LOGO_W);
+  const maxR = Math.max(0, ROWS - LOGO_H);
   for (let i = 0; i < 500 && placed.length < n; i++) {
-    const c = Math.floor(Math.random() * (COLS - 2));
-    const r = Math.floor(Math.random() * (ROWS - 2));
-    if (placed.every(p => Math.abs(c-p[0]) >= 4 || Math.abs(r-p[1]) >= 4))
+    const c = Math.floor(Math.random() * (maxC + 1));
+    const r = Math.floor(Math.random() * (maxR + 1));
+    if (placed.every(p => Math.abs(c-p[0]) >= LOGO_W + 1 || Math.abs(r-p[1]) >= LOGO_H + 1))
       placed.push([c, r]);
   }
   const keys = new Set();
   for (const [bc, br] of placed)
-    H_SHAPE.forEach(([dc, dr]) => {
+    W_SHAPE.forEach(([dc, dr]) => {
       keys.add(`${bc+dc},${br+dr}`);
     });
   return keys;
