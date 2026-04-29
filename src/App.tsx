@@ -39,6 +39,10 @@ import {
 	type OpenTab as EditorOpenTab,
 	TabbedEditorHost,
 } from "@/features/editor/tabbed-editor-host";
+import {
+	loadPersistedEditorTabs,
+	savePersistedEditorTabs,
+} from "@/features/editor/use-persisted-tabs";
 import { FileTree } from "@/features/file-tree";
 import { WorkspaceInspectorSidebar } from "@/features/inspector";
 import { WorkspacesSidebarContainer } from "@/features/navigation/container";
@@ -479,6 +483,11 @@ function AppShell({
 	// sidebar — each click pushes a tab (or focuses an existing one).
 	// Diff-mode opens (from the Inspector "Changes" section) still use the
 	// single `editorSession` flow because diff is inherently single-pane.
+	//
+	// Persisted per-workspace via localStorage. Two effects below
+	// (hydrateOnWorkspaceChange + saveOnTabsChange) wire the localStorage
+	// round-trip — see usePersistedEditorTabs for the schema + stale-path
+	// filtering on rehydrate.
 	const [openEditorTabs, setOpenEditorTabs] = useState<EditorOpenTab[]>([]);
 	const [activeEditorTabId, setActiveEditorTabId] = useState<string | null>(
 		null,
@@ -489,6 +498,59 @@ function AppShell({
 	const [sidebarMode, setSidebarMode] = useState<"workspaces" | "files">(
 		"workspaces",
 	);
+
+	// Track the last hydrated workspace so the rehydrate effect doesn't
+	// run on every render (only on workspace switch). null = not hydrated yet.
+	const lastHydratedWorkspaceRef = useRef<string | null>(null);
+
+	// Hydrate persisted tabs whenever the active workspace changes. Stale
+	// paths are filtered out by stat-ing each saved file against disk.
+	useEffect(() => {
+		if (!selectedWorkspaceId) {
+			lastHydratedWorkspaceRef.current = null;
+			setOpenEditorTabs([]);
+			setActiveEditorTabId(null);
+			return;
+		}
+		if (lastHydratedWorkspaceRef.current === selectedWorkspaceId) {
+			return; // already hydrated for this workspace
+		}
+		lastHydratedWorkspaceRef.current = selectedWorkspaceId;
+
+		let cancelled = false;
+		void (async () => {
+			const verifyExists = async (path: string) => {
+				try {
+					const stat = await import("@/lib/api").then((m) =>
+						m.statEditorFile(path),
+					);
+					return stat.exists && stat.isFile;
+				} catch {
+					return false;
+				}
+			};
+			const loaded = await loadPersistedEditorTabs(
+				selectedWorkspaceId,
+				verifyExists,
+			);
+			if (cancelled) return;
+			setOpenEditorTabs(loaded.tabs);
+			setActiveEditorTabId(loaded.activeTabId);
+		})();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [selectedWorkspaceId]);
+
+	// Save tab state on every change. Debouncing isn't needed — the
+	// persistence write is sync localStorage and only fires on real state
+	// change events (open/close/focus tab), not every keystroke.
+	useEffect(() => {
+		const wsId = lastHydratedWorkspaceRef.current;
+		if (!wsId) return;
+		savePersistedEditorTabs(wsId, openEditorTabs, activeEditorTabId);
+	}, [openEditorTabs, activeEditorTabId]);
 	const [editorSession, setEditorSession] = useState<EditorSessionState | null>(
 		null,
 	);
