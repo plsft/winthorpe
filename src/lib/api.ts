@@ -1401,6 +1401,35 @@ export async function listEditorFiles(
 }
 
 /**
+ * Recursive directory tree for the file-explorer sidebar. Returns a flat
+ * pre-order list of {path, name, kind, absolutePath} entries; the FileTree
+ * component builds the hierarchical view from the relative paths.
+ *
+ * Capped at 10k entries server-side. Skips `.git`, `node_modules`,
+ * `target`, `dist`, `.next`, build artifacts, IDE noise, OS metadata.
+ */
+export type WorkspaceTreeEntryKind = "file" | "directory";
+export interface WorkspaceTreeEntry {
+	path: string;
+	name: string;
+	absolutePath: string;
+	kind: WorkspaceTreeEntryKind;
+}
+export async function listWorkspaceTree(
+	workspaceRootPath: string,
+): Promise<WorkspaceTreeEntry[]> {
+	try {
+		return await invoke<WorkspaceTreeEntry[]>("list_workspace_tree", {
+			workspaceRootPath,
+		});
+	} catch (error) {
+		throw new Error(
+			describeInvokeError(error, "Unable to list workspace files."),
+		);
+	}
+}
+
+/**
  * Full workspace file listing for the @-mention picker. Walks the same skip
  * rules as `listEditorFiles` but without the 24-file cap. The result is
  * cached per workspace root via React Query and fuzzy-filtered in the frontend

@@ -35,6 +35,11 @@ import { useWorkspaceCommitLifecycle } from "@/features/commit/hooks/use-commit-
 import { WorkspaceConversationContainer } from "@/features/conversation";
 import { useDockUnreadBadge } from "@/features/dock-badge";
 import { WorkspaceEditorSurface } from "@/features/editor";
+import {
+	type OpenTab as EditorOpenTab,
+	TabbedEditorHost,
+} from "@/features/editor/tabbed-editor-host";
+import { FileTree } from "@/features/file-tree";
 import { WorkspaceInspectorSidebar } from "@/features/inspector";
 import { WorkspacesSidebarContainer } from "@/features/navigation/container";
 import { AppOnboarding } from "@/features/onboarding";
@@ -54,6 +59,7 @@ import {
 import { useGlobalHotkeySync } from "@/features/shortcuts/use-global-hotkey-sync";
 import { AppUpdateButton } from "@/features/updater/app-update-button";
 import { useAppUpdater } from "@/features/updater/use-app-updater";
+import { cn } from "@/lib/utils";
 import { EditorIcon } from "@/shell/editor-icon";
 import { GithubIdentityGate } from "@/shell/github-identity-gate";
 import { GithubStatusMenu } from "@/shell/github-status-menu";
@@ -374,9 +380,9 @@ function AppShell({
 	const [workspaceReselectTick, setWorkspaceReselectTick] = useState(0);
 	const lastMarkedReadReselectTickRef = useRef(0);
 
-	const workspaceViewModeRef = useRef<"conversation" | "editor">(
-		"conversation",
-	);
+	const workspaceViewModeRef = useRef<
+		"conversation" | "editor" | "editor-tabs"
+	>("conversation");
 	const sessionSelectionHistoryByWorkspaceRef = useRef<
 		Record<string, string[]>
 	>({});
@@ -467,8 +473,22 @@ function AppShell({
 		null,
 	);
 	const [workspaceViewMode, setWorkspaceViewMode] = useState<
-		"conversation" | "editor"
+		"conversation" | "editor" | "editor-tabs"
 	>("conversation");
+	// Multi-tab editor state. Used for files opened from the FileTree
+	// sidebar — each click pushes a tab (or focuses an existing one).
+	// Diff-mode opens (from the Inspector "Changes" section) still use the
+	// single `editorSession` flow because diff is inherently single-pane.
+	const [openEditorTabs, setOpenEditorTabs] = useState<EditorOpenTab[]>([]);
+	const [activeEditorTabId, setActiveEditorTabId] = useState<string | null>(
+		null,
+	);
+	// Sidebar mode: "workspaces" (default — agent navigation) or "files"
+	// (the new file-tree explorer). Each workspace remembers its choice
+	// so re-selecting a workspace restores the user's last view.
+	const [sidebarMode, setSidebarMode] = useState<"workspaces" | "files">(
+		"workspaces",
+	);
 	const [editorSession, setEditorSession] = useState<EditorSessionState | null>(
 		null,
 	);
@@ -1098,6 +1118,48 @@ function AppShell({
 		},
 		[],
 	);
+
+	// Open a file from the FileTree sidebar in the multi-tab editor host.
+	// Focuses an existing tab if the file is already open; otherwise pushes
+	// a new tab and switches the workspace view to "editor-tabs".
+	const handleOpenFileFromTree = useCallback((absolutePath: string) => {
+		setOpenEditorTabs((current) => {
+			const existing = current.find((t) => t.session.path === absolutePath);
+			if (existing) {
+				setActiveEditorTabId(existing.id);
+				return current;
+			}
+			const id = `tab-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+			const next: EditorOpenTab[] = [
+				...current,
+				{
+					id,
+					session: {
+						kind: "file",
+						path: absolutePath,
+						dirty: false,
+					},
+				},
+			];
+			setActiveEditorTabId(id);
+			return next;
+		});
+		setWorkspaceViewMode("editor-tabs");
+	}, []);
+
+	const handleEditorTabsChange = useCallback(
+		(tabs: EditorOpenTab[], activeId: string | null) => {
+			setOpenEditorTabs(tabs);
+			setActiveEditorTabId(activeId);
+		},
+		[],
+	);
+
+	const handleAllEditorTabsClosed = useCallback(() => {
+		setOpenEditorTabs([]);
+		setActiveEditorTabId(null);
+		setWorkspaceViewMode("conversation");
+	}, []);
 
 	const handleExitEditorMode = useCallback(() => {
 		if (!confirmDiscardEditorChanges("return to chat")) {
@@ -2205,7 +2267,8 @@ function AppShell({
 								className="relative h-full overflow-hidden bg-background font-sans text-foreground antialiased"
 							>
 								<div className="relative flex h-full min-h-0 bg-background">
-									{workspaceViewMode === "conversation" && (
+									{(workspaceViewMode === "conversation" ||
+										workspaceViewMode === "editor-tabs") && (
 										<>
 											{!sidebarCollapsed && (
 												<aside
@@ -2214,18 +2277,76 @@ function AppShell({
 													className="relative flex h-full shrink-0 flex-col overflow-hidden bg-sidebar"
 													style={{ width: `${sidebarWidth}px` }}
 												>
-													<div className="min-h-0 flex-1">
-														<WorkspacesSidebarContainer
-															selectedWorkspaceId={selectedWorkspaceId}
-															sendingWorkspaceIds={sendingWorkspaceIds}
-															interactionRequiredWorkspaceIds={
-																interactionRequiredWorkspaceIds
+													{/* Sidebar mode toggle: Workspaces (default agent
+													    nav) vs Files (workspace file tree). Both
+													    modes share the sidebar's width + collapse
+													    state. */}
+													<div className="flex shrink-0 items-center gap-0.5 border-b border-sidebar-border/40 px-2 py-1.5">
+														<button
+															type="button"
+															onClick={() => setSidebarMode("workspaces")}
+															aria-pressed={sidebarMode === "workspaces"}
+															className={cn(
+																"flex h-6 items-center rounded px-2 text-[11px] font-medium transition-colors cursor-pointer",
+																sidebarMode === "workspaces"
+																	? "bg-foreground/10 text-foreground"
+																	: "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
+															)}
+														>
+															Workspaces
+														</button>
+														<button
+															type="button"
+															onClick={() => setSidebarMode("files")}
+															aria-pressed={sidebarMode === "files"}
+															disabled={!workspaceRootPath}
+															title={
+																workspaceRootPath
+																	? "Browse workspace files"
+																	: "Open a workspace to browse files"
 															}
-															newWorkspaceShortcut={newWorkspaceShortcut}
-															addRepositoryShortcut={addRepositoryShortcut}
-															onSelectWorkspace={handleSelectWorkspace}
-															pushWorkspaceToast={pushWorkspaceToast}
-														/>
+															className={cn(
+																"flex h-6 items-center rounded px-2 text-[11px] font-medium transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
+																sidebarMode === "files"
+																	? "bg-foreground/10 text-foreground"
+																	: "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
+															)}
+														>
+															Files
+														</button>
+													</div>
+													<div className="min-h-0 flex-1">
+														{sidebarMode === "files" &&
+														selectedWorkspaceId &&
+														workspaceRootPath ? (
+															<FileTree
+																workspaceId={selectedWorkspaceId}
+																workspaceRootPath={workspaceRootPath}
+																activeFilePath={
+																	workspaceViewMode === "editor-tabs" &&
+																	activeEditorTabId
+																		? (openEditorTabs.find(
+																				(t) => t.id === activeEditorTabId,
+																			)?.session.path ?? null)
+																		: null
+																}
+																onOpenFile={(entry) =>
+																	handleOpenFileFromTree(entry.absolutePath)
+																}
+															/>
+														) : (
+															<WorkspacesSidebarContainer
+																selectedWorkspaceId={selectedWorkspaceId}
+																sendingWorkspaceIds={sendingWorkspaceIds}
+																interactionRequiredWorkspaceIds={
+																	interactionRequiredWorkspaceIds
+																}
+																newWorkspaceShortcut={newWorkspaceShortcut}
+																addRepositoryShortcut={addRepositoryShortcut}
+																onSelectWorkspace={handleSelectWorkspace}
+																pushWorkspaceToast={pushWorkspaceToast}
+															/>
+														)}
 													</div>
 													<div className="absolute right-[12px] top-[6px] z-20 flex items-center gap-[2px]">
 														<AppUpdateButton status={appUpdateStatus} />
@@ -2331,9 +2452,20 @@ function AppShell({
 													onError={handleEditorSurfaceError}
 												/>
 											)}
+											{workspaceViewMode === "editor-tabs" && (
+												<TabbedEditorHost
+													tabs={openEditorTabs}
+													activeTabId={activeEditorTabId}
+													workspaceRootPath={workspaceRootPath}
+													onTabsChange={handleEditorTabsChange}
+													onAllClosed={handleAllEditorTabsClosed}
+													onError={handleEditorSurfaceError}
+												/>
+											)}
 											<div
 												className={
-													workspaceViewMode === "editor"
+													workspaceViewMode === "editor" ||
+													workspaceViewMode === "editor-tabs"
 														? "hidden"
 														: "flex min-h-0 flex-1 flex-col"
 												}

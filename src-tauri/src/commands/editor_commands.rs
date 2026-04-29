@@ -33,6 +33,16 @@ pub async fn list_workspace_files(
     run_blocking(move || editor_files::list_workspace_files(&workspace_root_path)).await
 }
 
+/// Recursive directory tree for the file-explorer sidebar. Pre-order
+/// (depth-first) flat list — the frontend builds the hierarchy from
+/// the relative paths.
+#[tauri::command]
+pub async fn list_workspace_tree(
+    workspace_root_path: String,
+) -> CmdResult<Vec<editor_files::WorkspaceTreeEntry>> {
+    run_blocking(move || editor_files::list_workspace_tree(&workspace_root_path)).await
+}
+
 #[tauri::command]
 pub async fn list_editor_files_with_content(
     workspace_root_path: String,

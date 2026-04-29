@@ -289,6 +289,7 @@ pub fn run() {
             commands::editor_commands::list_editor_files,
             commands::editor_commands::list_editor_files_with_content,
             commands::editor_commands::list_workspace_files,
+            commands::editor_commands::list_workspace_tree,
             commands::editor_commands::list_workspace_changes,
             commands::editor_commands::list_workspace_changes_with_content,
             commands::editor_commands::discard_workspace_file,
