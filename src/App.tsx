@@ -1224,30 +1224,31 @@ function AppShell({
 	// Open a file from the FileTree sidebar in the multi-tab editor host.
 	// Focuses an existing tab if the file is already open; otherwise pushes
 	// a new tab and switches the workspace view to "editor-tabs".
-	const handleOpenFileFromTree = useCallback((absolutePath: string) => {
-		setOpenEditorTabs((current) => {
-			const existing = current.find((t) => t.session.path === absolutePath);
+	const handleOpenFileFromTree = useCallback(
+		(absolutePath: string) => {
+			// Flat state updates — earlier version nested setActiveEditorTabId
+			// inside setOpenEditorTabs, which works but produced a subtle
+			// double-click race where the tab strip rendered before the
+			// activeTabId update was visible to TabbedEditorHost.
+			const existing = openEditorTabs.find(
+				(t) => t.session.path === absolutePath,
+			);
 			if (existing) {
 				setActiveEditorTabId(existing.id);
-				return current;
+				setWorkspaceViewMode("editor-tabs");
+				return;
 			}
 			const id = `tab-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-			const next: EditorOpenTab[] = [
-				...current,
-				{
-					id,
-					session: {
-						kind: "file",
-						path: absolutePath,
-						dirty: false,
-					},
-				},
-			];
+			const newTab: EditorOpenTab = {
+				id,
+				session: { kind: "file", path: absolutePath, dirty: false },
+			};
+			setOpenEditorTabs([...openEditorTabs, newTab]);
 			setActiveEditorTabId(id);
-			return next;
-		});
-		setWorkspaceViewMode("editor-tabs");
-	}, []);
+			setWorkspaceViewMode("editor-tabs");
+		},
+		[openEditorTabs],
+	);
 
 	const handleEditorTabsChange = useCallback(
 		(tabs: EditorOpenTab[], activeId: string | null) => {

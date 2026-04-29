@@ -415,6 +415,26 @@ export function WorkspaceEditorSurface({
 					className="h-full min-h-0 flex-1"
 				/>
 
+				{/* Loading state: visible while readEditorFile is in flight OR
+				    while Monaco's lazy import is resolving (whichever is
+				    slower on the first open). Without this, a single click
+				    on a file in the explorer leaves the editor area blank
+				    for 100-500ms — users click again thinking the click was
+				    missed, hence the "double-click required" feel. */}
+				{surfaceStatus.kind !== "error" && !canRenderFile && !canRenderDiff && (
+					<div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+						<div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+							<span
+								aria-hidden="true"
+								className="size-2 animate-pulse rounded-full bg-foreground/50"
+							/>
+							<span>
+								Loading {editorSession.path.split(/[\\/]/).pop() ?? "file"}…
+							</span>
+						</div>
+					</div>
+				)}
+
 				{surfaceStatus.kind === "error" && (
 					<div className="absolute inset-0 flex items-center justify-center bg-background">
 						<SurfaceMessage message={surfaceStatus.message} />
