@@ -5,7 +5,7 @@
 <h1 align="center">Winthorpe</h1>
 
 <p align="center">
-  Winthorpe is an open-source local workbench for multi-agent software development.
+  Winthorpe is a local-first Windows workbench for multi-agent software development.
 </p>
 
 > AI made coding faster.
@@ -22,7 +22,7 @@
   <img src="src/assets/winthorpe-screenshot-mix.png" alt="Winthorpe screenshot" width="100%" />
 </p>
 
-[**Download for macOS** →](https://github.com/dohooo/winthorpe/releases)
+[**Download for Windows** →](https://github.com/plsft/winthorpe/releases)
 
 ## Contributing
 

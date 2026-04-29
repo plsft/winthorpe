@@ -9,8 +9,8 @@
 //!
 //! ## Implementation
 //!
-//! - **Unix:** delegates to `libc::setpgid` + `killpg` (the established helmor
-//!   pattern). Negative-PID `kill` targets the entire group atomically.
+//! - **Unix:** delegates to `libc::setpgid` + `killpg`. Negative-PID `kill`
+//!   targets the entire group atomically.
 //! - **Windows:** wraps a Win32 Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`.
 //!   The kernel guarantees that closing the last handle to the job kills every
 //!   process inside, so RAII drop semantics give us the same "kill the whole

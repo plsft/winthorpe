@@ -19,7 +19,7 @@ Configure these GitHub repository secrets before running the macOS release workf
 - `WINTHORPE_UPDATER_ENDPOINTS`
   - Comma-separated updater endpoint list
   - Stable-only default:
-    - `https://github.com/dohooo/winthorpe/releases/latest/download/latest.json`
+    - `https://github.com/plsft/winthorpe/releases/latest/download/latest.json`
 
 GitHub release publication uses the official `tauri-action`. It uploads the signed
 updater bundle and generates the `latest.json` manifest consumed by Winthorpe's updater.

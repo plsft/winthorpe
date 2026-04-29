@@ -2,11 +2,14 @@
 
 This file provides guidance to AI coding agents working with code in this repository.
 
-## Fork status
+## Project status
 
-Winthorpe is a **Windows-first fork** of [Helmor](https://github.com/dohooo/helmor) (Apache 2.0). Upstream Helmor is macOS-only. Winthorpe is a personal, long-running project for the maintainer; not currently shipped publicly. See `docs/winthorpe-port.md` for the port plan, phase status, and architectural decisions that diverge from upstream.
-
-Most architecture/code conventions below were inherited from upstream Helmor and remain valid. Where Winthorpe diverges (PTY layer, credential storage, sidecar runtimes, shell discovery, OS chrome, deep-link registration, CLI install), the divergence is documented inline in this file or in the relevant module's CLAUDE.md.
+Winthorpe is a **Windows-first** local-first desktop workbench for multi-agent
+software development. It's a personal, long-running project for the maintainer;
+not currently shipped publicly. Core architectural decisions (PTY layer,
+credential storage, sidecar runtimes, shell discovery, OS chrome, deep-link
+registration, CLI install) are documented inline in this file or in the
+relevant module's CLAUDE.md.
 
 ## What is Winthorpe
 

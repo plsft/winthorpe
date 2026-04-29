@@ -698,8 +698,20 @@ fn sync_meta_expiry_fields(meta: &mut GithubIdentityMeta, secret: &StoredIdentit
     meta.refresh_token_expires_at = secret.refresh_token_expires_at.clone();
 }
 
+/// Build-time-baked GitHub OAuth Device Flow client ID.
+///
+/// Defense in depth: refuse the placeholder value that ships in
+/// `.env.example`. Without this guard, a fresh build that hadn't been
+/// configured with a real `.env.local` would try (and fail) to start
+/// Device Flow against a non-existent client — but worse, if anyone ever
+/// re-uses the placeholder string as a real client ID elsewhere, the
+/// in-app GitHub auth would silently authenticate against THEIR app.
+const PLACEHOLDER_CLIENT_ID: &str = "REPLACE_WITH_YOUR_GITHUB_OAUTH_CLIENT_ID";
+
 fn github_client_id() -> Option<&'static str> {
-    option_env!("WINTHORPE_GITHUB_CLIENT_ID").filter(|value| !value.trim().is_empty())
+    option_env!("WINTHORPE_GITHUB_CLIENT_ID")
+        .filter(|value| !value.trim().is_empty())
+        .filter(|value| *value != PLACEHOLDER_CLIENT_ID)
 }
 
 fn require_client_id(client_id: Option<&str>) -> Result<&str> {

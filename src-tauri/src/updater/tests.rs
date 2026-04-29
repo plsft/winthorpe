@@ -57,7 +57,7 @@ fn update_status_snapshot_serializes_camel_case_fields() {
             version: "0.2.0".into(),
             body: Some("release notes".into()),
             date: None,
-            release_url: "https://github.com/dohooo/winthorpe/releases/tag/v0.2.0".into(),
+            release_url: "https://github.com/plsft/winthorpe/releases/tag/v0.2.0".into(),
         }),
         last_error: Some("network".into()),
         last_attempt_at: Some("2026-04-17T00:00:00Z".into()),
@@ -73,7 +73,7 @@ fn update_status_snapshot_serializes_camel_case_fields() {
     assert_eq!(value["update"]["version"], "0.2.0");
     assert_eq!(
         value["update"]["releaseUrl"],
-        "https://github.com/dohooo/winthorpe/releases/tag/v0.2.0"
+        "https://github.com/plsft/winthorpe/releases/tag/v0.2.0"
     );
     assert_eq!(value["lastError"], "network");
     assert_eq!(value["lastAttemptAt"], "2026-04-17T00:00:00Z");

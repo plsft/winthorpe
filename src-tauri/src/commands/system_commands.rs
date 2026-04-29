@@ -20,7 +20,7 @@ use super::common::{run_blocking, CmdResult};
 const ONBOARDING_WINDOW_WIDTH: f64 = 1300.0;
 const ONBOARDING_WINDOW_HEIGHT: f64 = 810.0;
 const WINTHORPE_SKILL_NAME: &str = "winthorpe-cli";
-const WINTHORPE_SKILL_SOURCE: &str = "dohooo/winthorpe/.codex/skills/winthorpe-cli";
+const WINTHORPE_SKILL_SOURCE: &str = "plsft/winthorpe/.codex/skills/winthorpe-cli";
 
 static ONBOARDING_WINDOW_STATE: LazyLock<Mutex<HashMap<String, bool>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));

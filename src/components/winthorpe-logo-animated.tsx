@@ -2,11 +2,10 @@ import { useId } from "react";
 import { resolveTheme, useSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 
-// Stylized W logo — same parallelogram-tile + cascade-flip aesthetic as
-// upstream Helmor's H, redrawn as the four strokes of a W. Pure SVG +
-// CSS keyframes so this component has no runtime dependency on lottie-web
-// (which a separate component, fast-mode-lottie-icon.tsx, still uses for
-// its own purposes).
+// Stylized W logo built from parallelogram tiles with a cascade-flip
+// animation. Pure SVG + CSS keyframes so this component has no runtime
+// dependency on lottie-web (which a separate component,
+// fast-mode-lottie-icon.tsx, still uses for its own purposes).
 //
 // Visual: four diagonal "bars" in the W silhouette, each split into two
 // stacked parallelogram tiles. Tiles flip horizontally (scaleX 1 → 0 → 1)

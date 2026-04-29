@@ -1,9 +1,9 @@
 /**
  * Platform helpers — single source of truth for OS-conditional UI.
  *
- * Winthorpe is Windows-first, but the codebase ships cross-platform code
- * (the upstream Helmor source assumed macOS). UI code that needs to differ
- * between Windows/macOS reads from these helpers rather than hardcoding.
+ * Winthorpe is Windows-first but ships cross-platform. UI code that needs
+ * to differ between Windows / macOS / Linux reads from these helpers
+ * rather than hardcoding the assumption.
  */
 
 import { type as osType } from "@tauri-apps/plugin-os";
@@ -18,16 +18,25 @@ function detect(): "macos" | "windows" | "linux" | "other" {
 	try {
 		const t = osType();
 		const k =
-			t === "macos" ? "macos" : t === "windows" ? "windows" : t === "linux" ? "linux" : "other";
+			t === "macos"
+				? "macos"
+				: t === "windows"
+					? "windows"
+					: t === "linux"
+						? "linux"
+						: "other";
 		cachedKind = k;
 		return k;
 	} catch {
 		const ua =
 			typeof navigator !== "undefined" ? navigator.userAgent.toLowerCase() : "";
-		const k =
-			ua.includes("mac") ? "macos" :
-			ua.includes("win") ? "windows" :
-			ua.includes("linux") ? "linux" : "other";
+		const k = ua.includes("mac")
+			? "macos"
+			: ua.includes("win")
+				? "windows"
+				: ua.includes("linux")
+					? "linux"
+					: "other";
 		cachedKind = k;
 		return k;
 	}

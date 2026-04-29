@@ -53,7 +53,7 @@ export const defaultInvokeHandlers: Record<string, InvokeHandler> = {
 		claude: false,
 		codex: false,
 		command:
-			"npx --yes skills add dohooo/winthorpe/.codex/skills/winthorpe-cli -g -s winthorpe-cli -y --copy -a claude-code -a codex",
+			"npx --yes skills add plsft/winthorpe/.codex/skills/winthorpe-cli -g -s winthorpe-cli -y --copy -a claude-code -a codex",
 	}),
 	get_app_settings: () => ({}),
 	load_auto_close_action_kinds: () => [],

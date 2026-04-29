@@ -476,5 +476,5 @@ fn snapshot_from_update(update: &tauri_plugin_updater::Update) -> UpdateInfoSnap
 // CI enforces tag == `v{package.json.version}` in .github/workflows/publish.yml,
 // so every installable update has a corresponding GitHub release page at this URL.
 fn release_url_for_version(version: &str) -> String {
-    format!("https://github.com/dohooo/winthorpe/releases/tag/v{version}")
+    format!("https://github.com/plsft/winthorpe/releases/tag/v{version}")
 }

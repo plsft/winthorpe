@@ -13,7 +13,7 @@
  * back to hard-coded defaults below. The page never renders blank.
  */
 
-const REPO = "dohooo/winthorpe";
+const REPO = "plsft/winthorpe";
 const API = "https://api.github.com";
 const REVALIDATE_SECONDS = 3600;
 

@@ -1391,7 +1391,7 @@ mod tests {
         create_worktree_from_start_point(
             clone.path(),
             wt_dir.path(),
-            "dohooo/whirlpool",
+            "wt-test/whirlpool",
             "origin/main",
         )
         .unwrap();

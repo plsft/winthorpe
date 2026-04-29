@@ -694,7 +694,7 @@ mod tests {
                 stderr: String::new(),
             },
             MockRunnerResponse::Success {
-                stdout: r#"[{"id":0,"name":"winthorpe","full_name":"dohooo/winthorpe","private":false,"default_branch":"main","html_url":"https://github.com/dohooo/winthorpe","updated_at":"2026-01-01T00:00:00Z","pushed_at":"2026-01-01T00:00:00Z","owner":{"login":"dohooo"}}]"#
+                stdout: r#"[{"id":0,"name":"winthorpe","full_name":"plsft/winthorpe","private":false,"default_branch":"main","html_url":"https://github.com/plsft/winthorpe","updated_at":"2026-01-01T00:00:00Z","pushed_at":"2026-01-01T00:00:00Z","owner":{"login":"plsft"}}]"#
                     .to_string(),
                 stderr: String::new(),
             },
@@ -707,11 +707,11 @@ mod tests {
             vec![GithubRepositorySummary {
                 id: 0,
                 name: "winthorpe".to_string(),
-                full_name: "dohooo/winthorpe".to_string(),
-                owner_login: "dohooo".to_string(),
+                full_name: "plsft/winthorpe".to_string(),
+                owner_login: "plsft".to_string(),
                 private: false,
                 default_branch: Some("main".to_string()),
-                html_url: "https://github.com/dohooo/winthorpe".to_string(),
+                html_url: "https://github.com/plsft/winthorpe".to_string(),
                 updated_at: Some("2026-01-01T00:00:00Z".to_string()),
                 pushed_at: Some("2026-01-01T00:00:00Z".to_string()),
             }]

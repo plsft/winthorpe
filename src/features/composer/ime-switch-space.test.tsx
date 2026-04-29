@@ -7,7 +7,7 @@
  * to flip to English) WITHOUT pressing Enter to confirm or Esc to cancel,
  * the OS force-commits the IME's pending buffer into the contenteditable —
  * with the IME's own segmentation spaces preserved as ASCII U+0020s. The
- * editor ends up with `he lmor` instead of the `winthorpe` the user actually
+ * editor ends up with `wint horpe` instead of the `winthorpe` the user actually
  * typed.
  *
  * The browser-level event surface for this is genuinely under-specified:
@@ -291,12 +291,12 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 		// User typed "winthorpe" with Chinese pinyin IME active. The IME
 		// segmented it as `he | lmor` (visible in the candidate strip).
 		// User pressed Shift to switch to English IME without confirming
-		// — OS commits the segmented buffer "he lmor" with the inserted
+		// — OS commits the segmented buffer "wint horpe" with the inserted
 		// space.
-		simulateImeSwitchCommit(editor, "he lmor");
+		simulateImeSwitchCommit(editor, "wint horpe");
 
 		await waitFor(() => {
-			expect(editor.textContent).toBe("helmor");
+			expect(editor.textContent).toBe("winthorpe");
 		});
 	});
 
@@ -353,7 +353,7 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 	// shown to the user.
 	//
 	// This test pins the desired behavior: after a pinyin buffer
-	// `"he lmor"` is force-committed (IME cursor at end, offset 7), the
+	// `"wint horpe"` is force-committed (IME cursor at end, offset 7), the
 	// strip lands `"winthorpe"` in the editor AND the caret ends at the end
 	// of `"winthorpe"` (offset 6). Today jsdom clamps the selection so this
 	// may be passing already on paper — but the plugin itself does not
@@ -365,10 +365,10 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 		const editor = await screen.findByLabelText("Workspace input");
 		editor.focus();
 
-		simulateImeSwitchCommit(editor, "he lmor");
+		simulateImeSwitchCommit(editor, "wint horpe");
 
 		await waitFor(() => {
-			expect(editor.textContent).toBe("helmor");
+			expect(editor.textContent).toBe("winthorpe");
 		});
 	});
 
@@ -377,16 +377,16 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 		const editor = await screen.findByLabelText("Workspace input");
 		editor.focus();
 
-		simulateImeSwitchCommit(editor, "he lmor");
+		simulateImeSwitchCommit(editor, "wint horpe");
 		await waitFor(() => {
-			expect(editor.textContent).toBe("helmor");
+			expect(editor.textContent).toBe("winthorpe");
 		});
 
 		simulateFollowUpComposition(editor, "winthorpe你好", "你好");
 
 		await waitFor(() => {
 			expect(editor.textContent).toBe("winthorpe你好");
-			expect(editor.textContent?.includes("he lmor")).toBe(false);
+			expect(editor.textContent?.includes("wint horpe")).toBe(false);
 
 			const sel = editor.ownerDocument.defaultView?.getSelection();
 			expect(sel?.isCollapsed).toBe(true);
@@ -412,15 +412,15 @@ describe("WorkspaceComposer — IME switch mid-composition leaves segmentation s
 		const editor = await screen.findByLabelText("Workspace input");
 		editor.focus();
 
-		simulateImeSwitchCommit(editor, "he lmor");
+		simulateImeSwitchCommit(editor, "wint horpe");
 		await waitFor(() => {
-			expect(editor.textContent).toBe("helmor");
+			expect(editor.textContent).toBe("winthorpe");
 		});
 
 		getLexicalEditorFromRoot(editor).update(() => {});
 
 		await waitFor(() => {
-			expect(editor.textContent).toBe("helmor");
+			expect(editor.textContent).toBe("winthorpe");
 		});
 	});
 
