@@ -1469,6 +1469,63 @@ export interface WorkspaceFilesChangedPayload {
 	paths: string[];
 }
 
+// ---------------------------------------------------------------------------
+// File-tree context-menu mutations
+// ---------------------------------------------------------------------------
+
+export interface CreateFileResponse {
+	absolutePath: string;
+}
+
+export async function createWorkspaceFile(
+	path: string,
+): Promise<CreateFileResponse> {
+	try {
+		return await invoke<CreateFileResponse>("create_workspace_file", { path });
+	} catch (error) {
+		throw new Error(describeInvokeError(error, "Unable to create file."));
+	}
+}
+
+export async function createWorkspaceDirectory(
+	path: string,
+): Promise<CreateFileResponse> {
+	try {
+		return await invoke<CreateFileResponse>("create_workspace_directory", {
+			path,
+		});
+	} catch (error) {
+		throw new Error(describeInvokeError(error, "Unable to create directory."));
+	}
+}
+
+export interface RenameResponse {
+	fromPath: string;
+	toPath: string;
+}
+
+export async function renameWorkspacePath(
+	fromPath: string,
+	toPath: string,
+): Promise<RenameResponse> {
+	try {
+		return await invoke<RenameResponse>("rename_workspace_path", {
+			fromPath,
+			toPath,
+		});
+	} catch (error) {
+		throw new Error(describeInvokeError(error, "Unable to rename."));
+	}
+}
+
+export async function deleteWorkspacePath(path: string): Promise<void> {
+	try {
+		await invoke<void>("delete_workspace_path", { path });
+	} catch (error) {
+		throw new Error(describeInvokeError(error, "Unable to delete."));
+	}
+}
+
 /**
  * Full workspace file listing for the @-mention picker. Walks the same skip
  * rules as `listEditorFiles` but without the 24-file cap. The result is

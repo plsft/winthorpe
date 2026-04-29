@@ -73,6 +73,41 @@ pub fn stop_workspace_files_watcher(
     Ok(())
 }
 
+// ---------------------------------------------------------------------------
+// File-tree mutations (right-click context menu in the explorer)
+// ---------------------------------------------------------------------------
+
+/// Create an empty file at `path`. Errors if it already exists. Creates
+/// missing parent dirs.
+#[tauri::command]
+pub async fn create_workspace_file(path: String) -> CmdResult<editor_files::CreateFileResponse> {
+    run_blocking(move || editor_files::create_file(&path)).await
+}
+
+/// Create a directory at `path` (mkdir -p). Errors if it already exists.
+#[tauri::command]
+pub async fn create_workspace_directory(
+    path: String,
+) -> CmdResult<editor_files::CreateFileResponse> {
+    run_blocking(move || editor_files::create_directory(&path)).await
+}
+
+/// Rename / move a path. Both endpoints must be inside the workspace
+/// allow-list; refuses to overwrite an existing target.
+#[tauri::command]
+pub async fn rename_workspace_path(
+    from_path: String,
+    to_path: String,
+) -> CmdResult<editor_files::RenameResponse> {
+    run_blocking(move || editor_files::rename_path(&from_path, &to_path)).await
+}
+
+/// Delete a file or directory tree.
+#[tauri::command]
+pub async fn delete_workspace_path(path: String) -> CmdResult<()> {
+    run_blocking(move || editor_files::delete_path(&path)).await
+}
+
 #[tauri::command]
 pub async fn list_editor_files_with_content(
     workspace_root_path: String,

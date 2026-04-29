@@ -2435,6 +2435,32 @@ function AppShell({
 																onOpenFile={(entry) =>
 																	handleOpenFileFromTree(entry.absolutePath)
 																}
+																onPathRemoved={(absolutePath) => {
+																	// Close any tabs whose path matches the
+																	// deleted/renamed entry. Don't prompt on
+																	// dirty — by definition the user just told
+																	// us to remove the file from disk.
+																	setOpenEditorTabs((current) => {
+																		const remaining = current.filter(
+																			(t) => t.session.path !== absolutePath,
+																		);
+																		if (remaining.length === current.length) {
+																			return current;
+																		}
+																		if (remaining.length === 0) {
+																			setActiveEditorTabId(null);
+																			setWorkspaceViewMode("conversation");
+																		} else if (
+																			activeEditorTabId &&
+																			!remaining.some(
+																				(t) => t.id === activeEditorTabId,
+																			)
+																		) {
+																			setActiveEditorTabId(remaining[0]!.id);
+																		}
+																		return remaining;
+																	});
+																}}
 															/>
 														) : (
 															<WorkspacesSidebarContainer
