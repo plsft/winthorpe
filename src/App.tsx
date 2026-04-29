@@ -35,6 +35,7 @@ import { useWorkspaceCommitLifecycle } from "@/features/commit/hooks/use-commit-
 import { WorkspaceConversationContainer } from "@/features/conversation";
 import { useDockUnreadBadge } from "@/features/dock-badge";
 import { WorkspaceEditorSurface } from "@/features/editor";
+import { EditorTabsBar } from "@/features/editor/editor-tabs-bar";
 import {
 	type OpenTab as EditorOpenTab,
 	TabbedEditorHost,
@@ -97,6 +98,7 @@ import {
 	type WorkspaceDetail,
 	type WorkspaceGroup,
 	type WorkspaceSessionSummary,
+	writeEditorFile,
 } from "./lib/api";
 import {
 	type ComposerInsertRequest,
@@ -1263,6 +1265,62 @@ function AppShell({
 		setActiveEditorTabId(null);
 		setWorkspaceViewMode("conversation");
 	}, []);
+
+	// Save state for the EditorTabsBar's Save button + global Ctrl+S handler.
+	// Lives at App-level (not inside TabbedEditorHost) so users can save
+	// from ANY view — including the chat view if they switched to chat
+	// without closing a dirty file tab.
+	const [savingTabId, setSavingTabId] = useState<string | null>(null);
+	const handleSaveActiveTab = useCallback(async () => {
+		const id = activeEditorTabId;
+		if (!id) return;
+		const tab = openEditorTabs.find((t) => t.id === id);
+		if (!tab?.session.dirty) return;
+		const text = tab.session.modifiedText ?? "";
+		setSavingTabId(id);
+		try {
+			await writeEditorFile(tab.session.path, text);
+			setOpenEditorTabs((current) =>
+				current.map((t) =>
+					t.id === id
+						? {
+								...t,
+								session: {
+									...t.session,
+									originalText: text,
+									dirty: false,
+								},
+							}
+						: t,
+				),
+			);
+		} catch (error) {
+			pushWorkspaceToast(
+				error instanceof Error ? error.message : "Failed to save",
+				"Save failed",
+			);
+		} finally {
+			setSavingTabId(null);
+		}
+	}, [activeEditorTabId, openEditorTabs, pushWorkspaceToast]);
+	useEffect(() => {
+		const handler = (event: KeyboardEvent) => {
+			const cmd = event.ctrlKey || event.metaKey;
+			if (!cmd) return;
+			if (event.key === "s" || event.key === "S") {
+				if (!activeEditorTabId) return;
+				event.preventDefault();
+				void handleSaveActiveTab();
+			}
+		};
+		window.addEventListener("keydown", handler);
+		return () => window.removeEventListener("keydown", handler);
+	}, [activeEditorTabId, handleSaveActiveTab]);
+
+	const activeFileTab = useMemo(
+		() => openEditorTabs.find((t) => t.id === activeEditorTabId) ?? null,
+		[openEditorTabs, activeEditorTabId],
+	);
 
 	const handleExitEditorMode = useCallback(() => {
 		if (!confirmDiscardEditorChanges("return to chat")) {
@@ -2572,6 +2630,80 @@ function AppShell({
 											aria-label="Workspace viewport"
 											className="flex min-h-0 flex-1 flex-col bg-background"
 										>
+											{/* Unified tab strip: pinned Chat tab + open file
+											    tabs. Visible whenever there's at least one file
+											    tab open, even when the user is on the chat view
+											    — clicking a file tab swaps the viewport to the
+											    editor without losing chat context. */}
+											{openEditorTabs.length > 0 &&
+												workspaceViewMode !== "editor" && (
+													<EditorTabsBar
+														tabs={openEditorTabs}
+														activeFileTabId={activeEditorTabId}
+														chatActive={workspaceViewMode === "conversation"}
+														workspaceRootPath={workspaceRootPath}
+														savingTabId={savingTabId}
+														activeFileIsDirty={!!activeFileTab?.session.dirty}
+														onSelectChat={() => {
+															setWorkspaceViewMode("conversation");
+														}}
+														onSelectFileTab={(tabId) => {
+															setActiveEditorTabId(tabId);
+															setWorkspaceViewMode("editor-tabs");
+														}}
+														onCloseFileTab={(tabId) => {
+															const tab = openEditorTabs.find(
+																(t) => t.id === tabId,
+															);
+															if (
+																tab?.session.dirty &&
+																!window.confirm(
+																	"This file has unsaved changes. Close without saving?",
+																)
+															) {
+																return;
+															}
+															const remaining = openEditorTabs.filter(
+																(t) => t.id !== tabId,
+															);
+															setOpenEditorTabs(remaining);
+															if (remaining.length === 0) {
+																setActiveEditorTabId(null);
+																setWorkspaceViewMode("conversation");
+																return;
+															}
+															if (activeEditorTabId === tabId) {
+																const closedIndex = openEditorTabs.findIndex(
+																	(t) => t.id === tabId,
+																);
+																const fallbackIndex = Math.max(
+																	0,
+																	closedIndex - 1,
+																);
+																setActiveEditorTabId(
+																	remaining[fallbackIndex]?.id ??
+																		remaining[0]!.id,
+																);
+															}
+														}}
+														onReorderFileTab={(fromId, toIndex) => {
+															const fromIndex = openEditorTabs.findIndex(
+																(t) => t.id === fromId,
+															);
+															if (fromIndex === -1 || fromIndex === toIndex)
+																return;
+															const next = [...openEditorTabs];
+															const [moved] = next.splice(fromIndex, 1);
+															if (!moved) return;
+															const insertAt =
+																fromIndex < toIndex ? toIndex - 1 : toIndex;
+															next.splice(insertAt, 0, moved);
+															setOpenEditorTabs(next);
+														}}
+														onSaveActiveFile={() => void handleSaveActiveTab()}
+													/>
+												)}
+
 											{workspaceViewMode === "editor" && editorSession && (
 												<WorkspaceEditorSurface
 													editorSession={editorSession}
