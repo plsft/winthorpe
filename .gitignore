@@ -12,6 +12,7 @@ dist-ssr
 .env.*
 .env.release.local
 !.env.release.local.example
+!.env.local.example
 .local-data/
 .local-docs/
 
