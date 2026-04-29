@@ -1430,6 +1430,46 @@ export async function listWorkspaceTree(
 }
 
 /**
+ * Begin watching `workspaceRootPath` for filesystem changes. The backend
+ * emits a `workspace-files-changed` Tauri event tagged with `workspaceId`
+ * whenever anything in the directory tree changes (debounced ~250ms).
+ * Idempotent for the same (workspaceId, root); switching root replaces
+ * the existing watcher.
+ */
+export async function startWorkspaceFilesWatcher(
+	workspaceId: string,
+	workspaceRootPath: string,
+): Promise<void> {
+	try {
+		await invoke<void>("start_workspace_files_watcher", {
+			workspaceId,
+			workspaceRootPath,
+		});
+	} catch (error) {
+		throw new Error(
+			describeInvokeError(error, "Unable to start workspace files watcher."),
+		);
+	}
+}
+
+export async function stopWorkspaceFilesWatcher(
+	workspaceId: string,
+): Promise<void> {
+	try {
+		await invoke<void>("stop_workspace_files_watcher", { workspaceId });
+	} catch (error) {
+		throw new Error(
+			describeInvokeError(error, "Unable to stop workspace files watcher."),
+		);
+	}
+}
+
+export interface WorkspaceFilesChangedPayload {
+	workspaceId: string;
+	paths: string[];
+}
+
+/**
  * Full workspace file listing for the @-mention picker. Walks the same skip
  * rules as `listEditorFiles` but without the 24-file cap. The result is
  * cached per workspace root via React Query and fuzzy-filtered in the frontend

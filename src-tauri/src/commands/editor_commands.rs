@@ -43,6 +43,36 @@ pub async fn list_workspace_tree(
     run_blocking(move || editor_files::list_workspace_tree(&workspace_root_path)).await
 }
 
+/// Begin watching `workspace_root_path` for filesystem changes. Emits
+/// `workspace-files-changed` Tauri events tagged with `workspace_id`.
+/// Idempotent for the same (workspace_id, root); switching root replaces
+/// the existing watcher for that id.
+#[tauri::command]
+pub fn start_workspace_files_watcher<R: tauri::Runtime>(
+    app: tauri::AppHandle<R>,
+    manager: tauri::State<'_, crate::workspace::files_watcher::WorkspaceFilesWatcherManager>,
+    workspace_id: String,
+    workspace_root_path: String,
+) -> CmdResult<()> {
+    manager
+        .start(
+            &app,
+            workspace_id,
+            std::path::PathBuf::from(workspace_root_path),
+        )
+        .map_err(crate::error::CommandError::from)
+}
+
+/// Stop the filesystem watcher for `workspace_id`. No-op if not running.
+#[tauri::command]
+pub fn stop_workspace_files_watcher(
+    manager: tauri::State<'_, crate::workspace::files_watcher::WorkspaceFilesWatcherManager>,
+    workspace_id: String,
+) -> CmdResult<()> {
+    manager.stop(&workspace_id);
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn list_editor_files_with_content(
     workspace_root_path: String,

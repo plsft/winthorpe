@@ -44,6 +44,7 @@ import {
 	savePersistedEditorTabs,
 } from "@/features/editor/use-persisted-tabs";
 import { FileTree } from "@/features/file-tree";
+import { useWorkspaceFilesWatcher } from "@/features/file-tree/use-workspace-files-watcher";
 import { WorkspaceInspectorSidebar } from "@/features/inspector";
 import { WorkspacesSidebarContainer } from "@/features/navigation/container";
 import { AppOnboarding } from "@/features/onboarding";
@@ -554,6 +555,35 @@ function AppShell({
 	const [editorSession, setEditorSession] = useState<EditorSessionState | null>(
 		null,
 	);
+
+	// Filesystem watcher: when files in the active workspace change
+	// externally (git checkout, terminal `touch`, IDE save), the React
+	// Query for workspaceTree gets invalidated automatically (handled
+	// inside useWorkspaceFilesWatcher) AND any open tab whose path is
+	// in the changed-paths list gets its content cleared so
+	// WorkspaceEditorSurface re-fetches from disk on next render.
+	//
+	// Dirty tabs are NOT auto-reloaded — that would silently discard
+	// the user's edits. They keep their in-memory contents; the user
+	// can manually close+reopen if they want to abandon edits.
+	const handleExternalFileChange = useCallback((paths: string[]) => {
+		const changed = new Set(paths);
+		setOpenEditorTabs((current) =>
+			current.map((tab) => {
+				if (!changed.has(tab.session.path)) return tab;
+				if (tab.session.dirty) return tab; // preserve unsaved edits
+				return {
+					...tab,
+					session: {
+						...tab.session,
+						originalText: undefined,
+						modifiedText: undefined,
+					},
+				};
+			}),
+		);
+	}, []);
+
 	const [sendingWorkspaceIds, setSendingWorkspaceIds] = useState<Set<string>>(
 		() => new Set(),
 	);
@@ -872,6 +902,16 @@ function AppShell({
 		selectedWorkspaceDetail?.state === "archived"
 			? null
 			: (selectedWorkspaceDetail?.rootPath ?? null);
+
+	// Subscribe to FS events for the active workspace. Tree query gets
+	// invalidated automatically; open tabs whose paths are in the changed
+	// set get their content cleared (so the editor surface re-fetches),
+	// unless the tab is dirty (we never auto-discard user edits).
+	useWorkspaceFilesWatcher(
+		selectedWorkspaceId,
+		workspaceRootPath,
+		handleExternalFileChange,
+	);
 
 	const handleCopyWorkspacePath = useCallback(() => {
 		if (!workspaceRootPath) return;

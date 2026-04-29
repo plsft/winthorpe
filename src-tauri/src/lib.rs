@@ -72,6 +72,7 @@ pub fn run() {
         .manage(workspace::archive::ArchiveJobManager::new())
         .manage(git_watcher::GitWatcherManager::new())
         .manage(workspace::scripts::ScriptProcessManager::new())
+        .manage(workspace::files_watcher::WorkspaceFilesWatcherManager::new())
         .manage(ui_sync::UiSyncManager::new())
         .manage(global_hotkey::GlobalHotkeyState::default())
         .manage(commands::forge_commands::ForgeAuthEdgeStore::default())
@@ -290,6 +291,8 @@ pub fn run() {
             commands::editor_commands::list_editor_files_with_content,
             commands::editor_commands::list_workspace_files,
             commands::editor_commands::list_workspace_tree,
+            commands::editor_commands::start_workspace_files_watcher,
+            commands::editor_commands::stop_workspace_files_watcher,
             commands::editor_commands::list_workspace_changes,
             commands::editor_commands::list_workspace_changes_with_content,
             commands::editor_commands::discard_workspace_file,
