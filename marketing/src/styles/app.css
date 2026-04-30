@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+	--font-sans:
+		"Inter", "Geist Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+		sans-serif;
+	--font-mono:
+		"Geist Mono", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+	/* Brand palette — anchored to the app's deep slate + a single restrained
+	 * accent. We intentionally avoid neon — Winthorpe is a quiet, serious tool. */
+	--color-ink-50: #f7f8fb;
+	--color-ink-100: #eceef4;
+	--color-ink-200: #d4d8e3;
+	--color-ink-300: #9aa2b6;
+	--color-ink-400: #6b7387;
+	--color-ink-500: #424a5e;
+	--color-ink-600: #2a3147;
+	--color-ink-700: #1c2236;
+	--color-ink-800: #131829;
+	--color-ink-900: #0a0e1c;
+	--color-ink-950: #05080f;
+
+	--color-accent-300: #c5b8ff;
+	--color-accent-400: #a89bff;
+	--color-accent-500: #8b7ff5;
+	--color-accent-600: #6f63d8;
+	--color-accent-700: #574caf;
+}
+
+html {
+	color-scheme: dark;
+}
+
+body {
+	font-family: var(--font-sans);
+	background-color: var(--color-ink-950);
+	color: var(--color-ink-100);
+	font-feature-settings: "ss01", "cv11";
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+/* Subtle dotted-grid backdrop reused by hero / section dividers. Kept as a
+ * single utility so designers can sprinkle without copy/pasting SVG noise. */
+.bg-dotgrid {
+	background-image: radial-gradient(
+		circle,
+		rgba(255, 255, 255, 0.04) 1px,
+		transparent 1px
+	);
+	background-size: 24px 24px;
+}
+
+/* Soft top-down vignette behind hero / featured screenshots so the image
+ * doesn't feel pasted onto the page. */
+.bg-radial-fade {
+	background:
+		radial-gradient(
+			ellipse 70% 50% at 50% 0%,
+			rgba(139, 127, 245, 0.18),
+			transparent 70%
+		),
+		linear-gradient(180deg, var(--color-ink-950), var(--color-ink-900));
+}
+
+/* Used on every "Read more →" link so the chevron animates as a unit. */
+.cta-arrow {
+	transition: transform 200ms cubic-bezier(0.22, 0.82, 0.2, 1);
+}
+a:hover > .cta-arrow,
+button:hover > .cta-arrow {
+	transform: translateX(3px);
+}
+
+/* Alpine x-cloak: hide elements until Alpine has hydrated. Without this,
+ * x-show/x-if elements briefly flash visible during the first paint. */
+[x-cloak] {
+	display: none !important;
+}

@@ -1,0 +1,88 @@
+<header
+	x-data="siteHeader"
+	class="sticky top-0 z-40 border-b border-white/5 bg-ink-950/70 backdrop-blur-md"
+>
+	<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+		<a
+			href="/"
+			class="group flex items-center gap-2.5 text-ink-50 transition-opacity hover:opacity-90"
+		>
+			<svg
+				viewBox="0 0 24 24"
+				class="h-6 w-6 text-accent-400"
+				aria-hidden="true"
+			>
+				<path
+					fill="currentColor"
+					d="M2 4h3.6l1.8 11.2L10.4 4h3.2l3 11.2L18.4 4H22l-3.4 16h-3.6l-3-11.2L8.6 20H5L2 4z"
+				/>
+			</svg>
+			<span class="text-base font-semibold tracking-tight">Winthorpe</span>
+			<span
+				class="hidden rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-ink-300 sm:inline-block"
+			>v0.5.0</span>
+		</a>
+
+		<nav class="hidden md:block" x-data="nav">
+			<ul class="flex items-center gap-1 text-sm">
+				<template x-for="link in [
+					{ href: '/features/', label: 'Features' },
+					{ href: '/how-to-use/', label: 'How to use' },
+					{ href: '/download/', label: 'Download' },
+					{ href: '/contact/', label: 'Contact' },
+				]">
+					<li>
+						<a
+							:href="link.href"
+							:class="is(link.href)
+								? 'text-ink-50 bg-white/5'
+								: 'text-ink-300 hover:text-ink-50 hover:bg-white/5'"
+							class="rounded-md px-3 py-2 transition-colors"
+							x-text="link.label"
+						></a>
+					</li>
+				</template>
+			</ul>
+		</nav>
+
+		<div class="hidden items-center gap-3 md:flex">
+			<a
+				href="https://github.com/plsft/winthorpe"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="rounded-md border border-white/10 px-3 py-1.5 text-sm font-medium text-ink-200 transition-colors hover:border-white/20 hover:text-ink-50"
+			>GitHub</a>
+			<a
+				href="/download/"
+				class="rounded-md bg-accent-500 px-3.5 py-1.5 text-sm font-medium text-ink-950 shadow-lg shadow-accent-500/25 transition-all hover:bg-accent-400 hover:shadow-accent-500/40"
+			>Download</a>
+		</div>
+
+		<button
+			type="button"
+			@click="open = !open"
+			class="rounded-md p-2 text-ink-200 hover:bg-white/5 md:hidden"
+			:aria-expanded="open"
+			aria-label="Toggle navigation"
+		>
+			<svg x-show="!open" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+				<path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+			</svg>
+			<svg x-show="open" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+				<path stroke-linecap="round" d="M6 6l12 12M6 18L18 6" />
+			</svg>
+		</button>
+	</div>
+
+	<div x-show="open" x-cloak x-transition.opacity class="border-t border-white/5 md:hidden">
+		<nav class="space-y-1 px-6 py-4 text-sm">
+			<a href="/features/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Features</a>
+			<a href="/how-to-use/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">How to use</a>
+			<a href="/download/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Download</a>
+			<a href="/contact/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Contact</a>
+			<div class="my-3 border-t border-white/5"></div>
+			<a href="https://github.com/plsft/winthorpe" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">GitHub</a>
+			<a href="/download/" @click="close" class="mt-2 block rounded-md bg-accent-500 px-3 py-2 text-center text-ink-950 font-medium">Download for Windows</a>
+		</nav>
+	</div>
+</header>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Download — Winthorpe</title>
+		<meta name="description" content="Winthorpe v0.5.0 for Windows 10 and 11 (x64). NSIS installer, no admin required." />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-radial-fade py-20">
+			<div class="mx-auto max-w-3xl px-6 text-center">
+				<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">Download</p>
+				<h1 class="mt-3 text-balance text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl">
+					Winthorpe v0.5.0
+				</h1>
+				<p class="mt-5 text-balance text-lg text-ink-300">
+					First tagged release for Windows. Free, open-source, no account required.
+				</p>
+			</div>
+		</section>
+
+		<section class="py-16">
+			<div class="mx-auto max-w-3xl px-6">
+				<div class="overflow-hidden rounded-2xl border border-white/10 bg-ink-900/60 shadow-2xl shadow-black/40">
+					<div class="flex items-center justify-between border-b border-white/5 px-6 py-4">
+						<div class="flex items-center gap-3">
+							<svg class="h-7 w-7 text-accent-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5h8.5v8.5H3V5zm9.5 0H21v8.5h-8.5V5zM3 14.5h8.5V23H3v-8.5zm9.5 0H21V23h-8.5v-8.5z"/></svg>
+							<div>
+								<div class="text-sm font-semibold text-ink-50">Windows 10 / 11 — x64</div>
+								<div class="text-xs text-ink-400">NSIS installer · per-user · no admin required</div>
+							</div>
+						</div>
+						<span class="rounded-full bg-accent-500/15 px-3 py-1 text-xs font-medium text-accent-300">Recommended</span>
+					</div>
+					<div class="px-6 py-6">
+						<a
+							href="https://github.com/plsft/winthorpe/releases/download/v0.5.0/Winthorpe_0.5.0_x64-setup.exe"
+							class="block w-full rounded-md bg-accent-500 px-5 py-3.5 text-center text-sm font-semibold text-ink-950 shadow-xl shadow-accent-500/30 transition-all hover:bg-accent-400 hover:shadow-accent-500/50"
+						>
+							Download Winthorpe_0.5.0_x64-setup.exe
+						</a>
+						<p class="mt-3 text-center text-xs text-ink-500">~150 MB · SHA256 published with each release on GitHub</p>
+					</div>
+					<div class="border-t border-white/5 bg-ink-950/40 px-6 py-4 text-sm text-ink-300">
+						<details class="group" x-data="{ open: false }">
+							<summary class="flex cursor-pointer items-center justify-between text-ink-200 hover:text-ink-50" @click="open = !open">
+								<span>Other options</span>
+								<svg class="h-4 w-4 transition-transform" :class="open && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m6 9 6 6 6-6"/></svg>
+							</summary>
+							<ul class="mt-4 space-y-2 text-xs text-ink-400">
+								<li><a href="https://github.com/plsft/winthorpe/releases" class="text-ink-200 hover:text-ink-50">All GitHub releases</a> — historical builds, MSI variants, signed checksums</li>
+								<li><a href="https://github.com/plsft/winthorpe" class="text-ink-200 hover:text-ink-50">Build from source</a> — clone, <code class="rounded bg-white/5 px-1">bun install</code>, <code class="rounded bg-white/5 px-1">bun run release:win</code></li>
+							</ul>
+						</details>
+					</div>
+				</div>
+
+				<!-- SmartScreen note -->
+				<div class="mt-8 rounded-xl border border-amber-400/15 bg-amber-400/5 p-5 text-sm text-amber-100/90">
+					<div class="flex gap-3">
+						<svg class="mt-0.5 h-4 w-4 flex-none text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 9v4M12 17h.01M5 21h14a2 2 0 0 0 1.74-3L13.74 5a2 2 0 0 0-3.48 0L3.26 18A2 2 0 0 0 5 21z" stroke-linejoin="round"/></svg>
+						<div>
+							<p class="font-medium text-amber-100">Heads up about Windows SmartScreen</p>
+							<p class="mt-1 leading-relaxed text-amber-200/80">v0.5.0 isn't Authenticode-signed yet (signing is on the roadmap). On first launch Windows may show a "Microsoft Defender SmartScreen prevented an unrecognized app from starting" dialog — click <strong>More info → Run anyway</strong>. Verify the SHA256 from the GitHub release page if you want belt-and-braces.</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Other platforms -->
+				<div class="mt-12 grid gap-4 sm:grid-cols-2">
+					<div class="rounded-xl border border-white/10 bg-ink-900/40 p-5 opacity-70">
+						<div class="flex items-center gap-3">
+							<svg class="h-5 w-5 text-ink-400" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 12.5c0-2.6 2.1-3.9 2.2-4-1.2-1.7-3-2-3.7-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9C7 6.6 5 8.1 4 10.4c-1.7 3-.4 7.5 1.3 10 .9 1.2 1.9 2.6 3.3 2.6 1.3-.1 1.8-.9 3.4-.9s2.1.9 3.4.8c1.4 0 2.3-1.2 3.2-2.5.7-1 1.2-2 1.5-3-3-1.1-3.6-3.3-3.6-4.9zM15 4.4c.7-.8 1.2-2 1-3.3-1.1.1-2.4.7-3.1 1.6-.7.7-1.3 2-1.1 3.2 1.2.1 2.5-.6 3.2-1.5z"/></svg>
+							<div>
+								<div class="text-sm font-semibold text-ink-100">macOS</div>
+								<div class="text-xs text-ink-500">Use upstream Helmor — Winthorpe is Windows-first.</div>
+							</div>
+						</div>
+						<a href="https://github.com/dohooo/helmor" class="mt-4 inline-block text-xs text-ink-300 hover:text-ink-100">github.com/dohooo/helmor →</a>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-ink-900/40 p-5 opacity-70">
+						<div class="flex items-center gap-3">
+							<svg class="h-5 w-5 text-ink-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5c-3 0-4 1.5-4 1.5v3.5l-2 1c-1 .5-2 1.5-2 3v1c0 2 .5 3 2 4l1 1v3l3 3h4l3-3v-3l1-1c1.5-1 2-2 2-4v-1c0-1.5-1-2.5-2-3l-2-1V3s-1-1.5-4-1.5z"/></svg>
+							<div>
+								<div class="text-sm font-semibold text-ink-100">Linux</div>
+								<div class="text-xs text-ink-500">Build from source — AppImage may follow.</div>
+							</div>
+						</div>
+						<a href="https://github.com/plsft/winthorpe" class="mt-4 inline-block text-xs text-ink-300 hover:text-ink-100">Build instructions →</a>
+					</div>
+				</div>
+
+				<!-- Requirements -->
+				<div class="mt-12">
+					<h2 class="text-lg font-semibold text-ink-50">System requirements</h2>
+					<dl class="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+						<div class="flex justify-between border-b border-white/5 pb-2">
+							<dt class="text-ink-400">OS</dt>
+							<dd class="text-ink-100">Windows 10 (1809+) or 11</dd>
+						</div>
+						<div class="flex justify-between border-b border-white/5 pb-2">
+							<dt class="text-ink-400">Architecture</dt>
+							<dd class="text-ink-100">x64 (ARM64 not yet)</dd>
+						</div>
+						<div class="flex justify-between border-b border-white/5 pb-2">
+							<dt class="text-ink-400">Disk</dt>
+							<dd class="text-ink-100">~500 MB installed</dd>
+						</div>
+						<div class="flex justify-between border-b border-white/5 pb-2">
+							<dt class="text-ink-400">RAM</dt>
+							<dd class="text-ink-100">4 GB recommended</dd>
+						</div>
+						<div class="flex justify-between border-b border-white/5 pb-2">
+							<dt class="text-ink-400">WebView2</dt>
+							<dd class="text-ink-100">Bootstrapper bundled</dd>
+						</div>
+						<div class="flex justify-between border-b border-white/5 pb-2">
+							<dt class="text-ink-400">Privileges</dt>
+							<dd class="text-ink-100">User-level (no admin)</dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+		</section>
+
+		<% footer %>
+	</body>
+</html>

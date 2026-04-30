@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Winthorpe — the Windows IDE for orchestrating coding agents</title>
+		<meta
+			name="description"
+			content="Winthorpe is a local-first Windows IDE for orchestrating Claude Code, Codex, and your own CLI agents across parallel git worktrees. Built on Helmor, rebuilt for Windows."
+		/>
+		<meta property="og:title" content="Winthorpe — orchestrate your coding agents on Windows" />
+		<meta
+			property="og:description"
+			content="The local-first Windows IDE for coding-agent orchestration. Parallel worktrees, real PTY terminals, native Win32 integration. Apache 2.0."
+		/>
+		<meta property="og:type" content="website" />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<!-- Hero -->
+		<section class="relative overflow-hidden bg-radial-fade pt-16 pb-20 sm:pt-24 sm:pb-28">
+			<div class="absolute inset-0 bg-dotgrid opacity-50" aria-hidden="true"></div>
+
+			<div class="relative mx-auto max-w-7xl px-6">
+				<div class="mx-auto max-w-3xl text-center">
+					<a
+						href="https://github.com/plsft/winthorpe/releases/tag/v0.5.0"
+						class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-ink-200 transition-colors hover:border-white/20 hover:text-ink-50"
+					>
+						<span class="h-1.5 w-1.5 rounded-full bg-accent-400"></span>
+						v0.5.0 — first Windows release
+						<span class="cta-arrow text-ink-400">→</span>
+					</a>
+					<h1 class="mt-6 text-balance text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl lg:text-6xl">
+						The Windows IDE for orchestrating <span class="bg-gradient-to-br from-accent-300 to-accent-500 bg-clip-text text-transparent">coding agents</span>.
+					</h1>
+					<p class="mt-6 text-balance text-lg leading-relaxed text-ink-300 sm:text-xl">
+						Spin up parallel git worktrees, run Claude Code and Codex side by side, edit code directly in a built-in Monaco editor, watch every change in a real PTY — without leaving the keyboard. Local-first. Built on <a href="https://github.com/dohooo/helmor" class="text-ink-100 underline-offset-4 hover:underline">Helmor</a>, rebuilt for Windows.
+					</p>
+					<div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+						<a
+							href="/download/"
+							class="group inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-xl shadow-accent-500/30 transition-all hover:bg-accent-400 hover:shadow-accent-500/50"
+						>
+							<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5h8.5v8.5H3V5zm9.5 0H21v8.5h-8.5V5zM3 14.5h8.5V23H3v-8.5zm9.5 0H21V23h-8.5v-8.5z" /></svg>
+							Download for Windows
+						</a>
+						<a
+							href="/how-to-use/"
+							class="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-ink-100 transition-colors hover:border-white/20 hover:bg-white/10"
+						>
+							How it works
+							<span class="cta-arrow text-ink-300">→</span>
+						</a>
+					</div>
+					<p class="mt-4 text-xs text-ink-500">Free and open source · Apache 2.0 · Windows 10/11 x64</p>
+				</div>
+
+				<!-- Hero screenshot -->
+				<div class="relative mx-auto mt-16 max-w-6xl">
+					<div class="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-accent-500/15 via-transparent to-accent-300/10 blur-xl" aria-hidden="true"></div>
+					<div class="relative overflow-hidden rounded-xl border border-white/10 bg-ink-900 shadow-2xl shadow-black/60">
+						<img
+							src="/hero-screenshot.png"
+							alt="Winthorpe app — Workspaces sidebar, central session pane, Git inspector"
+							class="block w-full"
+							loading="eager"
+							decoding="async"
+						/>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Logo strip -->
+		<section class="border-y border-white/5 bg-ink-900/40 py-8">
+			<div class="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-6 text-xs uppercase tracking-widest text-ink-500">
+				<span>Built with</span>
+				<span class="text-ink-300">Tauri 2</span>
+				<span class="text-ink-300">React 19</span>
+				<span class="text-ink-300">Bun</span>
+				<span class="text-ink-300">Rust</span>
+				<span class="text-ink-300">SQLite</span>
+				<span class="text-ink-300">Win32 Job Objects</span>
+			</div>
+		</section>
+
+		<!-- Pillars -->
+		<section class="py-24">
+			<div class="mx-auto max-w-7xl px-6">
+				<div class="mx-auto max-w-2xl text-center">
+					<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">Why Winthorpe</p>
+					<h2 class="mt-3 text-balance text-3xl font-semibold tracking-tight text-ink-50 sm:text-4xl">
+						Built for the way you actually ship code with agents.
+					</h2>
+				</div>
+
+				<div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+					<!-- Pillar 1 -->
+					<div class="group relative overflow-hidden rounded-xl border border-white/10 bg-ink-900/60 p-7 transition-colors hover:border-white/20">
+						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+							<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
+						</div>
+						<h3 class="mt-5 text-lg font-semibold text-ink-50">Parallel worktrees</h3>
+						<p class="mt-2 text-sm leading-relaxed text-ink-400">
+							Every workspace is a git worktree, every agent runs in its own. Refine an API contract in one workspace while the database migration runs in another — no branch-juggling, no merge conflicts.
+						</p>
+					</div>
+
+					<!-- Pillar 2 -->
+					<div class="group relative overflow-hidden rounded-xl border border-white/10 bg-ink-900/60 p-7 transition-colors hover:border-white/20">
+						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+							<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 4h16v16H4z" /><path d="M4 8h16M8 4v16" stroke-linecap="round" /></svg>
+						</div>
+						<h3 class="mt-5 text-lg font-semibold text-ink-50">Built-in Monaco editor</h3>
+						<p class="mt-2 text-sm leading-relaxed text-ink-400">
+							Edit any file the agent touches — or any file at all — without leaving the app. Multi-tab, syntax highlighting for every language, drag-to-reorder, Ctrl+S to save. Tokyo Night by default.
+						</p>
+					</div>
+
+					<!-- Pillar 3 -->
+					<div class="group relative overflow-hidden rounded-xl border border-white/10 bg-ink-900/60 p-7 transition-colors hover:border-white/20">
+						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+							<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h16" stroke-linecap="round" /><path d="m17 9 3 3-3 3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+						</div>
+						<h3 class="mt-5 text-lg font-semibold text-ink-50">Real PTY, real Windows</h3>
+						<p class="mt-2 text-sm leading-relaxed text-ink-400">
+							ConPTY-backed terminals everywhere — vim, htop, ssh, claude, codex all work. Win32 Job Objects guarantee no orphaned children. DPAPI-protected credentials. No WSL required.
+						</p>
+					</div>
+
+					<!-- Pillar 4 -->
+					<div class="group relative overflow-hidden rounded-xl border border-white/10 bg-ink-900/60 p-7 transition-colors hover:border-white/20">
+						<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+							<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3v18M3 12h18" stroke-linecap="round" /><circle cx="12" cy="12" r="9" /></svg>
+						</div>
+						<h3 class="mt-5 text-lg font-semibold text-ink-50">Local-first</h3>
+						<p class="mt-2 text-sm leading-relaxed text-ink-400">
+							Your code, your sessions, your credentials — all on your disk in SQLite. Bring your own Anthropic and OpenAI keys. No telemetry. No remote runtime. No lock-in.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Workflow band -->
+		<section class="border-y border-white/5 bg-ink-900/30 py-24">
+			<div class="mx-auto max-w-7xl px-6">
+				<div class="grid gap-12 lg:grid-cols-2 lg:items-center">
+					<div>
+						<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">The loop</p>
+						<h2 class="mt-3 text-balance text-3xl font-semibold tracking-tight text-ink-50 sm:text-4xl">
+							Plan, branch, generate, review — all in one window.
+						</h2>
+						<p class="mt-5 text-base leading-relaxed text-ink-300">
+							Winthorpe is the IDE for the part of the job that nobody else built tooling for: the orchestration. Agents do the typing. You make the calls.
+						</p>
+						<ul class="mt-8 space-y-4 text-sm text-ink-300">
+							<li class="flex gap-3">
+								<span class="mt-1 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-accent-500/20 text-[10px] font-semibold text-accent-400">1</span>
+								<span><strong class="text-ink-50">Spin up a workspace.</strong> A new git worktree, a fresh branch, a session ready to take a prompt.</span>
+							</li>
+							<li class="flex gap-3">
+								<span class="mt-1 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-accent-500/20 text-[10px] font-semibold text-accent-400">2</span>
+								<span><strong class="text-ink-50">Pick your agent.</strong> Claude Code or Codex CLI — same chat surface, same tool stream.</span>
+							</li>
+							<li class="flex gap-3">
+								<span class="mt-1 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-accent-500/20 text-[10px] font-semibold text-accent-400">3</span>
+								<span><strong class="text-ink-50">Inspect and edit live.</strong> File tree, change list, hover-zoom terminal — and a built-in Monaco editor for the lines you want to tighten yourself before the commit.</span>
+							</li>
+							<li class="flex gap-3">
+								<span class="mt-1 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-accent-500/20 text-[10px] font-semibold text-accent-400">4</span>
+								<span><strong class="text-ink-50">Open the PR.</strong> One click via the bundled <code class="rounded bg-white/5 px-1.5 py-0.5 text-xs">gh</code>/<code class="rounded bg-white/5 px-1.5 py-0.5 text-xs">glab</code> CLIs — no browser context-switch.</span>
+							</li>
+						</ul>
+						<a
+							href="/how-to-use/"
+							class="group mt-8 inline-flex items-center gap-2 text-sm font-medium text-accent-400 hover:text-accent-300"
+						>
+							Read the full walkthrough
+							<span class="cta-arrow">→</span>
+						</a>
+					</div>
+
+					<div class="relative">
+						<div class="absolute -inset-4 rounded-2xl bg-gradient-to-br from-accent-500/10 to-transparent blur-2xl" aria-hidden="true"></div>
+						<div class="relative space-y-3 rounded-xl border border-white/10 bg-ink-950/80 p-5 font-mono text-xs leading-relaxed text-ink-200 shadow-2xl shadow-black/40">
+							<div class="flex items-center gap-1.5 border-b border-white/5 pb-3">
+								<span class="h-2.5 w-2.5 rounded-full bg-ink-500/40"></span>
+								<span class="h-2.5 w-2.5 rounded-full bg-ink-500/40"></span>
+								<span class="h-2.5 w-2.5 rounded-full bg-ink-500/40"></span>
+								<span class="ml-2 text-[11px] text-ink-500">winthorpe — workspace: ursamajor</span>
+							</div>
+							<div class="text-ink-400"><span class="text-accent-400">▸</span> winthorpe workspace new --repo winthorpe</div>
+							<div class="text-ink-500">  ✓ created worktree at C:\Users\you\winthorpe\workspaces\act\ursamajor</div>
+							<div class="text-ink-500">  ✓ branch <span class="text-ink-200">feat/parallel-sessions</span> (off main)</div>
+							<div class="pt-2 text-ink-400"><span class="text-accent-400">▸</span> winthorpe send "split this feature into 3 workspaces"</div>
+							<div class="text-ink-500">  → spawning Claude Code session…</div>
+							<div class="pt-2 text-ink-400"><span class="text-accent-400">▸</span> winthorpe pr create --title "Parallel agent sessions"</div>
+							<div class="text-emerald-400">  ✓ https://github.com/plsft/winthorpe/pull/127</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Stats / Differentiators -->
+		<section class="py-24">
+			<div class="mx-auto max-w-7xl px-6">
+				<dl class="grid grid-cols-2 gap-x-8 gap-y-12 lg:grid-cols-4">
+					<div>
+						<dt class="text-xs font-medium uppercase tracking-widest text-ink-400">Cold start</dt>
+						<dd class="mt-2 text-3xl font-semibold tracking-tight text-ink-50">~600 ms</dd>
+						<dd class="mt-1 text-xs text-ink-500">Native Tauri. Not an Electron tax.</dd>
+					</div>
+					<div>
+						<dt class="text-xs font-medium uppercase tracking-widest text-ink-400">Installer</dt>
+						<dd class="mt-2 text-3xl font-semibold tracking-tight text-ink-50">~150 MB</dd>
+						<dd class="mt-1 text-xs text-ink-500">Bun + Claude + Codex + ripgrep + gh + glab bundled.</dd>
+					</div>
+					<div>
+						<dt class="text-xs font-medium uppercase tracking-widest text-ink-400">Telemetry</dt>
+						<dd class="mt-2 text-3xl font-semibold tracking-tight text-ink-50">None</dd>
+						<dd class="mt-1 text-xs text-ink-500">Audited every release. Local DB only.</dd>
+					</div>
+					<div>
+						<dt class="text-xs font-medium uppercase tracking-widest text-ink-400">License</dt>
+						<dd class="mt-2 text-3xl font-semibold tracking-tight text-ink-50">Apache 2.0</dd>
+						<dd class="mt-1 text-xs text-ink-500">Fork it. Ship it. Sell it.</dd>
+					</div>
+				</dl>
+			</div>
+		</section>
+
+		<!-- CTA -->
+		<section class="pb-24">
+			<div class="mx-auto max-w-5xl px-6">
+				<div class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-ink-900 via-ink-900 to-accent-700/20 p-12 text-center sm:p-16">
+					<div class="absolute inset-0 bg-dotgrid opacity-30" aria-hidden="true"></div>
+					<div class="relative">
+						<h2 class="text-balance text-3xl font-semibold tracking-tight text-ink-50 sm:text-4xl">
+							Stop tab-juggling. Start orchestrating.
+						</h2>
+						<p class="mx-auto mt-4 max-w-xl text-base text-ink-300">
+							v0.5.0 is shipping now for Windows 10 and 11 (x64). Free and open source.
+						</p>
+						<div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+							<a
+								href="/download/"
+								class="inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-xl shadow-accent-500/30 transition-all hover:bg-accent-400 hover:shadow-accent-500/50"
+							>
+								Download Winthorpe v0.5.0
+							</a>
+							<a
+								href="https://github.com/plsft/winthorpe"
+								class="inline-flex items-center gap-2 rounded-md border border-white/10 px-5 py-3 text-sm font-semibold text-ink-100 hover:border-white/20"
+							>
+								View on GitHub
+								<span class="cta-arrow text-ink-400">→</span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<% footer %>
+	</body>
+</html>

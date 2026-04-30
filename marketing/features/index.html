@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Features — Winthorpe</title>
+		<meta name="description" content="Workspaces, agents, terminals, git, and the Win32 plumbing that makes it feel native." />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-radial-fade py-20">
+			<div class="mx-auto max-w-4xl px-6 text-center">
+				<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">Features</p>
+				<h1 class="mt-3 text-balance text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl">
+					Every panel earns its space.
+				</h1>
+				<p class="mx-auto mt-5 max-w-2xl text-balance text-lg text-ink-300">
+					Winthorpe is opinionated about what belongs in an agent IDE. Here's what's in the box and why.
+				</p>
+			</div>
+		</section>
+
+		<section class="py-20">
+			<div class="mx-auto grid max-w-7xl gap-x-12 gap-y-16 px-6 lg:grid-cols-2">
+
+				<!-- 1 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Workspaces</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Each workspace is a real git worktree on a fresh branch. No stash-juggling, no "let me commit my WIP first." Spin up three for a feature, archive when you're done. Status (Done / In review / In progress / Backlog) groups them in the sidebar.</p>
+				</div>
+
+				<!-- 2 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M5 7l7-4 7 4M5 17l7 4 7-4M5 12l7 4 7-4" stroke-linejoin="round"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Multi-agent sessions</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Claude Code (Anthropic) and Codex (OpenAI) are first-class. Run them side by side in the same workspace, or run different agents in different workspaces. One unified chat surface; one unified tool-call stream.</p>
+				</div>
+
+				<!-- 3 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z" /><path d="M4 8h16M8 4v16" stroke-linecap="round" /></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Multi-tab Monaco editor</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">A real editor, not a viewer. The same Monaco that powers VS Code: full syntax highlighting for every language, multi-cursor, find/replace, bracket matching, IntelliSense for JSON. Click a file, get a tab. Drag to reorder. Ctrl+S to save. Ctrl+W to close. Tab state persists per workspace. Right-click the tree for new file/folder/rename/delete. Defaults to <strong class="text-ink-100">Tokyo Night</strong> dark theme.</p>
+				</div>
+
+				<!-- 4 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 6h16v12H4z"/><path d="M4 10h16M9 6v12" /></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Real ConPTY terminals</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Backed by Windows ConPTY through portable-pty — vim, htop, ssh, tmux, claude, codex all just work. Hover-zoom expands the active terminal so you can read long output without losing context.</p>
+				</div>
+
+				<!-- 5 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3v18M18 3v18M6 7l6 6M6 17l6-6"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Git inspector</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Live changes panel, branch state at a glance, push / publish with one click. Bundled <code class="rounded bg-white/5 px-1 text-xs">gh</code> and <code class="rounded bg-white/5 px-1 text-xs">glab</code> mean PR creation never leaves the app.</p>
+				</div>
+
+				<!-- 6 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 4 7v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V7l-8-5z" stroke-linejoin="round"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">DPAPI-protected credentials</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">API keys for Anthropic, OpenAI, and the GitHub OAuth Device Flow are stored in a per-user SQLite database, encrypted via Windows DPAPI. No plain-text dotfiles, no Keychain-on-the-wrong-OS hacks.</p>
+				</div>
+
+				<!-- 7 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2a14 14 0 010 20M12 2a14 14 0 000 20"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Win32 Job Objects</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Every spawned process — sidecar, agent CLI, terminal child — is attached to a kill-on-close Job Object. Close Winthorpe and every descendant goes with it. No orphaned <code class="rounded bg-white/5 px-1 text-xs">claude.exe</code> hoarding a GPU thread an hour later.</p>
+				</div>
+
+				<!-- 8 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Filesystem watcher</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Backed by <code class="rounded bg-white/5 px-1 text-xs">notify</code>/ReadDirectoryChangesW — when an agent edits a file, the tree, the change list, and the editor all update without a refresh. 250 ms debounce keeps fan-out cheap.</p>
+				</div>
+
+				<!-- 9 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Custom title bar + Mica</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Native chrome ditched in favor of a brand-aware title bar with Mica backdrop on Windows 11. Drag-region carved correctly so WebView2 doesn't intercept clicks. Looks like the platform, behaves like the platform.</p>
+				</div>
+
+				<!-- 10 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M5 6h14M5 18h14" stroke-linecap="round"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Winthorpe CLI</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">A <code class="rounded bg-white/5 px-1 text-xs">winthorpe</code> binary on your PATH. Create workspaces, send prompts, inspect state, script repeatable flows — same SQLite database the GUI reads.</p>
+				</div>
+
+				<!-- 11 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Skills (Anthropic Agent Skills)</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">Drop a <code class="rounded bg-white/5 px-1 text-xs">SKILL.md</code> + scripts into <code class="rounded bg-white/5 px-1 text-xs">.claude/skills/</code> and the LLM picks them up. Repeatable flows — releases, code reviews, migrations — that ride along with the repo.</p>
+				</div>
+
+				<!-- 12 -->
+				<div>
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-500/15 text-accent-400">
+						<svg class="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7l8-4 8 4M4 7v10l8 4 8-4V7M4 7l8 4 8-4M12 11v10"/></svg>
+					</div>
+					<h2 class="mt-4 text-xl font-semibold text-ink-50">Local-first by default</h2>
+					<p class="mt-3 text-sm leading-relaxed text-ink-300">SQLite for sessions, transcripts, settings, credentials. No remote DB, no SSO required, no telemetry. Bring your own Anthropic and OpenAI keys; the only network calls are to those providers.</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Comparison -->
+		<section class="border-y border-white/5 bg-ink-900/30 py-20">
+			<div class="mx-auto max-w-5xl px-6">
+				<h2 class="text-center text-3xl font-semibold tracking-tight text-ink-50 sm:text-4xl">What it isn't</h2>
+				<p class="mx-auto mt-4 max-w-2xl text-center text-base text-ink-300">Winthorpe is deliberately not a few things. Knowing what it isn't is half the value of knowing what it is.</p>
+
+				<div class="mt-12 grid gap-4 sm:grid-cols-3">
+					<div class="rounded-xl border border-white/10 bg-ink-900/60 p-5">
+						<h3 class="text-sm font-semibold text-ink-100">Not just a chat client.</h3>
+						<p class="mt-2 text-sm text-ink-400">Winthorpe orchestrates agents <em>and</em> lets you edit the resulting code in a real Monaco editor — the chat surface and the editor live in the same window.</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-ink-900/60 p-5">
+						<h3 class="text-sm font-semibold text-ink-100">Not an AI-completion IDE.</h3>
+						<p class="mt-2 text-sm text-ink-400">If you want inline ghost-text completion while you type, keep Cursor or VS Code open. Winthorpe's editor is for direct edits during agent review — not autocomplete.</p>
+					</div>
+					<div class="rounded-xl border border-white/10 bg-ink-900/60 p-5">
+						<h3 class="text-sm font-semibold text-ink-100">Not a SaaS.</h3>
+						<p class="mt-2 text-sm text-ink-400">No accounts, no billing, no remote runtime. Your code never leaves your machine unless your agent CLI sends it.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="py-20 text-center">
+			<a href="/download/" class="inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-xl shadow-accent-500/30 transition-all hover:bg-accent-400">
+				Get Winthorpe v0.5.0
+			</a>
+		</section>
+
+		<% footer %>
+	</body>
+</html>

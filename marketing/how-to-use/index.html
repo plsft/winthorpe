@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>How to use Winthorpe — step-by-step guide</title>
+		<meta name="description" content="From install to your first agent-driven PR — a step-by-step walkthrough." />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-radial-fade py-20">
+			<div class="mx-auto max-w-3xl px-6 text-center">
+				<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">Guide</p>
+				<h1 class="mt-3 text-balance text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl">
+					From install to your first agent-driven PR.
+				</h1>
+				<p class="mt-5 text-balance text-lg text-ink-300">
+					Twelve steps, ~10 minutes if you've already got an Anthropic or OpenAI key handy.
+				</p>
+			</div>
+		</section>
+
+		<section class="py-20">
+			<div class="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-[260px_1fr]">
+
+				<!-- Sticky table of contents -->
+				<aside class="lg:sticky lg:top-24 lg:self-start">
+					<p class="text-xs font-semibold uppercase tracking-widest text-ink-500">On this page</p>
+					<ol class="mt-4 space-y-2 text-sm">
+						<li><a href="#install" class="text-ink-400 hover:text-ink-100">1. Install</a></li>
+						<li><a href="#first-launch" class="text-ink-400 hover:text-ink-100">2. First launch</a></li>
+						<li><a href="#github" class="text-ink-400 hover:text-ink-100">3. Connect GitHub</a></li>
+						<li><a href="#agent-cli" class="text-ink-400 hover:text-ink-100">4. Sign in to Claude / Codex</a></li>
+						<li><a href="#cli" class="text-ink-400 hover:text-ink-100">5. Install the CLI</a></li>
+						<li><a href="#repo" class="text-ink-400 hover:text-ink-100">6. Import a repo</a></li>
+						<li><a href="#workspace" class="text-ink-400 hover:text-ink-100">7. Spin up a workspace</a></li>
+						<li><a href="#prompt" class="text-ink-400 hover:text-ink-100">8. Send your first prompt</a></li>
+						<li><a href="#review" class="text-ink-400 hover:text-ink-100">9. Review the diff</a></li>
+						<li><a href="#commit" class="text-ink-400 hover:text-ink-100">10. Commit + push</a></li>
+						<li><a href="#pr" class="text-ink-400 hover:text-ink-100">11. Open a PR</a></li>
+						<li><a href="#archive" class="text-ink-400 hover:text-ink-100">12. Archive</a></li>
+					</ol>
+				</aside>
+
+				<!-- Steps -->
+				<div class="space-y-16">
+
+					<article id="install">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">1</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Install</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Grab <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">Winthorpe_0.5.0_x64-setup.exe</code> from the <a href="/download/" class="text-accent-400 hover:text-accent-300">download page</a> and double-click it. The NSIS installer is per-user — no admin prompt — and lands in <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Programs\Winthorpe</code>.</p>
+							<p>If SmartScreen blocks it, click <strong class="text-ink-100">More info → Run anyway</strong>. The installer doesn't ship signed yet.</p>
+						</div>
+					</article>
+
+					<article id="first-launch">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">2</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">First launch</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Open Winthorpe from the Start menu. The onboarding flow walks you through: connect GitHub → sign in to your agent of choice → install the CLI → install Skills → import your first repo. You can skip any step and revisit it later from <strong class="text-ink-100">Settings</strong>.</p>
+						</div>
+					</article>
+
+					<article id="github">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">3</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Connect GitHub</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Winthorpe uses GitHub's <strong class="text-ink-100">Device Flow</strong>. Click <strong>Connect GitHub</strong>, copy the eight-character code, hit the in-app button to open <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">github.com/login/device</code>, paste, approve. The first time you'll also be asked to authorize the GitHub CLI — same flow, runs inside an embedded terminal.</p>
+							<p>Tokens are stored in a per-user SQLite DB encrypted via Windows DPAPI. Nothing on disk in plain text.</p>
+						</div>
+					</article>
+
+					<article id="agent-cli">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">4</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Sign in to Claude or Codex</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>You need at least one. Both are bundled — no separate install.</p>
+							<ul class="space-y-2 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+								<li><strong class="text-ink-100">Claude Code.</strong> Click <strong>Sign in to Claude Code</strong> → authorize in browser → done. Uses your Anthropic account.</li>
+								<li><strong class="text-ink-100">Codex.</strong> Click <strong>Sign in to Codex</strong> → authorize via OpenAI → done.</li>
+							</ul>
+							<p>You can swap or add the other later.</p>
+						</div>
+					</article>
+
+					<article id="cli">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">5</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Install the Winthorpe CLI</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Click <strong>Set up Winthorpe CLI</strong>. It drops a <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">winthorpe.exe</code> + <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">winthorpe.cmd</code> into <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Programs\Winthorpe\bin\</code> and prepends that to your user PATH (no admin needed). Open a fresh PowerShell and try <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">winthorpe --help</code>.</p>
+						</div>
+					</article>
+
+					<article id="repo">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">6</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Import a repo</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Two paths:</p>
+							<ul class="space-y-2 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+								<li><strong class="text-ink-100">Local clone you already have.</strong> Click <strong>Import existing repo</strong>, point at the folder.</li>
+								<li><strong class="text-ink-100">Fresh GitHub repo.</strong> Click <strong>Clone from GitHub</strong>, pick from your list, choose where to clone.</li>
+							</ul>
+							<p>The repo becomes a "Conductor" in Winthorpe parlance — every workspace is a worktree off it.</p>
+						</div>
+					</article>
+
+					<article id="workspace">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">7</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Spin up a workspace</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Click <strong>+ New Workspace</strong>. Give it a name (Winthorpe suggests one). Pick a base branch (defaults to <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">main</code>). Pick an agent. Hit <strong>Create</strong>.</p>
+							<p>Behind the scenes: <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">git worktree add</code> + new branch + a fresh agent session, all in &lt;1 s.</p>
+						</div>
+					</article>
+
+					<article id="prompt">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">8</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Send your first prompt</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Type your task into the chat at the bottom. Examples:</p>
+							<ul class="space-y-1 pl-5 text-sm [&>li]:list-disc [&>li]:marker:text-accent-400">
+								<li>"Add a unit test for the rate-limit refresh path"</li>
+								<li>"Replace tabs with spaces in <code class="rounded bg-white/5 px-1 text-xs">src/lib/</code>"</li>
+								<li>"Migrate <code class="rounded bg-white/5 px-1 text-xs">UserPrefs</code> to the new SQLite schema"</li>
+							</ul>
+							<p>Reasoning, tool calls, file edits all stream into the chat surface. The git inspector on the right updates live as files change.</p>
+						</div>
+					</article>
+
+					<article id="review">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">9</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Review — and edit — the diff</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Three ways:</p>
+							<ul class="space-y-2 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+								<li><strong class="text-ink-100">Inspector → Changes.</strong> File-by-file with insertion/deletion counts, click any file to see the diff in Monaco.</li>
+								<li><strong class="text-ink-100">File tree → click any file.</strong> Opens a full Monaco editor tab. Tweak the agent's code yourself — change a variable name, fix an off-by-one, add a comment. Ctrl+S to save. Tab persists per workspace; right-click the file tree for new file / folder / rename / delete.</li>
+								<li><strong class="text-ink-100">Inspector → Terminal.</strong> Hover-zoom expands a real PTY for <code class="rounded bg-white/5 px-1 text-xs">git diff</code>, <code class="rounded bg-white/5 px-1 text-xs">cargo test</code>, anything you'd run by hand.</li>
+							</ul>
+							<p class="text-sm text-ink-400">Monaco defaults to the <strong class="text-ink-100">Tokyo Night</strong> theme; Settings → Theme has light / dark / system pickers if you prefer.</p>
+						</div>
+					</article>
+
+					<article id="commit">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">10</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Commit + push</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Inspector → Actions → <strong>Commit</strong>. Winthorpe drafts a message from the diff; tweak it, hit commit. Then <strong>Push</strong> publishes the branch.</p>
+							<p>Pre-commit hooks run as configured. Husky, lint-staged, cargo fmt — none of it has to know it's not a terminal.</p>
+						</div>
+					</article>
+
+					<article id="pr">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">11</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Open a PR</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>Click <strong>Create PR</strong> in the workspace header. Winthorpe asks the agent for a title and body, you eyeball, then it runs <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh pr create</code> against your authenticated GitHub. The PR URL pops as a toast — click to open in your browser, or stay in Winthorpe and start the next workspace.</p>
+						</div>
+					</article>
+
+					<article id="archive">
+						<div class="flex items-center gap-3">
+							<span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">12</span>
+							<h2 class="text-2xl font-semibold tracking-tight text-ink-50">Archive when you're done</h2>
+						</div>
+						<div class="mt-5 space-y-4 text-base leading-relaxed text-ink-300">
+							<p>When the PR's merged, click <strong>Archive</strong> on the workspace. Winthorpe stops the FS watcher, kills any open terminals tagged with the workspace, removes the worktree, deletes the local branch, and moves the workspace to the <strong>Done</strong> group in the sidebar — all in one click.</p>
+							<p>The chat transcript is preserved in the local DB so you can reopen it later as reference.</p>
+						</div>
+					</article>
+
+				</div>
+			</div>
+		</section>
+
+		<section class="pb-24 text-center">
+			<a href="/download/" class="inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-xl shadow-accent-500/30 transition-all hover:bg-accent-400">
+				Download Winthorpe and try it
+			</a>
+		</section>
+
+		<% footer %>
+	</body>
+</html>

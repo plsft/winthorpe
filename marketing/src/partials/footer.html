@@ -1,0 +1,92 @@
+<footer class="mt-32 border-t border-white/5 bg-ink-950">
+	<div class="mx-auto max-w-7xl px-6 py-14">
+		<div class="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+			<div>
+				<div class="flex items-center gap-2.5">
+					<svg viewBox="0 0 24 24" class="h-6 w-6 text-accent-400" aria-hidden="true">
+						<path fill="currentColor" d="M2 4h3.6l1.8 11.2L10.4 4h3.2l3 11.2L18.4 4H22l-3.4 16h-3.6l-3-11.2L8.6 20H5L2 4z" />
+					</svg>
+					<span class="text-base font-semibold tracking-tight text-ink-50">Winthorpe</span>
+				</div>
+				<p class="mt-4 max-w-sm text-sm leading-relaxed text-ink-400">
+					The local-first Windows IDE for orchestrating coding agents. Built on the foundations of <a href="https://github.com/dohooo/helmor" class="text-ink-200 underline-offset-4 hover:text-ink-50 hover:underline">Helmor</a>, rebuilt for Windows.
+				</p>
+				<p class="mt-3 text-xs italic text-ink-500">
+					Named for Louis Winthorpe III. <span class="cursor-help" title="Hint: try the Konami code, or just type the product name.">It's a Trading Places thing.</span>
+				</p>
+			</div>
+
+			<div>
+				<h3 class="text-xs font-semibold uppercase tracking-widest text-ink-300">Product</h3>
+				<ul class="mt-4 space-y-2 text-sm">
+					<li><a href="/features/" class="text-ink-400 hover:text-ink-100">Features</a></li>
+					<li><a href="/how-to-use/" class="text-ink-400 hover:text-ink-100">How to use</a></li>
+					<li><a href="/download/" class="text-ink-400 hover:text-ink-100">Download</a></li>
+				</ul>
+			</div>
+
+			<div>
+				<h3 class="text-xs font-semibold uppercase tracking-widest text-ink-300">Project</h3>
+				<ul class="mt-4 space-y-2 text-sm">
+					<li><a href="https://github.com/plsft/winthorpe" class="text-ink-400 hover:text-ink-100">GitHub</a></li>
+					<li><a href="https://github.com/plsft/winthorpe/releases" class="text-ink-400 hover:text-ink-100">Releases</a></li>
+					<li><a href="https://github.com/plsft/winthorpe/issues" class="text-ink-400 hover:text-ink-100">Report an issue</a></li>
+				</ul>
+			</div>
+
+			<div>
+				<h3 class="text-xs font-semibold uppercase tracking-widest text-ink-300">Legal</h3>
+				<ul class="mt-4 space-y-2 text-sm">
+					<li><a href="/contact/" class="text-ink-400 hover:text-ink-100">Contact</a></li>
+					<li><a href="/legal/privacy/" class="text-ink-400 hover:text-ink-100">Privacy</a></li>
+					<li><a href="/legal/terms/" class="text-ink-400 hover:text-ink-100">Terms</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="mt-12 flex flex-col items-start justify-between gap-3 border-t border-white/5 pt-6 text-xs text-ink-500 sm:flex-row sm:items-center">
+			<p>© <span x-data="{ y: new Date().getFullYear() }" x-text="y">2026</span> Plural Software. Winthorpe is a Windows-first fork of <a href="https://github.com/dohooo/helmor" class="hover:text-ink-300">Helmor</a>, distributed under the Apache License 2.0.</p>
+			<p>Made for Windows. Tested at 3 a.m.</p>
+		</div>
+	</div>
+
+	<!--
+		Easter egg modal. easter-egg.js fires `winthorpe:easter-egg` on
+		window with the chosen quote in event.detail when the Konami code
+		or the word "winthorpe" is typed.
+	-->
+	<div
+		x-data="{
+			visible: false,
+			quote: '',
+			attr: '',
+		}"
+		@winthorpe:easter-egg.window="quote = $event.detail.line; attr = $event.detail.attr; visible = true"
+		@keydown.escape.window="visible = false"
+	>
+		<div
+			x-show="visible"
+			x-cloak
+			x-transition.opacity
+			@click="visible = false"
+			class="fixed inset-0 z-50 flex items-center justify-center bg-ink-950/80 backdrop-blur-sm p-4"
+		>
+			<div
+				@click.stop
+				class="relative max-w-md rounded-2xl border border-white/10 bg-ink-900 p-8 shadow-2xl shadow-accent-500/10"
+				x-transition.scale.origin.center.85
+			>
+				<div class="text-xs uppercase tracking-widest text-accent-400">Trading Places, 1983</div>
+				<p class="mt-4 text-2xl font-medium leading-snug text-ink-50" x-text="`“${quote}”`"></p>
+				<p class="mt-3 text-sm text-ink-400" x-text="`— ${attr}`"></p>
+				<button
+					type="button"
+					@click="visible = false"
+					class="mt-6 text-xs text-ink-400 hover:text-ink-100"
+				>(close — esc)</button>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<script type="module" src="/src/main.js"></script>

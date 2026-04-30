@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Privacy — Winthorpe</title>
+		<meta name="description" content="Winthorpe is local-first. This page details what does and doesn't leave your machine." />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-radial-fade py-20">
+			<div class="mx-auto max-w-3xl px-6 text-center">
+				<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">Legal</p>
+				<h1 class="mt-3 text-balance text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl">Privacy</h1>
+				<p class="mt-5 text-base text-ink-400">Last updated: 2026-04-30</p>
+			</div>
+		</section>
+
+		<section class="py-16">
+			<article class="prose-invert mx-auto max-w-3xl space-y-6 px-6 text-base leading-relaxed text-ink-300">
+				<h2 class="text-xl font-semibold text-ink-50">The short version</h2>
+				<p>Winthorpe runs entirely on your machine. We — Plural Software — collect <strong class="text-ink-100">nothing</strong>. The desktop app makes no telemetry, analytics, or "phone-home" requests. The only outbound network traffic is the one you trigger by talking to your agent (Anthropic's API, OpenAI's API, GitHub's API).</p>
+
+				<h2 class="text-xl font-semibold text-ink-50 pt-4">What's stored, where</h2>
+				<p>Winthorpe creates a per-user data directory at <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Winthorpe\</code> containing:</p>
+				<ul class="space-y-2 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+					<li>A SQLite database with your workspaces, sessions, and chat transcripts.</li>
+					<li>A per-user credentials store (also SQLite) for API keys and OAuth tokens. These are encrypted via the Windows DPAPI — only your Windows user can decrypt them.</li>
+					<li>Log files (rotating, 7-day retention) under <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">logs\</code>.</li>
+				</ul>
+				<p>Nothing in this directory ever leaves your machine through Winthorpe.</p>
+
+				<h2 class="text-xl font-semibold text-ink-50 pt-4">Network requests Winthorpe makes</h2>
+				<ul class="space-y-2 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+					<li><strong class="text-ink-100">Anthropic / OpenAI</strong> when you talk to Claude Code or Codex — those CLIs are bundled but the API calls go directly to the providers under your account.</li>
+					<li><strong class="text-ink-100">GitHub</strong> for OAuth Device Flow, repo listing, and PR creation via the bundled <code class="rounded bg-white/5 px-1 text-xs">gh</code> CLI.</li>
+					<li><strong class="text-ink-100">GitLab</strong> if you authenticate the bundled <code class="rounded bg-white/5 px-1 text-xs">glab</code> CLI.</li>
+					<li><strong class="text-ink-100">github.com/plsft/winthorpe/releases</strong> when checking for updates (you can disable this in Settings).</li>
+				</ul>
+
+				<h2 class="text-xl font-semibold text-ink-50 pt-4">This website</h2>
+				<p>This marketing site is hosted on Cloudflare Pages and uses no analytics, no cookies, no third-party scripts. Cloudflare retains standard edge access logs (IP, user agent, request path) per their <a href="https://www.cloudflare.com/privacypolicy/" class="text-accent-400 hover:text-accent-300">privacy policy</a>; we don't ingest those logs.</p>
+
+				<h2 class="text-xl font-semibold text-ink-50 pt-4">Contact</h2>
+				<p>Privacy questions: <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">privacy@pluralsoftware.com</code>.</p>
+			</article>
+		</section>
+
+		<% footer %>
+	</body>
+</html>
