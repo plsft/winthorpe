@@ -72,7 +72,3 @@ jobs:
       - name: Sidecar typecheck
         working-directory: sidecar
         run: bunx tsc --noEmit
-
-      - name: .NET sidecar build
-        working-directory: sidecar-dotnet
-        run: dotnet build -c Release --nologo

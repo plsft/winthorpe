@@ -137,6 +137,29 @@ impl ScriptProcessManager {
         }
     }
 
+    /// Kill every live script whose `ProcessKey` is tagged with the given
+    /// workspace id. Returns the number of scripts killed. Used by the
+    /// archive flow to release file handles inside the workspace directory
+    /// (Windows refuses `fs::rename` while any process has a handle inside
+    /// the dir or its cwd points there).
+    pub fn kill_for_workspace(&self, workspace_id: &str) -> usize {
+        let to_kill: Vec<ProcessHandle> = {
+            let map = self.processes.lock().expect("process map poisoned");
+            map.iter()
+                .filter(|(key, _)| key.2.as_deref() == Some(workspace_id))
+                .map(|(_, handle)| handle.clone())
+                .collect()
+        };
+        let count = to_kill.len();
+        for handle in to_kill {
+            handle.killed.store(true, Ordering::Release);
+            if let Ok(mut killer) = handle.killer.lock() {
+                let _ = killer.kill();
+            }
+        }
+        count
+    }
+
     /// Write user input to the script's PTY. Returns Ok(false) when no
     /// matching process exists (typing into a dead terminal — silent no-op).
     pub fn write_stdin(&self, key: &ProcessKey, data: &[u8]) -> Result<bool> {

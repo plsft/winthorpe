@@ -9,9 +9,10 @@ Updated as features land.
 - **Backend:** Rust (`src-tauri/`) — SQLite via rusqlite (bundled), notify
   for FS watching, portable-pty for ConPTY/PTY abstraction, windows-rs for
   Job Objects + DPAPI + Registry
-- **Sidecar runtimes:**
-  - Bun (`sidecar/`) — primary LLM session host (Claude Agent SDK + Codex SDK)
-  - .NET 10 AOT (`sidecar-dotnet/`) — sub-host for C# user skills
+- **Sidecar runtime:** Bun (`sidecar/`) — LLM session host (Claude Agent SDK
+  + Codex SDK), and the only sidecar going forward. (A .NET 10 AOT sub-host
+  for C# user skills was prototyped under `sidecar-dotnet/` and removed in
+  v0.5.0 — TS is the single skill/runtime language.)
 - **Bundle format:** NSIS + MSI on Windows; DMG/.app on macOS
 
 ## Platform-specific decisions

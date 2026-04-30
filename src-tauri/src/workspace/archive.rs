@@ -120,8 +120,42 @@ pub fn start_archive_workspace<R: Runtime>(app: &AppHandle<R>, workspace_id: &st
             "Archive: git unwatch finished"
         );
 
-        let result =
-            tauri::async_runtime::spawn_blocking(move || execute_archive_plan(&plan)).await;
+        // Release file handles inside the workspace directory before the
+        // worktree-removal step. On Windows, `fs::rename` fails as long as
+        // any process has the workspace directory open or has its cwd inside
+        // it — that includes:
+        //   1. The filesystem watcher (`notify` / ReadDirectoryChangesW),
+        //      which keeps a directory handle alive for the watch lifetime.
+        //   2. PTY terminal sessions registered with ScriptProcessManager
+        //      (e.g. inspector terminal tabs, agent CLI auth flows) whose
+        //      child shell has cwd inside the workspace.
+        // We stop both here, then yield briefly so the kernel can finish
+        // releasing handles before the rename attempt.
+        app_handle
+            .state::<crate::workspace::files_watcher::WorkspaceFilesWatcherManager>()
+            .stop(&workspace_id);
+        let killed = app_handle
+            .state::<crate::workspace::scripts::ScriptProcessManager>()
+            .kill_for_workspace(&workspace_id);
+        if killed > 0 {
+            tracing::debug!(
+                workspace_id,
+                killed,
+                "Archive: killed workspace PTY scripts"
+            );
+        }
+
+        let result = tauri::async_runtime::spawn_blocking(move || {
+            // Brief delay before the rename: process exit on Windows is
+            // asynchronous at the kernel level — the parent's `kill()`
+            // returns immediately but file handles owned by the child can
+            // take 50–200ms to clear. Without this, the rename retry loop
+            // in `renamed_to_trash` carries the slack instead, which works
+            // but logs spurious "rename failed; will retry" warnings.
+            std::thread::sleep(std::time::Duration::from_millis(150));
+            execute_archive_plan(&plan)
+        })
+        .await;
 
         match result {
             Ok(Ok(_)) => {

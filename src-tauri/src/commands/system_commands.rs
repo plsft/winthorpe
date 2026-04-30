@@ -528,8 +528,10 @@ pub async fn install_winthorpe_skills() -> CmdResult<WinthorpeSkillsStatus> {
             );
         }
 
-        let output = Command::new("npx")
-            .args(winthorpe_skills_install_args(&agents))
+        let mut cmd = Command::new("npx");
+        cmd.args(winthorpe_skills_install_args(&agents));
+        crate::platform::process::hide_console_window(&mut cmd);
+        let output = cmd
             .output()
             .with_context(|| format!("Failed to start skills installer. Try:\n  {command}"))?;
 
@@ -650,10 +652,10 @@ pub async fn get_agent_login_status() -> CmdResult<AgentLoginStatus> {
 }
 
 fn claude_login_ready() -> bool {
-    match std::process::Command::new("claude")
-        .args(["auth", "status"])
-        .output()
-    {
+    let mut cmd = std::process::Command::new("claude");
+    cmd.args(["auth", "status"]);
+    crate::platform::process::hide_console_window(&mut cmd);
+    match cmd.output() {
         Ok(output) if output.status.success() => parse_claude_login_status(&output.stdout),
         Ok(output) => {
             tracing::debug!(
@@ -670,10 +672,10 @@ fn claude_login_ready() -> bool {
 }
 
 fn codex_login_ready() -> bool {
-    match std::process::Command::new("codex")
-        .args(["login", "status"])
-        .output()
-    {
+    let mut cmd = std::process::Command::new("codex");
+    cmd.args(["login", "status"]);
+    crate::platform::process::hide_console_window(&mut cmd);
+    match cmd.output() {
         Ok(output) if output.status.success() => {
             let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
@@ -955,11 +957,10 @@ fn reveal_file_in_finder(path: &std::path::Path) -> anyhow::Result<()> {
 fn reveal_file_in_finder(path: &std::path::Path) -> anyhow::Result<()> {
     // /select highlights the file inside its parent folder. Quoting is
     // important — explorer.exe parses /select,<path> as one token.
-    std::process::Command::new("explorer.exe")
-        .arg(format!("/select,{}", path.display()))
-        .spawn()
-        .map(|_| ())
-        .context("explorer.exe failed")
+    let mut cmd = std::process::Command::new("explorer.exe");
+    cmd.arg(format!("/select,{}", path.display()));
+    crate::platform::process::hide_console_window(&mut cmd);
+    cmd.spawn().map(|_| ()).context("explorer.exe failed")
 }
 
 #[cfg(not(any(target_os = "macos", windows)))]

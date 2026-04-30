@@ -48,6 +48,10 @@ mod imp {
         }
         Ok(())
     }
+
+    /// No-op on Unix. On Windows this prevents a console window from flashing
+    /// for short-lived child processes. See the Windows impl for details.
+    pub fn hide_console_window(_cmd: &mut Command) {}
 }
 
 #[cfg(windows)]
@@ -189,15 +193,48 @@ mod imp {
         if force {
             args.push("/F".to_string());
         }
-        let _ = Command::new("taskkill")
-            .args(&args)
+        let mut cmd = Command::new("taskkill");
+        cmd.args(&args)
             .stdin(Stdio::null())
             .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status();
+            .stderr(Stdio::null());
+        hide_console_window(&mut cmd);
+        let _ = cmd.status();
         Ok(())
+    }
+
+    /// Suppress the transient console window that Windows pops for any
+    /// child of a GUI application that doesn't already own a console.
+    /// Without this, every git/gh/codex/claude/taskkill spawn flashes a
+    /// black box on screen and may steal focus.
+    ///
+    /// Caller must invoke this **before** `cmd.spawn()`.
+    pub fn hide_console_window(cmd: &mut Command) {
+        use std::os::windows::process::CommandExt;
+        // CREATE_NO_WINDOW = 0x08000000. Combined with any other creation
+        // flags via bitwise OR — but `creation_flags` overwrites prior
+        // values rather than OR'ing, so callers that already set e.g.
+        // CREATE_NEW_PROCESS_GROUP must combine here instead of calling
+        // both helpers. See `apply_creation_flags` below for the OR'd form.
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+
+    /// Apply `extra_flags` together with `CREATE_NO_WINDOW` in a single
+    /// `creation_flags` call. Use this from sites that need both window
+    /// suppression *and* another flag (e.g. `CREATE_NEW_PROCESS_GROUP =
+    /// 0x0000_0200`). Calling `creation_flags` twice would have the
+    /// second call overwrite the first — this helper avoids that.
+    pub fn apply_creation_flags(cmd: &mut Command, extra_flags: u32) {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(extra_flags | CREATE_NO_WINDOW);
     }
 }
 
 #[cfg(windows)]
+pub use imp::apply_creation_flags;
+#[cfg(windows)]
 pub use imp::JobObject;
+
+pub use imp::hide_console_window;

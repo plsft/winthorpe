@@ -150,12 +150,13 @@ impl SidecarProcess {
         }
         #[cfg(windows)]
         {
-            use std::os::windows::process::CommandExt;
             // CREATE_NEW_PROCESS_GROUP lets us send Ctrl+Break-equivalent
             // signals to the group later; without it, Win32 routes Ctrl
             // events to our own process and we deadlock.
-            const CREATE_NEW_PROCESS_GROUP: u32 = 0x00000200;
-            cmd.creation_flags(CREATE_NEW_PROCESS_GROUP);
+            // Combined with CREATE_NO_WINDOW so the sidecar (Bun + descendants)
+            // never flashes a console under the GUI app.
+            const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+            crate::platform::process::apply_creation_flags(&mut cmd, CREATE_NEW_PROCESS_GROUP);
         }
 
         // Pass log config to the sidecar process
@@ -301,11 +302,12 @@ impl SidecarProcess {
         }
         #[cfg(windows)]
         {
-            let _ = std::process::Command::new("taskkill")
-                .args(["/PID", &pid.to_string(), "/T", "/F"])
+            let mut tk = std::process::Command::new("taskkill");
+            tk.args(["/PID", &pid.to_string(), "/T", "/F"])
                 .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status();
+                .stderr(Stdio::null());
+            crate::platform::process::hide_console_window(&mut tk);
+            let _ = tk.status();
         }
         let _ = self.child.kill();
         let _ = self.child.wait();
@@ -379,11 +381,12 @@ fn send_ctrl_break(pid: u32) {
     // for one call and (b) `taskkill` already handles the cross-console
     // delivery that GenerateConsoleCtrlEvent botches when the target lives
     // in a different console session than ours.
-    let _ = std::process::Command::new("taskkill")
-        .args(["/PID", &pid.to_string()])
+    let mut tk = std::process::Command::new("taskkill");
+    tk.args(["/PID", &pid.to_string()])
         .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status();
+        .stderr(Stdio::null());
+    crate::platform::process::hide_console_window(&mut tk);
+    let _ = tk.status();
 }
 
 // ---------------------------------------------------------------------------

@@ -79,6 +79,7 @@ where
         command.current_dir(current_dir);
     }
 
+    crate::platform::process::hide_console_window(&mut command);
     let output = command.output().context("Failed to run git")?;
     handle_git_output(output)
 }
@@ -144,9 +145,12 @@ where
     }
     #[cfg(windows)]
     {
-        use std::os::windows::process::CommandExt;
-        const CREATE_NEW_PROCESS_GROUP: u32 = 0x00000200;
-        command.creation_flags(CREATE_NEW_PROCESS_GROUP);
+        // Combine CREATE_NEW_PROCESS_GROUP with CREATE_NO_WINDOW in one call —
+        // calling `creation_flags` twice would have the second call clobber
+        // the first. Without CREATE_NO_WINDOW every git invocation flashes
+        // a console window in the GUI app.
+        const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+        crate::platform::process::apply_creation_flags(&mut command, CREATE_NEW_PROCESS_GROUP);
     }
 
     let child = command.spawn().context("Failed to spawn git")?;
@@ -191,11 +195,12 @@ where
             }
             #[cfg(windows)]
             {
-                let _ = Command::new("taskkill")
-                    .args(["/PID", &child_pid.to_string(), "/T", "/F"])
+                let mut tk = Command::new("taskkill");
+                tk.args(["/PID", &child_pid.to_string(), "/T", "/F"])
                     .stdout(Stdio::null())
-                    .stderr(Stdio::null())
-                    .status();
+                    .stderr(Stdio::null());
+                crate::platform::process::hide_console_window(&mut tk);
+                let _ = tk.status();
             }
             let _ = waiter.join();
             bail!(
@@ -442,6 +447,13 @@ pub fn remove_worktree(repo_root: &Path, workspace_dir: &Path) -> Result<()> {
 }
 
 /// Rename `dir` to a `.trash-*` sibling so the caller can treat it as gone.
+///
+/// On Windows, `fs::rename` fails immediately if any process holds a handle
+/// inside `dir` (e.g. the Bun sidecar's cwd, a not-yet-reaped PTY child,
+/// Windows Defender mid-scan, or an Explorer window). These locks are
+/// usually transient — sub-second — so we retry with a short backoff.
+/// After the final attempt we surface the actual OS error so the user sees
+/// "Access is denied. (os error 5)" instead of a generic "couldn't archive."
 fn renamed_to_trash(dir: &Path) -> Result<PathBuf> {
     let parent = dir
         .parent()
@@ -451,14 +463,41 @@ fn renamed_to_trash(dir: &Path) -> Result<PathBuf> {
         .with_context(|| format!("No filename for {}", dir.display()))?;
     let trash_name = format!(".trash-{}-{}", name.to_string_lossy(), std::process::id());
     let trash_dir = parent.join(&trash_name);
-    fs::rename(dir, &trash_dir).with_context(|| {
-        format!(
-            "Failed to rename {} to {}",
-            dir.display(),
-            trash_dir.display()
-        )
-    })?;
-    Ok(trash_dir)
+
+    // Backoff schedule: 50ms, 150ms, 350ms, 750ms, 1500ms — total ~2.8s.
+    // Long enough to clear typical Windows handle-release lag and AV scans
+    // without making the UI feel stuck.
+    const BACKOFF_MS: &[u64] = &[0, 50, 150, 350, 750, 1500];
+    let mut last_err: Option<std::io::Error> = None;
+    for delay in BACKOFF_MS {
+        if *delay > 0 {
+            std::thread::sleep(std::time::Duration::from_millis(*delay));
+        }
+        match fs::rename(dir, &trash_dir) {
+            Ok(()) => return Ok(trash_dir),
+            Err(e) => {
+                tracing::debug!(
+                    src = %dir.display(),
+                    dst = %trash_dir.display(),
+                    error = %e,
+                    delay_ms = delay,
+                    "rename to trash failed; will retry"
+                );
+                last_err = Some(e);
+            }
+        }
+    }
+
+    let err = last_err
+        .unwrap_or_else(|| std::io::Error::other("rename failed but no OS error was captured"));
+    Err(anyhow::Error::from(err).context(format!(
+        "Couldn't archive workspace: failed to rename\n  {}\nto\n  {}\n\
+         A process is likely holding a file handle inside the workspace \
+         (a running terminal, the sidecar, an open editor, or antivirus). \
+         Close any terminals/editors pointed at this workspace and try again.",
+        dir.display(),
+        trash_dir.display()
+    )))
 }
 
 pub fn remove_branch(repo_root: &Path, branch: &str) -> Result<()> {

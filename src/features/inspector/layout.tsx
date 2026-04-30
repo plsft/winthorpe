@@ -432,6 +432,14 @@ export function InspectorTabsSection({
 				style={{
 					width: isHoverExpanded ? zoomedSize : "100%",
 					height: isHoverExpanded ? zoomedSize : "100%",
+					// Clamp the zoomed panel so its top edge never crosses below the
+					// custom window title bar (h-9 = 36px, +8px safety). Without this,
+					// a maximized window has enough vertical room for `200% of parent`
+					// to overflow above the title bar — and since the title bar sits
+					// at z-50, it visually covers the top of the panel (the prompt
+					// line gets clipped). Only applied when zoomed so the docked
+					// state's `100%` of-parent layout is untouched.
+					maxHeight: isHoverExpanded ? "calc(100vh - 44px)" : undefined,
 					// `height` only transitions during hover-zoom; outside of
 					// zoom the toggle's web-animation drives wrapper height
 					// and inner must follow instantly.

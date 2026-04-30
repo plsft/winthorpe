@@ -57,15 +57,29 @@ pub async fn spawn_forge_cli_auth_terminal(
 ) -> CmdResult<()> {
     let host = host.unwrap_or_else(|| "gitlab.com".to_string());
     let command = forge::forge_cli_auth_command(provider, Some(&host))?;
+    // HOME doesn't exist on Windows; check USERPROFILE there, then fall
+    // through to the process cwd. The previous "/" fallback was Unix-only
+    // and caused the PTY spawn to fail with "directory not found" on
+    // Windows, which surfaced in the onboarding UI as
+    // "Unable to start login."
     let working_dir = std::env::var("HOME")
         .ok()
         .filter(|home| !home.trim().is_empty())
+        .or_else(|| {
+            std::env::var("USERPROFILE")
+                .ok()
+                .filter(|home| !home.trim().is_empty())
+        })
         .or_else(|| {
             std::env::current_dir()
                 .ok()
                 .map(|path| path.display().to_string())
         })
-        .unwrap_or_else(|| "/".to_string());
+        .ok_or_else(|| {
+            anyhow::anyhow!(
+                "Could not determine a working directory for the auth terminal (no HOME / USERPROFILE / cwd)"
+            )
+        })?;
     let context = ScriptContext {
         root_path: working_dir.clone(),
         workspace_path: None,

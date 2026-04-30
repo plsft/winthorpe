@@ -1,6 +1,6 @@
 [package]
 name = "winthorpe"
-version = "0.11.4"
+version = "0.5.0"
 description = "The local-first IDE for coding agent orchestration."
 authors = ["Caspian Zhao", "Nathan Lian"]
 edition = "2021"

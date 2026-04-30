@@ -64,6 +64,7 @@ where
         use std::os::unix::process::CommandExt;
         command.process_group(0);
     }
+    crate::platform::process::hide_console_window(&mut command);
 
     let child = command.spawn()?;
     let child_pid = child.id();
@@ -112,9 +113,10 @@ fn kill_process(child_pid: u32) {
 #[cfg(not(unix))]
 fn kill_process(child_pid: u32) {
     let pid = child_pid.to_string();
-    let _ = Command::new("taskkill")
-        .args(["/PID", pid.as_str(), "/T", "/F"])
-        .status();
+    let mut tk = Command::new("taskkill");
+    tk.args(["/PID", pid.as_str(), "/T", "/F"]);
+    crate::platform::process::hide_console_window(&mut tk);
+    let _ = tk.status();
 }
 
 pub(crate) fn command_detail(output: &CommandOutput) -> String {

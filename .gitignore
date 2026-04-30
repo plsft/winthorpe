@@ -62,7 +62,3 @@ test-results/
 !.claude/hooks
 !.claude/hooks/*
 
-# .NET sidecar build artifacts
-sidecar-dotnet/bin/
-sidecar-dotnet/obj/
-sidecar-dotnet/*.user

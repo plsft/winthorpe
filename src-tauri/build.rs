@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -18,16 +19,28 @@ fn main() {
         println!("cargo:rerun-if-env-changed={key}");
     }
 
+    // Walk env files highest-priority → lowest. The first file that defines a
+    // given key wins; later files cannot overwrite it. Without this, the
+    // committed `.env.example` placeholder would clobber the real value from
+    // `.env.local`, since `cargo:rustc-env=` lines emitted later override
+    // earlier ones for the compiled binary.
+    let mut emitted: HashSet<&'static str> = HashSet::new();
     for env_path in candidate_env_paths() {
-        // Only watch files that exist. Watching a missing file makes Cargo
-        // treat the fingerprint as permanently stale, which forces a full
-        // recompile of the crate on every single `cargo build` invocation.
         if env_path.exists() {
             println!("cargo:rerun-if-changed={}", env_path.display());
         }
-        load_env_var(&env_path, GITHUB_CLIENT_ID_KEY);
-        load_env_var(&env_path, UPDATER_ENDPOINTS_KEY);
-        load_env_var(&env_path, UPDATER_PUBKEY_KEY);
+        for key in [
+            GITHUB_CLIENT_ID_KEY,
+            UPDATER_ENDPOINTS_KEY,
+            UPDATER_PUBKEY_KEY,
+        ] {
+            if emitted.contains(key) {
+                continue;
+            }
+            if load_env_var(&env_path, key) {
+                emitted.insert(key);
+            }
+        }
     }
 
     tauri_build::build();
@@ -112,19 +125,27 @@ fn candidate_env_paths() -> Vec<PathBuf> {
     paths
 }
 
-fn load_env_var(path: &Path, key: &str) {
-    if env::var_os(key).is_some() || !path.exists() {
-        return;
+/// Returns true when a value for `key` was emitted from `path`.
+fn load_env_var(path: &Path, key: &str) -> bool {
+    if env::var_os(key).is_some() {
+        // The build process itself already has the var; option_env! will pick
+        // it up directly. Treat as "already emitted" so lower-priority files
+        // can't overwrite it.
+        return true;
+    }
+    if !path.exists() {
+        return false;
     }
 
     let Ok(iter) = dotenvy::from_path_iter(path) else {
-        return;
+        return false;
     };
 
     for item in iter.flatten() {
         if item.0 == key {
             println!("cargo:rustc-env={}={}", item.0, item.1);
-            break;
+            return true;
         }
     }
+    false
 }

@@ -731,9 +731,10 @@ fn launch_editor(
     {
         let _ = app_name; // unused on Windows — we always require an absolute path
         let exe = app_path.ok_or_else(|| anyhow::anyhow!("Editor not found on disk"))?;
-        std::process::Command::new(exe)
-            .arg(dir)
-            .spawn()
+        let mut cmd = std::process::Command::new(exe);
+        cmd.arg(dir);
+        crate::platform::process::hide_console_window(&mut cmd);
+        cmd.spawn()
             .map(|_| ())
             .with_context(|| format!("Failed to spawn {exe}"))
     }
@@ -758,11 +759,10 @@ fn reveal_in_file_manager(dir: &std::path::Path) -> anyhow::Result<()> {
     {
         // `explorer.exe <dir>` opens the folder. (`/select,<path>` highlights
         // a specific file inside its parent — used by save_pasted_image).
-        std::process::Command::new("explorer.exe")
-            .arg(dir)
-            .spawn()
-            .map(|_| ())
-            .context("explorer.exe failed")
+        let mut cmd = std::process::Command::new("explorer.exe");
+        cmd.arg(dir);
+        crate::platform::process::hide_console_window(&mut cmd);
+        cmd.spawn().map(|_| ()).context("explorer.exe failed")
     }
     #[cfg(not(any(target_os = "macos", windows)))]
     {
