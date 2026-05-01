@@ -13,6 +13,7 @@ import {
 	WorkspaceCommitButton,
 	type WorkspaceCommitButtonMode,
 } from "@/features/commit/button";
+import { PrCostChip } from "@/features/cost-dashboard/pr-cost-chip";
 import { getShortcut } from "@/features/shortcuts/registry";
 import { InlineShortcutDisplay } from "@/features/shortcuts/shortcut-display";
 import type { ShortcutId } from "@/features/shortcuts/types";
@@ -337,6 +338,7 @@ export function GitSectionHeader({
 					/>
 				) : (
 					<div className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
+						<PrCostChip workspaceId={workspaceId} />
 						{showContinue && (
 							<Button
 								type="button"

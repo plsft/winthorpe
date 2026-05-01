@@ -2,6 +2,7 @@ import { Download, Loader2, Terminal } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { type CliStatus, getCliStatus, installCli } from "@/lib/api";
+import { errorMessage } from "@/lib/utils";
 import {
 	SettingsGroup,
 	SettingsNotice,
@@ -31,7 +32,7 @@ export function CliInstallPanel() {
 			const result = await installCli();
 			setStatus(result);
 		} catch (e) {
-			setError(e instanceof Error ? e.message : String(e));
+			setError(errorMessage(e));
 		} finally {
 			setInstalling(false);
 		}

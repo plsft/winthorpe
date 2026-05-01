@@ -98,6 +98,15 @@ pub async fn get_codex_rate_limits() -> CmdResult<Option<String>> {
 ///
 /// See `get_codex_rate_limits` for why this command does not publish a
 /// `*RateLimitsChanged` UI-sync event.
+/// Read the plan tier from the local Claude credentials store with no
+/// network call. Returned synchronously so the dashboard can render
+/// "Max plan" instantly while the live rate-limit fetch is in flight.
+#[tauri::command]
+pub async fn get_claude_plan_summary(
+) -> CmdResult<Option<crate::rate_limits::claude::ClaudePlanSummary>> {
+    run_blocking(|| Ok(crate::rate_limits::claude::read_plan_summary())).await
+}
+
 #[tauri::command]
 pub async fn get_claude_rate_limits() -> CmdResult<Option<String>> {
     run_blocking(|| {

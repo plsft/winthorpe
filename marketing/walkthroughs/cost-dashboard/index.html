@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Cost dashboard — Winthorpe walkthrough</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/walkthroughs/" class="text-xs text-ink-400 hover:text-ink-100">← Walkthroughs</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">See your cost &amp; plan usage</h1>
+				<p class="mt-3 text-sm text-ink-400">3 steps</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-4xl space-y-12 px-6 py-12">
+
+			<!-- Step 1 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">1</span>
+					<h2 class="text-xl font-semibold text-ink-50">Click the <span class="text-emerald-400">$</span> icon next to Activity Log</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Bottom of the workspaces sidebar. Or <strong>View → Cost &amp; Tokens</strong> from the menu bar.</p>
+			</section>
+
+			<!-- Step 2 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">2</span>
+					<h2 class="text-xl font-semibold text-ink-50">Read your plan usage</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Top of the Summary tab: a "Plan usage" card showing your subscription tier and (for Max / Pro) live consumption of the 5-hour and 7-day windows. Pulled from Anthropic's <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">oauth/usage</code> endpoint.</p>
+
+				<div class="mt-5 overflow-hidden rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="rounded-md border border-white/10 bg-ink-950 p-4">
+						<div class="flex items-center justify-between text-[11px]">
+							<div class="flex items-center gap-2">
+								<span class="font-semibold uppercase tracking-wide text-ink-400">Plan usage</span>
+								<span class="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium uppercase text-emerald-300">MAX</span>
+							</div>
+							<span class="text-ink-500">Cost &amp; tokens below are API-equivalent</span>
+						</div>
+
+						<div class="mt-4 space-y-3 text-[11px]">
+							<!-- 5h bar -->
+							<div>
+								<div class="flex items-center justify-between">
+									<span class="text-ink-200">5-hour window</span>
+									<span class="font-mono text-ink-400">47% · resets in 2h 18m</span>
+								</div>
+								<div class="mt-1 h-1.5 overflow-hidden rounded bg-ink-900">
+									<div class="h-full bg-emerald-500" style="width: 47%"></div>
+								</div>
+							</div>
+							<!-- 7d bar -->
+							<div>
+								<div class="flex items-center justify-between">
+									<span class="text-ink-200">7-day window</span>
+									<span class="font-mono text-ink-400">23% · resets in 4d 2h</span>
+								</div>
+								<div class="mt-1 h-1.5 overflow-hidden rounded bg-ink-900">
+									<div class="h-full bg-emerald-500" style="width: 23%"></div>
+								</div>
+							</div>
+							<!-- Opus sub-limit -->
+							<div>
+								<div class="flex items-center justify-between">
+									<span class="text-ink-200">Opus 7-day sub-limit</span>
+									<span class="font-mono text-ink-400">82% · resets in 5d 9h</span>
+								</div>
+								<div class="mt-1 h-1.5 overflow-hidden rounded bg-ink-900">
+									<div class="h-full bg-amber-500" style="width: 82%"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Step 3 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">3</span>
+					<h2 class="text-xl font-semibold text-ink-50">Drill into sessions</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">The <strong>Sessions</strong> tab lists every recorded turn — provider, model, tokens, API cost, and a PR badge for PR-create turns. <strong>History</strong> shows a day-by-day cost bar chart for the last 30 active days.</p>
+
+				<div class="mt-5 overflow-hidden rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="rounded-md border border-white/10 bg-ink-950">
+						<div class="border-b border-white/10 px-4 py-2 text-[11px] text-ink-400">
+							3 of 247 turns shown · API cost
+						</div>
+						<table class="w-full text-[10px]">
+							<thead class="border-b border-white/10 text-ink-500">
+								<tr>
+									<th class="px-3 py-1.5 text-left">When</th>
+									<th class="px-3 py-1.5 text-left">Provider · model</th>
+									<th class="px-3 py-1.5 text-right">Input</th>
+									<th class="px-3 py-1.5 text-right">Output</th>
+									<th class="px-3 py-1.5 text-right">Cost</th>
+									<th class="px-3 py-1.5 text-left">Tags</th>
+								</tr>
+							</thead>
+							<tbody class="text-ink-300">
+								<tr class="border-b border-white/5">
+									<td class="px-3 py-1 text-ink-500">14:32</td>
+									<td class="px-3 py-1">Claude · sonnet-4-5</td>
+									<td class="px-3 py-1 text-right font-mono">9.1k</td>
+									<td class="px-3 py-1 text-right font-mono">3.2k</td>
+									<td class="px-3 py-1 text-right font-mono">$0.075</td>
+									<td class="px-3 py-1"></td>
+								</tr>
+								<tr class="border-b border-white/5">
+									<td class="px-3 py-1 text-ink-500">14:18</td>
+									<td class="px-3 py-1">Claude · haiku-4-5</td>
+									<td class="px-3 py-1 text-right font-mono">2.3k</td>
+									<td class="px-3 py-1 text-right font-mono">600</td>
+									<td class="px-3 py-1 text-right font-mono">$0.005</td>
+									<td class="px-3 py-1"><span class="rounded bg-violet-500/15 px-1 py-0.5 text-[9px] text-violet-300">PR</span></td>
+								</tr>
+								<tr>
+									<td class="px-3 py-1 text-ink-500">13:54</td>
+									<td class="px-3 py-1">Codex · gpt-5</td>
+									<td class="px-3 py-1 text-right font-mono">5.7k</td>
+									<td class="px-3 py-1 text-right font-mono">1.8k</td>
+									<td class="px-3 py-1 text-right font-mono">$0.193</td>
+									<td class="px-3 py-1"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<p class="mt-3 text-xs text-ink-500"><strong class="text-ink-300">"API-equivalent" framing.</strong> If you're on Claude Max or Pro, the cost numbers are what each turn would cost on the metered API — your value extracted, not your invoice. If you're on per-token API keys, this <em>is</em> your invoice.</p>
+			</section>
+
+			<div class="border-t border-white/5 pt-8 text-center">
+				<a href="/walkthroughs/ship-a-pr/" class="inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-lg shadow-accent-500/30 hover:bg-accent-400">
+					Next: Ship a PR →
+				</a>
+			</div>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

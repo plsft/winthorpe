@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Activity Log — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Activity Log</h1>
+				<p class="mt-3 text-sm text-ink-400">Live tail of every internal action.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">What it shows</h2>
+			<p>Every <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">tracing</code> event the Rust backend emits — which is everything important Winthorpe does internally. That includes:</p>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li>Every git invocation (target, args, exit, duration)</li>
+				<li>Sidecar spawn / kill / IPC</li>
+				<li>Agent CLI lifecycle (Claude Code, Codex)</li>
+				<li>FS watcher events (file change, debounce, fan-out)</li>
+				<li>SQLite write / read activity at debug level</li>
+				<li>Every Tauri command dispatch</li>
+				<li>Cost-ledger writes when transcripts get processed</li>
+				<li>Forge (GitHub / GitLab) API calls</li>
+			</ul>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">How to open it</h2>
+			<p>Click the log icon (three lines with a leading caret) next to the Settings gear in the workspaces sidebar footer. Or <strong>View → Activity Log</strong> from the menu bar.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Filtering</h2>
+			<p>Level filter: <strong>TRACE</strong> / <strong>DEBUG</strong> / <strong>INFO</strong> / <strong>WARN</strong> / <strong>ERROR</strong>. Picking a level shows that level and above. Text filter on the right searches across the target (module path), message, and structured fields.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Live tail</h2>
+			<p>Polls every 750 ms while the modal is open. Auto-scrolls to bottom unless you've manually scrolled up — then it freezes the scroll position so you can read history while events keep arriving. Pause button stops the tail entirely.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Retention</h2>
+			<p>The dialog reads from a 5,000-event in-memory ring buffer (oldest events evicted FIFO). Full history is also written to <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Winthorpe\logs\rust.jsonl</code> (10 MB primary + 10 MB rotation backup, JSONL format) — point any log-viewer at that file for unbounded history.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">When to use it</h2>
+			<p>Anything weird is happening: a button does nothing, an action takes too long, an editor won't open, a clone fails opaquely. The Activity Log shows the actual command that ran, the actual error, the actual stack of operations. Every ⚠ in the UI corresponds to a WARN line; every error toast corresponds to an ERROR line.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { devResetAllData, loadDataInfo } from "@/lib/api";
 import { saveSettings } from "@/lib/settings";
+import { errorMessage } from "@/lib/utils";
 import {
 	SettingsGroup,
 	SettingsNotice,
@@ -33,7 +34,7 @@ export function DevToolsPanel() {
 			// alone leaves stale useState references.
 			window.location.reload();
 		} catch (e) {
-			setError(e instanceof Error ? e.message : String(e));
+			setError(errorMessage(e));
 			setResetting(false);
 			setConfirmOpen(false);
 		}
@@ -60,8 +61,8 @@ export function DevToolsPanel() {
 					}
 					description={
 						<>
-							Mark onboarding as incomplete so it appears the next time Winthorpe
-							starts.
+							Mark onboarding as incomplete so it appears the next time
+							Winthorpe starts.
 							{onboardingReset ? (
 								<SettingsNotice tone="ok">
 									Onboarding will be shown on the next launch.

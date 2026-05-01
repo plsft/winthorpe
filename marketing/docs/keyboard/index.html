@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Keyboard shortcuts — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Keyboard shortcuts</h1>
+				<p class="mt-3 text-sm text-ink-400">Menu mnemonics + bindings.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">Menu mnemonics</h2>
+			<p>The top menu bar follows the Windows native convention — each menu has an underlined letter that you can reach with Alt:</p>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><kbd>Alt+F</kbd> — <strong>F</strong>ile</li>
+				<li><kbd>Alt+E</kbd> — <strong>E</strong>dit</li>
+				<li><kbd>Alt+V</kbd> — <strong>V</strong>iew</li>
+				<li><kbd>Alt+H</kbd> — <strong>H</strong>elp</li>
+				<li><kbd>Esc</kbd> closes any open menu</li>
+			</ul>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">File menu</h2>
+			<table class="w-full text-sm">
+				<tbody class="divide-y divide-border/30">
+					<tr><td class="py-2">New Workspace</td><td class="py-2 text-right text-ink-400">Ctrl+N</td></tr>
+					<tr><td class="py-2">Add Repository…</td><td class="py-2 text-right text-ink-400"></td></tr>
+					<tr><td class="py-2">Save</td><td class="py-2 text-right text-ink-400">Ctrl+S</td></tr>
+					<tr><td class="py-2">Close Tab</td><td class="py-2 text-right text-ink-400">Ctrl+W</td></tr>
+					<tr><td class="py-2">Quit</td><td class="py-2 text-right text-ink-400">Alt+F4</td></tr>
+				</tbody>
+			</table>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Edit menu</h2>
+			<p>Standard clipboard + Find — these dispatch to the focused widget (Monaco handles them all natively):</p>
+			<table class="w-full text-sm">
+				<tbody class="divide-y divide-border/30">
+					<tr><td class="py-2">Undo</td><td class="py-2 text-right text-ink-400">Ctrl+Z</td></tr>
+					<tr><td class="py-2">Redo</td><td class="py-2 text-right text-ink-400">Ctrl+Shift+Z</td></tr>
+					<tr><td class="py-2">Cut / Copy / Paste</td><td class="py-2 text-right text-ink-400">Ctrl+X / C / V</td></tr>
+					<tr><td class="py-2">Find</td><td class="py-2 text-right text-ink-400">Ctrl+F</td></tr>
+				</tbody>
+			</table>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">View menu</h2>
+			<table class="w-full text-sm">
+				<tbody class="divide-y divide-border/30">
+					<tr><td class="py-2">Toggle Workspaces sidebar</td><td class="py-2 text-right text-ink-400">Ctrl+B</td></tr>
+					<tr><td class="py-2">Toggle Inspector</td><td class="py-2 text-right text-ink-400">Ctrl+J</td></tr>
+					<tr><td class="py-2">Toggle Theme</td><td class="py-2 text-right text-ink-400"></td></tr>
+					<tr><td class="py-2">Activity Log</td><td class="py-2 text-right text-ink-400"></td></tr>
+					<tr><td class="py-2">Cost &amp; Tokens</td><td class="py-2 text-right text-ink-400"></td></tr>
+					<tr><td class="py-2">Settings…</td><td class="py-2 text-right text-ink-400"></td></tr>
+				</tbody>
+			</table>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Help menu</h2>
+			<table class="w-full text-sm">
+				<tbody class="divide-y divide-border/30">
+					<tr><td class="py-2">Documentation</td><td class="py-2 text-right text-ink-400">Opens in browser</td></tr>
+					<tr><td class="py-2">Report an Issue</td><td class="py-2 text-right text-ink-400">Opens GitHub</td></tr>
+					<tr><td class="py-2">Releases</td><td class="py-2 text-right text-ink-400">Opens GitHub</td></tr>
+					<tr><td class="py-2">About Winthorpe</td><td class="py-2 text-right text-ink-400"></td></tr>
+				</tbody>
+			</table>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Customization</h2>
+			<p>Settings → Keyboard exposes the full shortcut map. Click any binding to record a new combo. Reset to defaults per-binding or all at once.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

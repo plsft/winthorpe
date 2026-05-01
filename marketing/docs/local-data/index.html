@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Local data &amp; security — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Local data &amp; security</h1>
+				<p class="mt-3 text-sm text-ink-400">Where everything lives, what's encrypted, what leaves your machine.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">Where data lives</h2>
+			<p>Everything Winthorpe stores is under <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Winthorpe\</code> on Windows. Inside:</p>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">winthorpe.db</code> — SQLite database. Workspaces, sessions, chat transcripts, settings, cost ledger.</li>
+				<li><code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">workspaces/&lt;repo&gt;/&lt;name&gt;/</code> — git worktrees per workspace.</li>
+				<li><code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">logs/rust.jsonl</code> + <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">.1</code> backup — structured JSONL logs (10 MB each, total bounded at 20 MB).</li>
+				<li><code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">transcripts-processed.json</code> — bookkeeping for the cost-ledger scanner.</li>
+			</ul>
+			<p>Programs &amp; bin (used by the CLI shim install): <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Programs\Winthorpe\bin\</code>.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Credentials</h2>
+			<p>API keys and OAuth tokens for Anthropic and OpenAI providers go through <strong>Windows DPAPI</strong> (CryptProtectData / CryptUnprotectData) before being written to SQLite. DPAPI binds the encryption to your Windows user account — only your user can decrypt them, not other accounts on the same machine.</p>
+			<p class="text-sm text-ink-400">Claude Code's own OAuth tokens live where Claude Code puts them (<code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.claude/.credentials.json</code>) — Winthorpe reads them for the plan-usage panel but never re-stores them.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">No telemetry</h2>
+			<p>Winthorpe makes no analytics, no crash-reports-home, no "phone-home" requests. The only outbound network traffic is the one you trigger by talking to your agent (Anthropic's API, OpenAI's API, GitHub's API, optional updater check).</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Network requests Winthorpe makes</h2>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><strong class="text-ink-100">Anthropic / OpenAI</strong> when you talk to Claude Code or Codex — direct from the bundled CLIs to the providers under your account.</li>
+				<li><strong class="text-ink-100">GitHub</strong> for OAuth Device Flow + repo listing + PR creation via bundled <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh</code>.</li>
+				<li><strong class="text-ink-100">GitLab</strong> via bundled <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">glab</code>, only if you authenticate it.</li>
+				<li><strong class="text-ink-100">Anthropic OAuth usage endpoint</strong> for the Plan usage panel (Max / Pro users only). Throttled, cached.</li>
+				<li><strong class="text-ink-100">github.com/plsft/winthorpe/releases</strong> for the updater check (you can disable it).</li>
+			</ul>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">SQLite tuning</h2>
+			<p>WAL mode, 256 MB mmap, 20 MB cache, prepared-statement cache, separate read/write connection pools with read-only flags on the read pool. Reads never block writes; writes never block reads. (See <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">src-tauri/src/models/db.rs::init_connection</code>.)</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Backups</h2>
+			<p>SQLite is one file. Back it up via Windows File History, OneDrive folder, or just <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">copy %LOCALAPPDATA%\Winthorpe\winthorpe.db &lt;destination&gt;</code>. WAL mode means a hot copy is consistent.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

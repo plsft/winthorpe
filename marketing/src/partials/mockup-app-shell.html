@@ -1,0 +1,150 @@
+<!--
+  Reusable Winthorpe app-shell mockup. Pure HTML+CSS — no JS. Mirrors the
+  real app's chrome (Mica title bar, Workspaces sidebar, central pane,
+  Inspector, terminal). Pages override the inner panels via `data-` slots.
+
+  Use as a base; specific walkthrough pages render this then patch the
+  visible panel via positional CSS selectors.
+-->
+<div class="overflow-hidden rounded-xl border border-white/10 bg-ink-950 shadow-2xl shadow-black/60">
+	<!-- Title bar (Mica) -->
+	<div class="flex h-9 items-center justify-between border-b border-white/5 bg-ink-900/40 px-3">
+		<div class="flex items-center gap-2">
+			<svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-accent-400" aria-hidden="true">
+				<path fill="currentColor" d="M2 4h3.6l1.8 11.2L10.4 4h3.2l3 11.2L18.4 4H22l-3.4 16h-3.6l-3-11.2L8.6 20H5L2 4z" />
+			</svg>
+			<span class="text-[11px] font-medium text-ink-200">Winthorpe</span>
+			<div class="ml-3 flex items-center gap-3 text-[11px]">
+				<span class="text-ink-300/90"><span class="underline decoration-ink-400/60 underline-offset-2">F</span>ile</span>
+				<span class="text-ink-300/90"><span class="underline decoration-ink-400/60 underline-offset-2">E</span>dit</span>
+				<span class="text-ink-300/90"><span class="underline decoration-ink-400/60 underline-offset-2">V</span>iew</span>
+				<span class="text-ink-300/90"><span class="underline decoration-ink-400/60 underline-offset-2">H</span>elp</span>
+			</div>
+		</div>
+		<div class="flex items-center gap-3 text-ink-500">
+			<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h16" stroke-linecap="round"/></svg>
+			<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16"/></svg>
+			<svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M6 18L18 6" stroke-linecap="round"/></svg>
+		</div>
+	</div>
+
+	<!-- 3-column layout: workspaces / chat / inspector -->
+	<div class="flex h-[420px]">
+		<!-- Left: workspaces sidebar -->
+		<aside class="flex w-[200px] flex-col border-r border-white/5 bg-ink-900/30">
+			<div class="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-ink-400">
+				Workspaces
+			</div>
+			<ul class="flex-1 space-y-px overflow-hidden px-2 text-[11px]">
+				<li class="rounded px-2 py-1 text-ink-400">
+					<span class="text-emerald-400/70">●</span> Done
+				</li>
+				<li class="ml-2 rounded px-2 py-0.5 text-ink-300">aldebaran</li>
+				<li class="mt-1 rounded px-2 py-1 text-ink-400">
+					<span class="text-amber-400/70">◐</span> In review
+				</li>
+				<li class="ml-2 rounded px-2 py-0.5 text-ink-300">betelgeuse</li>
+				<li class="mt-1 rounded px-2 py-1 text-ink-400">
+					<span class="text-sky-400/70">●</span> In progress
+				</li>
+				<li class="ml-2 rounded bg-accent-500/10 px-2 py-0.5 text-ink-50">vega</li>
+				<li class="ml-2 rounded px-2 py-0.5 text-ink-300">altair</li>
+				<li class="ml-2 rounded px-2 py-0.5 text-ink-300">ursamajor</li>
+				<li class="mt-1 rounded px-2 py-1 text-ink-400">
+					<span class="text-ink-500">○</span> Backlog
+				</li>
+			</ul>
+			<div class="flex items-center justify-between border-t border-white/5 px-3 py-2">
+				<div class="flex gap-1">
+					<svg class="h-3.5 w-3.5 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+					<svg class="h-3.5 w-3.5 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4l1.4 1-1.4 1"/><line x1="6" y1="5" x2="13.5" y2="5"/><line x1="3" y1="9" x2="13.5" y2="9"/><line x1="3" y1="13" x2="10.5" y2="13"/></svg>
+					<svg class="h-3.5 w-3.5 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v20M5 9h14M5 15h14"/></svg>
+				</div>
+				<span class="text-[10px] text-ink-500">plsft</span>
+			</div>
+		</aside>
+
+		<!-- Center: chat / editor pane (slot for walkthrough content) -->
+		<main class="flex flex-1 flex-col bg-ink-950 text-[11px] text-ink-200">
+			<!-- Tab strip -->
+			<div class="flex h-7 items-center gap-px border-b border-white/5 bg-ink-900/30 px-2">
+				<button class="flex items-center gap-1.5 rounded-t bg-ink-950 px-2.5 py-1 text-ink-50">
+					<span class="text-accent-400">✦</span> Chat
+				</button>
+				<button class="rounded-t px-2.5 py-1 text-ink-400 hover:text-ink-200">transforms.ts</button>
+				<button class="rounded-t px-2.5 py-1 text-ink-400 hover:text-ink-200">index.ts</button>
+				<div class="ml-auto text-ink-500">⊕</div>
+			</div>
+
+			<!-- Slot for content -->
+			<div data-slot="center" class="relative flex-1 overflow-hidden p-3">
+				<!-- Default content; pages override -->
+				<div class="text-ink-300">
+					<p class="leading-relaxed">
+						<span class="text-accent-400">→</span> Add a slug case to typey that
+						lowercases, replaces non-alphanumerics with hyphens, and collapses
+						repeated hyphens. Add tests.
+					</p>
+					<div class="mt-3 rounded-md border border-white/5 bg-ink-900/50 p-2.5">
+						<div class="mb-1 text-[10px] uppercase tracking-wider text-ink-500">
+							Reasoning
+						</div>
+						<div class="text-ink-300">
+							I'll add a `toSlug` function in transforms.ts and matching tests
+							alongside the existing case helpers…
+						</div>
+					</div>
+					<div class="mt-2 flex items-center gap-2 text-[10px] text-ink-500">
+						<span class="rounded bg-accent-500/15 px-1.5 py-0.5 text-accent-300">Edit</span>
+						<span>src/transforms.ts</span>
+						<span class="ml-auto text-emerald-400">+18 −0</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Composer -->
+			<div class="border-t border-white/5 bg-ink-900/30 p-2">
+				<div class="flex items-center gap-2 rounded-md border border-white/5 bg-ink-950 px-2 py-1.5">
+					<span class="text-[10px] text-ink-500">⌘</span>
+					<input class="flex-1 bg-transparent text-[11px] text-ink-300 outline-none" placeholder="Ask, build, refactor…" disabled />
+					<span class="text-[10px] text-ink-500">claude-sonnet-4-5</span>
+				</div>
+			</div>
+		</main>
+
+		<!-- Right: inspector -->
+		<aside class="flex w-[220px] flex-col border-l border-white/5 bg-ink-900/30">
+			<div class="flex border-b border-white/5">
+				<button class="flex-1 px-2 py-1.5 text-[10px] font-medium text-ink-50">Changes</button>
+				<button class="flex-1 px-2 py-1.5 text-[10px] text-ink-400">Terminal</button>
+				<button class="flex-1 px-2 py-1.5 text-[10px] text-ink-400">Run</button>
+			</div>
+			<div class="flex-1 space-y-1 overflow-hidden p-2 text-[11px]">
+				<div class="flex items-center gap-1.5 px-1 py-0.5 text-ink-300">
+					<span class="rounded bg-emerald-500/15 px-1 text-[10px] text-emerald-300">M</span>
+					<span class="truncate">src/transforms.ts</span>
+					<span class="ml-auto text-emerald-400">+18</span>
+				</div>
+				<div class="flex items-center gap-1.5 px-1 py-0.5 text-ink-300">
+					<span class="rounded bg-emerald-500/15 px-1 text-[10px] text-emerald-300">M</span>
+					<span class="truncate">tests/transforms.test.ts</span>
+					<span class="ml-auto text-emerald-400">+22</span>
+				</div>
+				<div class="flex items-center gap-1.5 px-1 py-0.5 text-ink-300">
+					<span class="rounded bg-emerald-500/15 px-1 text-[10px] text-emerald-300">M</span>
+					<span class="truncate">README.md</span>
+					<span class="ml-auto text-emerald-400">+3 −0</span>
+				</div>
+			</div>
+			<div class="flex items-center justify-between border-t border-white/5 px-2 py-1.5">
+				<span class="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-300">
+					<svg class="size-2.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+					Last PR $0.05
+				</span>
+				<button class="rounded bg-accent-500 px-2 py-1 text-[10px] font-semibold text-ink-950">
+					Commit
+				</button>
+			</div>
+		</aside>
+	</div>
+</div>

@@ -71,6 +71,19 @@ where
 {
     let mut command = Command::new("git");
 
+    // `--no-optional-locks` is a global git flag that suppresses background
+    // index/refs lock acquisition for the duration of the command. Two wins
+    // on Windows specifically:
+    //   1. Read-side ops (status, log, for-each-ref, rev-parse) skip lock
+    //      contention with whatever else is reading the repo (file watcher,
+    //      activity-log polling, the user's own terminal).
+    //   2. Lock acquisition under NTFS is much slower than ext4, so even
+    //      uncontended reads benefit.
+    // Mutating ops (commit, push, pull, clone) still go through
+    // `run_git_with_timeout` which deliberately omits this flag — they
+    // _should_ acquire locks.
+    command.arg("--no-optional-locks");
+
     for arg in args {
         command.arg(arg.as_ref());
     }
@@ -892,22 +905,23 @@ fn resolve_push_status(
 
 pub fn push_current_branch(workspace_dir: &Path, remote: &str) -> Result<PushBranchResult> {
     let branch = current_branch_name(workspace_dir)?;
-    let workspace_dir = workspace_dir.display().to_string();
-    let upstream = current_upstream_ref(Path::new(&workspace_dir));
+    let workspace_dir_str = workspace_dir.display().to_string();
+    let upstream = current_upstream_ref(Path::new(&workspace_dir_str));
 
     if let Some(target_ref) = upstream {
         let push_ref = upstream_push_ref(&target_ref)
             .with_context(|| format!("Unsupported upstream ref for push: {target_ref}"))?;
-        return run_git_with_timeout(
-            [
+        return push_with_gh_credential_recovery(
+            workspace_dir,
+            &branch,
+            remote,
+            &[
                 "-C",
-                workspace_dir.as_str(),
+                workspace_dir_str.as_str(),
                 "push",
                 remote,
                 push_ref.as_str(),
             ],
-            None,
-            GIT_NETWORK_TIMEOUT,
         )
         .map(|_| PushBranchResult {
             branch: branch.clone(),
@@ -917,23 +931,121 @@ pub fn push_current_branch(workspace_dir: &Path, remote: &str) -> Result<PushBra
     }
 
     let push_ref = format!("HEAD:refs/heads/{branch}");
-    run_git_with_timeout(
-        [
+    push_with_gh_credential_recovery(
+        workspace_dir,
+        &branch,
+        remote,
+        &[
             "-C",
-            workspace_dir.as_str(),
+            workspace_dir_str.as_str(),
             "push",
             "--set-upstream",
             remote,
             push_ref.as_str(),
         ],
-        None,
-        GIT_NETWORK_TIMEOUT,
     )
     .map(|_| PushBranchResult {
         branch: branch.clone(),
         target_ref: format!("{remote}/{branch}"),
     })
     .with_context(|| format!("Failed to push branch {branch} to {remote}"))
+}
+
+/// Run a `git push` and, on the specific Windows-failure path where Git
+/// Credential Manager has no GitHub credentials and `GIT_TERMINAL_PROMPT=0`
+/// makes git fail fast (`could not read Username for 'https://github.com'`),
+/// auto-run `gh auth setup-git` once and retry. gh's setup-git registers
+/// itself as the credential helper for github.com using the OAuth token
+/// the user authorized during onboarding — after one run it sticks for
+/// every subsequent push/fetch/clone over HTTPS.
+///
+/// We only attempt recovery on:
+///   1. Errors that look like the GCM-missing pattern, AND
+///   2. Pushes whose remote URL is on github.com (gh can only fix github.com)
+fn push_with_gh_credential_recovery(
+    workspace_dir: &Path,
+    branch: &str,
+    remote: &str,
+    args: &[&str],
+) -> Result<String> {
+    let attempt = run_git_with_timeout(args.iter().copied(), None, GIT_NETWORK_TIMEOUT);
+    match attempt {
+        Ok(out) => Ok(out),
+        Err(error) => {
+            let detail = format!("{error:#}");
+            if !is_missing_credentials_error(&detail) {
+                return Err(error);
+            }
+            if !remote_is_github(workspace_dir, remote) {
+                return Err(error);
+            }
+            tracing::warn!(
+                branch,
+                "push failed with missing-credentials; attempting `gh auth setup-git` recovery"
+            );
+            if let Err(setup_err) = run_gh_auth_setup_git() {
+                tracing::warn!(
+                    error = %setup_err,
+                    "gh auth setup-git failed — surfacing original push error"
+                );
+                return Err(error);
+            }
+            tracing::info!(branch, "gh auth setup-git succeeded; retrying push");
+            run_git_with_timeout(args.iter().copied(), None, GIT_NETWORK_TIMEOUT).with_context(
+                || {
+                    format!(
+                        "Push retry after `gh auth setup-git` still failed for {branch}. \
+                         If `gh auth status` says you're logged in, your remote URL may use SSH — \
+                         set up an SSH key, or run `gh auth setup-git` manually in a terminal."
+                    )
+                },
+            )
+        }
+    }
+}
+
+/// Detect the specific stderr pattern git emits on Windows when GCM has
+/// no credentials AND `GIT_TERMINAL_PROMPT=0` blocks the prompt fallback.
+fn is_missing_credentials_error(detail: &str) -> bool {
+    let lower = detail.to_ascii_lowercase();
+    lower.contains("could not read username for 'https://github.com")
+        || (lower.contains("terminal prompts disabled") && lower.contains("github.com"))
+        || lower.contains("authentication failed for 'https://github.com")
+}
+
+/// Returns true when the configured remote points at github.com (any
+/// scheme). False on missing remote, unrelated host, or read errors.
+fn remote_is_github(workspace_dir: &Path, remote: &str) -> bool {
+    let dir = workspace_dir.display().to_string();
+    let url = match run_git(["-C", dir.as_str(), "remote", "get-url", remote], None) {
+        Ok(u) => u,
+        Err(_) => return false,
+    };
+    let lower = url.to_ascii_lowercase();
+    lower.contains("github.com")
+}
+
+/// Invoke the bundled `gh auth setup-git`. Idempotent — running twice is
+/// harmless. Uses the same forge-command runner the rest of the codebase
+/// uses so we pick up the bundled binary path.
+fn run_gh_auth_setup_git() -> Result<()> {
+    let output = crate::forge::command::run_command_with_timeout(
+        "gh",
+        ["auth", "setup-git"],
+        std::time::Duration::from_secs(20),
+    )
+    .map_err(|e| anyhow::anyhow!("Failed to spawn gh: {e}"))?;
+    if output.success {
+        return Ok(());
+    }
+    let detail = if !output.stderr.trim().is_empty() {
+        output.stderr.trim().to_string()
+    } else if !output.stdout.trim().is_empty() {
+        output.stdout.trim().to_string()
+    } else {
+        format!("gh exited with status {:?}", output.status)
+    };
+    anyhow::bail!("`gh auth setup-git` failed: {detail}")
 }
 
 /// Counts how many commits are reachable from HEAD but not from `base_ref`.

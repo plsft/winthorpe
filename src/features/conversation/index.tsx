@@ -14,14 +14,17 @@ import type {
 import { WorkspacePanelContainer } from "@/features/panel/container";
 import { FileLinkProvider } from "@/features/panel/message-components/file-link-context";
 import type { SessionCloseRequest } from "@/features/panel/use-confirm-session-close";
-import type { ChangeRequestInfo } from "@/lib/api";
+import { type ChangeRequestInfo, setSessionModel } from "@/lib/api";
 import type { ResolvedComposerInsertRequest } from "@/lib/composer-insert";
 import { insertRequestMatchesComposer } from "@/lib/composer-insert";
 import { hasUnresolvedPlanReview } from "@/lib/plan-review";
 import { sessionThreadMessagesQueryOptions } from "@/lib/query-client";
 import { useSettings } from "@/lib/settings";
 import { EMPTY_QUEUE, useSubmitQueue } from "@/lib/use-submit-queue";
-import { getComposerContextKey } from "@/lib/workspace-helpers";
+import {
+	getComposerContextKey,
+	parseSessionContextKey,
+} from "@/lib/workspace-helpers";
 import { useConversationStreaming } from "./hooks/use-streaming";
 import {
 	adaptPermissionToDeferredTool,
@@ -201,10 +204,25 @@ export const WorkspaceConversationContainer = memo(
 
 		const handleSelectModel = useCallback(
 			(contextKey: string, modelId: string) => {
+				// 1. Update the in-memory map immediately so the UI reflects the
+				//    selection without waiting on the round-trip.
 				setComposerModelSelections((current) => ({
 					...current,
 					[contextKey]: modelId,
 				}));
+
+				// 2. Persist to the session record so reload/switch keeps the
+				//    choice. Without this, on next mount the resolver falls
+				//    back to settings.defaultModelId — which is exactly the
+				//    "Opus reverts" bug.
+				//    Best-effort: a network/IPC failure is not user-fatal, so
+				//    we swallow + log instead of toasting.
+				const sessionId = parseSessionContextKey(contextKey);
+				if (sessionId) {
+					void setSessionModel(sessionId, modelId).catch((error) => {
+						console.warn("[model] failed to persist model selection", error);
+					});
+				}
 			},
 			[],
 		);

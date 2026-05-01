@@ -7,6 +7,7 @@ import {
 	Check,
 	ChevronDown,
 	CircleAlertIcon,
+	CircleDollarSign,
 	FolderOpen,
 	PanelLeftClose,
 	PanelLeftOpen,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ActivityLogIcon } from "@/components/icons/activity-log-icon";
 import { QuitConfirmDialog } from "@/components/quit-confirm-dialog";
 import { SplashScreen } from "@/components/splash-screen";
 import { Button } from "@/components/ui/button";
@@ -31,8 +33,11 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AboutDialog } from "@/features/about";
+import { ActivityLogDialog } from "@/features/activity-log";
 import { useWorkspaceCommitLifecycle } from "@/features/commit/hooks/use-commit-lifecycle";
 import { WorkspaceConversationContainer } from "@/features/conversation";
+import { CostDashboard } from "@/features/cost-dashboard";
 import { useDockUnreadBadge } from "@/features/dock-badge";
 import { WorkspaceEditorSurface } from "@/features/editor";
 import { EditorTabsBar } from "@/features/editor/editor-tabs-bar";
@@ -65,7 +70,7 @@ import {
 import { useGlobalHotkeySync } from "@/features/shortcuts/use-global-hotkey-sync";
 import { AppUpdateButton } from "@/features/updater/app-update-button";
 import { useAppUpdater } from "@/features/updater/use-app-updater";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 import { EditorIcon } from "@/shell/editor-icon";
 import { GithubIdentityGate } from "@/shell/github-identity-gate";
 import { GithubStatusMenu } from "@/shell/github-status-menu";
@@ -176,6 +181,9 @@ function MainApp() {
 	>(null);
 	const [settingsInitialSection, setSettingsInitialSection] =
 		useState<SettingsSection>();
+	const [activityLogOpen, setActivityLogOpen] = useState(false);
+	const [aboutOpen, setAboutOpen] = useState(false);
+	const [costDashboardOpen, setCostDashboardOpen] = useState(false);
 	const [queryClient] = useState(() => createWinthorpeQueryClient());
 	const preloadSettings = useMemo<AppSettings>(() => {
 		const t = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
@@ -220,38 +228,55 @@ function MainApp() {
 	const [splashVisible, setSplashVisible] = useState(true);
 	const [splashMounted, setSplashMounted] = useState(true);
 
-	const hideSplashAfterBoot = useCallback(() => {
-		window.setTimeout(() => {
-			setSplashVisible(false);
-			window.setTimeout(() => setSplashMounted(false), 400);
-		}, 1000);
+	const hideSplash = useCallback(() => {
+		setSplashVisible(false);
+		// Allow the opacity transition (400ms) to finish before unmounting
+		// the splash node, so the fade isn't visually clipped.
+		window.setTimeout(() => setSplashMounted(false), 400);
 	}, []);
 
 	const completeOnboarding = useCallback(() => {
-		setSplashMounted(true);
-		setSplashVisible(true);
 		setAppSettings((previous) => ({
 			...(previous ?? DEFAULT_SETTINGS),
 			onboardingCompleted: true,
 		}));
 		void saveSettings({ onboardingCompleted: true });
-
-		requestAnimationFrame(() => {
-			requestAnimationFrame(hideSplashAfterBoot);
-		});
-	}, [hideSplashAfterBoot]);
+	}, []);
 
 	useEffect(() => {
-		const minDelay = new Promise<void>((r) => setTimeout(r, 1000));
-		void Promise.all([loadSettings().then(setAppSettings), minDelay]).then(
-			() => {
-				// Start fade-out
-				setSplashVisible(false);
-				// Remove from DOM after transition
-				setTimeout(() => setSplashMounted(false), 400);
-			},
-		);
-	}, []);
+		// Hard safety timeout — no matter what loadSettings does (hangs,
+		// throws, never resolves), the splash will hide after 4 s so the user
+		// is never stuck staring at the logo.
+		const safety = window.setTimeout(() => {
+			console.warn(
+				"[splash] settings load did not resolve within 4s; hiding splash with defaults",
+			);
+			hideSplash();
+		}, 4000);
+
+		// Minimum visible time so the splash actually registers visually.
+		// Without this, loadSettings often resolves in 50-100 ms (cached
+		// SQLite) and the splash flashes for sub-perception time, looking
+		// like it never appeared. 400 ms is long enough to read the brand,
+		// short enough to not feel slow.
+		const SPLASH_MIN_VISIBLE_MS = 400;
+		const minVisible = new Promise<void>((resolve) => {
+			window.setTimeout(resolve, SPLASH_MIN_VISIBLE_MS);
+		});
+
+		const settingsLoad = loadSettings()
+			.then((loaded) => {
+				setAppSettings(loaded);
+			})
+			.catch((error) => {
+				console.error("[splash] loadSettings failed:", error);
+			});
+
+		void Promise.all([settingsLoad, minVisible]).finally(() => {
+			window.clearTimeout(safety);
+			hideSplash();
+		});
+	}, [hideSplash]);
 
 	useEffect(() => {
 		const handleSettingsReload = () => {
@@ -326,7 +351,44 @@ function MainApp() {
 				    + Mica backdrop, this bar contributes the brand + drag
 				    region + min/max/close. */}
 				<div className="flex h-screen flex-col">
-					<WindowTitleBar />
+					<WindowTitleBar
+						onOpenAbout={() => setAboutOpen(true)}
+						onOpenActivityLog={() => setActivityLogOpen(true)}
+						onOpenCostDashboard={() => setCostDashboardOpen(true)}
+						onOpenSettings={() => {
+							setSettingsInitialSection(undefined);
+							setSettingsWorkspaceId(null);
+							setSettingsWorkspaceRepoId(null);
+							setSettingsOpen(true);
+						}}
+						onNewWorkspace={() => {
+							// Reuse the same event the keyboard shortcut dispatches —
+							// AppShell already listens for it (see workspace.new shortcut
+							// callback). Single source of truth for "open the new
+							// workspace flow."
+							window.dispatchEvent(new Event("winthorpe:open-new-workspace"));
+						}}
+						onAddRepository={() => {
+							window.dispatchEvent(new Event("winthorpe:open-add-repository"));
+						}}
+						onToggleTheme={() => {
+							const next =
+								(appSettings ?? preloadSettings).theme === "dark"
+									? "light"
+									: "dark";
+							void settingsContextValue.updateSettings({ theme: next });
+						}}
+						onToggleLeftSidebar={() => {
+							window.dispatchEvent(
+								new Event("winthorpe:menu:toggle-left-sidebar"),
+							);
+						}}
+						onToggleRightSidebar={() => {
+							window.dispatchEvent(
+								new Event("winthorpe:menu:toggle-right-sidebar"),
+							);
+						}}
+					/>
 					<div className="relative min-h-0 flex-1 overflow-hidden">
 						{appSettings === null ? null : !appSettings.onboardingCompleted ? (
 							<AppOnboarding onComplete={completeOnboarding} />
@@ -338,6 +400,8 @@ function MainApp() {
 									setSettingsWorkspaceRepoId(workspaceRepoId);
 									setSettingsOpen(true);
 								}}
+								onOpenActivityLog={() => setActivityLogOpen(true)}
+								onOpenCostDashboard={() => setCostDashboardOpen(true)}
 							/>
 						)}
 						{splashMounted && <SplashScreen visible={splashVisible} />}
@@ -355,6 +419,15 @@ function MainApp() {
 						});
 					}}
 				/>
+				<ActivityLogDialog
+					open={activityLogOpen}
+					onClose={() => setActivityLogOpen(false)}
+				/>
+				<AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} />
+				<CostDashboard
+					open={costDashboardOpen}
+					onClose={() => setCostDashboardOpen(false)}
+				/>
 			</PersistQueryClientProvider>
 		</SettingsContext.Provider>
 	);
@@ -362,11 +435,15 @@ function MainApp() {
 
 function AppShell({
 	onOpenSettings,
+	onOpenActivityLog,
+	onOpenCostDashboard,
 }: {
 	onOpenSettings: (
 		workspaceId: string | null,
 		workspaceRepoId: string | null,
 	) => void;
+	onOpenActivityLog: () => void;
+	onOpenCostDashboard: () => void;
 }) {
 	useZoom();
 	const queryClient = useQueryClient();
@@ -807,7 +884,10 @@ function AppShell({
 		if (!selectedWorkspaceId || !preferredEditor) return;
 		void openWorkspaceInEditor(selectedWorkspaceId, preferredEditor.id).catch(
 			(e) =>
-				pushWorkspaceToast(String(e), `Failed to open ${preferredEditor.name}`),
+				pushWorkspaceToast(
+					errorMessage(e),
+					`Failed to open ${preferredEditor.name}`,
+				),
 		);
 	}, [preferredEditor, pushWorkspaceToast, selectedWorkspaceId]);
 	const handleToggleTheme = useCallback(() => {
@@ -820,6 +900,26 @@ function AppShell({
 		setSidebarCollapsed(!zenActive);
 		setInspectorCollapsed(!zenActive);
 	}, [inspectorCollapsed, setSidebarCollapsed, sidebarCollapsed]);
+
+	// Top menu (View) → sidebar toggles. Listening for window events keeps
+	// the menu in App scope (where WindowTitleBar lives) decoupled from the
+	// sidebar state owned by AppShell.
+	useEffect(() => {
+		const toggleLeft = () => setSidebarCollapsed((c) => !c);
+		const toggleRight = () => setInspectorCollapsed((c) => !c);
+		window.addEventListener("winthorpe:menu:toggle-left-sidebar", toggleLeft);
+		window.addEventListener("winthorpe:menu:toggle-right-sidebar", toggleRight);
+		return () => {
+			window.removeEventListener(
+				"winthorpe:menu:toggle-left-sidebar",
+				toggleLeft,
+			);
+			window.removeEventListener(
+				"winthorpe:menu:toggle-right-sidebar",
+				toggleRight,
+			);
+		};
+	}, [setSidebarCollapsed]);
 	const handleOpenModelPicker = useCallback(() => {
 		window.dispatchEvent(new Event("winthorpe:open-model-picker"));
 	}, []);
@@ -965,7 +1065,7 @@ function AppShell({
 		if (!pullRequestUrl) return;
 		void openUrl(pullRequestUrl).catch((error) => {
 			pushWorkspaceToast(
-				error instanceof Error ? error.message : String(error),
+				errorMessage(error),
 				"Unable to open pull request",
 				"destructive",
 			);
@@ -1294,11 +1394,13 @@ function AppShell({
 						: t,
 				),
 			);
+			// Visible confirmation. Sonner deduplicates identical toasts in
+			// quick succession so rapid Ctrl+S smashes don't stack.
+			const filename =
+				tab.session.path.split(/[\\/]/).pop() ?? tab.session.path;
+			toast.success(`Saved ${filename}`);
 		} catch (error) {
-			pushWorkspaceToast(
-				error instanceof Error ? error.message : "Failed to save",
-				"Save failed",
-			);
+			pushWorkspaceToast(errorMessage(error), "Save failed");
 		} finally {
 			setSavingTabId(null);
 		}
@@ -1896,7 +1998,7 @@ function AppShell({
 			handleSelectSession(next.sessionId);
 		} catch (error) {
 			pushWorkspaceToast(
-				error instanceof Error ? error.message : String(error),
+				errorMessage(error),
 				"Unable to reopen session",
 				"destructive",
 			);
@@ -1990,10 +2092,7 @@ function AppShell({
 				}),
 			]);
 		} catch (error) {
-			pushWorkspaceToast(
-				error instanceof Error ? error.message : String(error),
-				"Unable to create session",
-			);
+			pushWorkspaceToast(errorMessage(error), "Unable to create session");
 		}
 	}, [handleSelectSession, pushWorkspaceToast, queryClient]);
 
@@ -2567,13 +2666,33 @@ function AppShell({
 														</Tooltip>
 													</div>
 													<div className="flex shrink-0 items-center justify-between px-3 pb-3 pt-1">
-														<SettingsButton
-															onClick={handleOpenSettings}
-															shortcut={getShortcut(
-																appSettings.shortcuts,
-																"settings.open",
-															)}
-														/>
+														<div className="flex items-center gap-1">
+															<SettingsButton
+																onClick={handleOpenSettings}
+																shortcut={getShortcut(
+																	appSettings.shortcuts,
+																	"settings.open",
+																)}
+															/>
+															<button
+																type="button"
+																onClick={onOpenActivityLog}
+																className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+																title="Activity log"
+																aria-label="Open activity log"
+															>
+																<ActivityLogIcon className="size-4" />
+															</button>
+															<button
+																type="button"
+																onClick={onOpenCostDashboard}
+																className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+																title="Cost & tokens"
+																aria-label="Open cost dashboard"
+															>
+																<CircleDollarSign className="size-4" />
+															</button>
+														</div>
 														{githubIdentityState.status === "connected" ? (
 															<GithubStatusMenu
 																identityState={githubIdentityState}
@@ -2875,7 +2994,7 @@ function AppShell({
 																							selectedWorkspaceId,
 																						).catch((e) =>
 																							pushWorkspaceToast(
-																								String(e),
+																								errorMessage(e),
 																								"Failed to open Finder",
 																							),
 																						);
@@ -2902,7 +3021,7 @@ function AppShell({
 																								editor.id,
 																							).catch((e) =>
 																								pushWorkspaceToast(
-																									String(e),
+																									errorMessage(e),
 																									`Failed to open ${editor.name}`,
 																								),
 																							);

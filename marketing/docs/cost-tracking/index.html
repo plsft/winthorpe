@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Cost &amp; tokens — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Cost &amp; tokens</h1>
+				<p class="mt-3 text-sm text-ink-400">Per-turn ledger, plan tracking, accurate to invoice when on API.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">How it works</h2>
+			<p>Winthorpe runs a background scanner every 60 seconds that reads the JSONL session transcripts written by Claude Code (under <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.claude/projects/</code>) and Codex (<code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.codex/sessions/YYYY/MM/DD/</code>). For each session that hasn't been written to in 5+ minutes (the staleness heuristic for "session ended"), it sums the token usage and inserts one row into <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ai_sessions</code>.</p>
+			<p class="text-sm text-ink-400">The parser is a direct port of <a href="https://github.com/worktale" class="text-accent-400 hover:text-accent-300">worktale's verified hooks</a>. Schema mirrors worktale's <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ai_sessions</code> table exactly so a future export-to-worktale sync is a column-for-column copy.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">What gets tracked per turn</h2>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><strong class="text-ink-100">Tokens</strong>: input, output, cache-read, cache-write (Claude only)</li>
+				<li><strong class="text-ink-100">Cost</strong> in USD (per-token API rates)</li>
+				<li><strong class="text-ink-100">Provider + model</strong> exact id (e.g. <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">claude-sonnet-4-5-20250929</code>)</li>
+				<li><strong class="text-ink-100">Tools used</strong> (Bash, Edit, Read, Grep, Glob, mcp__github__*, …)</li>
+				<li><strong class="text-ink-100">MCP servers</strong> consulted</li>
+				<li><strong class="text-ink-100">Duration</strong> seconds</li>
+				<li><strong class="text-ink-100">Workspace + session attribution</strong> when known</li>
+				<li><strong class="text-ink-100">PR-create marker</strong> for PR-creation turns specifically</li>
+			</ul>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">"API-equivalent" — what that means</h2>
+			<p>The cost number is what each turn <em>would</em> cost on the metered Anthropic / OpenAI APIs. If you're on a Claude Pro / Max or ChatGPT Plus <strong>subscription</strong>, this is your <strong>value extracted</strong> — what you're getting for the flat plan. If you're on per-token API keys, this is your actual invoice.</p>
+			<p>The Cost dashboard labels this prominently: the column header is <strong class="text-ink-100">API cost</strong> and the footer says <em>"Costs are API-equivalent — what each turn would cost on the metered Anthropic / OpenAI APIs."</em></p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Plan usage panel</h2>
+			<p>For Claude Max and Pro, the Cost dashboard's Summary tab shows a <strong>Plan usage</strong> panel with three live bars from Anthropic's <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">oauth/usage</code> endpoint:</p>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><strong class="text-ink-100">5-hour window</strong> — main Max/Pro limit, with reset countdown</li>
+				<li><strong class="text-ink-100">7-day window</strong> — secondary limit, with reset countdown</li>
+				<li><strong class="text-ink-100">Opus 7-day sub-limit</strong> — separate quota for Opus</li>
+			</ul>
+			<p>Bars are emerald under 70%, amber under 90%, rose above. Pulled from the same OAuth-token Claude Code uses to talk to Anthropic — no separate API key needed.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Per-PR cost chip</h2>
+			<p>When a workspace has produced a PR-create turn, the Inspector header shows a small "Last PR $0.05" chip. The cost includes any retries within the same PR-create session.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">History</h2>
+			<p>The dashboard's <strong>History</strong> tab shows day-by-day cost bars for the last 30 days with activity. Sortable, comparable, no external chart lib — pure CSS.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Reset</h2>
+			<p>The trash-can button in the Cost dashboard header clears every <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ai_sessions</code> row and the transcript-processed state file. The actual transcripts on disk are <em>not</em> touched — so the next 60-second scan tick reconsiders everything still under <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.claude/projects/</code> and <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.codex/sessions/</code>. To start a true clean slate, also delete or move those source directories first.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Pricing tables</h2>
+			<p>Direct port of worktale's snapshot, kept in <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">src-tauri/src/models/pricing.rs</code>:</p>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><strong class="text-ink-100">Claude Opus 4.x</strong>: $15 input / $75 output / $1.50 cache-read / $18.75 cache-write per Mtok</li>
+				<li><strong class="text-ink-100">Claude Sonnet 4.x</strong>: $3 / $15 / $0.30 / $3.75</li>
+				<li><strong class="text-ink-100">Claude Haiku 4.5</strong>: $1 / $5 / $0.10 / $1.25</li>
+				<li><strong class="text-ink-100">OpenAI gpt-5 family</strong>: $15 / $60 / $7.50 (gpt-5); cheaper for mini/nano</li>
+				<li><strong class="text-ink-100">OpenAI o1 / o3 / o4 family</strong> + gpt-4.1 + gpt-4o full table</li>
+			</ul>
+			<p class="text-sm text-ink-400">Snapshot 2025-Q4. When Anthropic / OpenAI changes prices, update worktale's table first — these mirror it.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

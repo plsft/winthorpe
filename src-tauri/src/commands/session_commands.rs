@@ -43,6 +43,11 @@ pub async fn rename_session(session_id: String, title: String) -> CmdResult<()> 
 }
 
 #[tauri::command]
+pub async fn set_session_model(session_id: String, model_id: String) -> CmdResult<()> {
+    run_blocking(move || sessions::set_session_model(&session_id, &model_id)).await
+}
+
+#[tauri::command]
 pub async fn hide_session(session_id: String) -> CmdResult<()> {
     run_blocking(move || sessions::hide_session(&session_id)).await
 }

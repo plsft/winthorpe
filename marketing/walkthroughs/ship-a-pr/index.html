@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Ship a PR — Winthorpe walkthrough</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/walkthroughs/" class="text-xs text-ink-400 hover:text-ink-100">← Walkthroughs</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Ship a pull request</h1>
+				<p class="mt-3 text-sm text-ink-400">5 steps · edit → commit → push → PR</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-4xl space-y-12 px-6 py-12">
+
+			<!-- Step 1 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">1</span>
+					<h2 class="text-xl font-semibold text-ink-50">Open the file the agent edited</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">The Inspector → Changes panel shows live diffs. Click any file to open it in the Monaco tab next to your chat.</p>
+
+				<div class="mt-5 overflow-hidden rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="rounded-md border border-white/10 bg-ink-950">
+						<div class="flex h-7 items-center gap-px border-b border-white/10 bg-ink-900/40 px-2 text-[10px]">
+							<button class="flex items-center gap-1 rounded-t bg-ink-950 px-2.5 py-1 text-ink-50">
+								<span class="text-accent-400">✦</span> Chat
+							</button>
+							<button class="rounded-t bg-ink-950 px-2.5 py-1 text-ink-50">transforms.ts</button>
+							<button class="rounded-t px-2.5 py-1 text-ink-400">tests/transforms.test.ts</button>
+						</div>
+						<div class="bg-ink-950 p-3 font-mono text-[10px] leading-relaxed">
+							<div class="text-violet-300">export function <span class="text-sky-300">toSlug</span>(input: string): string {</div>
+							<div class="ml-3 text-ink-300">const tokens = <span class="text-sky-300">tokenize</span>(input);</div>
+							<div class="ml-3 text-ink-300">return tokens.<span class="text-sky-300">join</span>(<span class="text-emerald-300">"-"</span>)</div>
+							<div class="ml-6 text-ink-300">.<span class="text-sky-300">toLowerCase</span>()</div>
+							<div class="ml-6 text-ink-300">.<span class="text-sky-300">replace</span>(/-+/g, <span class="text-emerald-300">"-"</span>);</div>
+							<div class="text-violet-300">}</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Step 2 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">2</span>
+					<h2 class="text-xl font-semibold text-ink-50">Tighten one line, hit <kbd>Ctrl+S</kbd></h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Real Monaco — multi-cursor, find/replace, all of it. Save with Ctrl+S; toast confirms.</p>
+				<div class="mt-5 rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="inline-flex items-center gap-2 rounded-md border border-emerald-500/30 bg-ink-950 px-3 py-2 text-[11px]">
+						<span class="text-emerald-400">✓</span>
+						<span class="text-ink-100">Saved transforms.ts</span>
+					</div>
+				</div>
+			</section>
+
+			<!-- Step 3 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">3</span>
+					<h2 class="text-xl font-semibold text-ink-50">Commit + Push</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Inspector → Actions → <strong>Commit</strong>. The agent drafts a message from the diff. Tweak if you want, confirm. Then click <strong>Push</strong>.</p>
+
+				<div class="mt-5 rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="rounded-md border border-white/10 bg-ink-950 p-3 text-[11px]">
+						<div class="text-[10px] font-medium uppercase tracking-wider text-ink-400">Commit message</div>
+						<div class="mt-1 rounded border border-white/10 bg-ink-900 p-2 text-ink-200">
+							feat(transforms): add slug case<br>
+							<br>
+							Lowercases input, replaces non-alphanumerics with hyphens, and<br>
+							collapses repeated hyphens. Tests cover unicode and whitespace.
+						</div>
+						<div class="mt-2 flex justify-end gap-1.5">
+							<button class="rounded border border-white/10 px-2 py-1 text-ink-300">Edit</button>
+							<button class="rounded bg-accent-500 px-2 py-1 font-semibold text-ink-950">Commit &amp; Push</button>
+						</div>
+					</div>
+				</div>
+
+				<p class="mt-3 text-xs text-ink-500"><strong class="text-ink-300">Auto-recovery on Windows.</strong> The first push to a fresh GitHub remote often fails because Git Credential Manager has no cached creds. Winthorpe detects this specific failure pattern, runs <code class="rounded bg-white/5 px-1 text-[10px]">gh auth setup-git</code> to wire gh as the credential helper, and retries — invisibly. Push just works.</p>
+			</section>
+
+			<!-- Step 4 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">4</span>
+					<h2 class="text-xl font-semibold text-ink-50">Click <span class="rounded bg-white/5 px-1.5 py-0.5 text-sm">Create PR</span></h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">PR title and body are agent-drafted from the branch's diff against the base. Confirm. <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh pr create</code> runs under the hood.</p>
+				<div class="mt-5 rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="inline-flex items-center gap-2 rounded-md border border-violet-500/30 bg-ink-950 px-3 py-2 text-[11px]">
+						<span class="text-violet-400">✦</span>
+						<span class="text-ink-100">Opened</span>
+						<a class="text-violet-300">github.com/plsft/typey/pull/47</a>
+					</div>
+				</div>
+			</section>
+
+			<!-- Step 5 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">5</span>
+					<h2 class="text-xl font-semibold text-ink-50">Watch the per-PR cost</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">A small "Last PR $0.05" chip appears on the Inspector header. The cost is the sum of API-equivalent dollars for the PR-create turn (and any retries within the same session).</p>
+				<div class="mt-5 rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-300">
+						$ Last PR $0.05
+					</div>
+				</div>
+			</section>
+
+			<div class="border-t border-white/5 pt-8 text-center">
+				<a href="/walkthroughs/" class="inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-lg shadow-accent-500/30 hover:bg-accent-400">
+					← All walkthroughs
+				</a>
+			</div>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

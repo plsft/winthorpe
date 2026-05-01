@@ -729,14 +729,56 @@ fn launch_editor(
     }
     #[cfg(windows)]
     {
-        let _ = app_name; // unused on Windows — we always require an absolute path
-        let exe = app_path.ok_or_else(|| anyhow::anyhow!("Editor not found on disk"))?;
+        let exe = app_path.ok_or_else(|| {
+            tracing::warn!(
+                editor = %app_name,
+                dir = %dir.display(),
+                "Editor launch failed: app_path is None (resolve_single returned no install)"
+            );
+            anyhow::anyhow!(
+                "{app_name} not found on disk. \
+                Make sure it's installed in a standard location \
+                (e.g. %LOCALAPPDATA%\\Programs\\{app_name}, %ProgramFiles%\\{app_name}) \
+                or registered under HKLM/HKCU \\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths."
+            )
+        })?;
+
+        tracing::info!(
+            editor = %app_name,
+            exe = %exe,
+            dir = %dir.display(),
+            "Launching editor"
+        );
+
         let mut cmd = std::process::Command::new(exe);
         cmd.arg(dir);
+        // Set the spawned process's CWD to the workspace dir as well.
+        // Cursor / Code / Zed all open the dir passed as the first arg —
+        // CWD doesn't change what they open, but it makes "open recent"
+        // and any relative-path follow-up commands the user types into
+        // the editor's own terminal start in the right place.
+        cmd.current_dir(dir);
         crate::platform::process::hide_console_window(&mut cmd);
-        cmd.spawn()
-            .map(|_| ())
-            .with_context(|| format!("Failed to spawn {exe}"))
+        match cmd.spawn() {
+            Ok(child) => {
+                tracing::info!(
+                    editor = %app_name,
+                    pid = child.id(),
+                    "Editor launched"
+                );
+                Ok(())
+            }
+            Err(error) => {
+                tracing::error!(
+                    editor = %app_name,
+                    exe = %exe,
+                    dir = %dir.display(),
+                    error = %error,
+                    "Editor spawn failed"
+                );
+                Err(anyhow::Error::from(error)).with_context(|| format!("Failed to spawn {exe}"))
+            }
+        }
     }
     #[cfg(not(any(target_os = "macos", windows)))]
     {
@@ -792,8 +834,12 @@ pub async fn detect_installed_editors() -> CmdResult<Vec<DetectedEditor>> {
 #[tauri::command]
 pub async fn open_workspace_in_editor(workspace_id: String, editor: String) -> CmdResult<()> {
     run_blocking(move || {
-        let spec =
-            spec_by_id(&editor).ok_or_else(|| anyhow::anyhow!("Unsupported editor: {editor}"))?;
+        tracing::info!(workspace_id, editor, "Open-in-editor requested");
+
+        let spec = spec_by_id(&editor).ok_or_else(|| {
+            tracing::warn!(editor, "Unknown editor id");
+            anyhow::anyhow!("Unsupported editor: {editor}")
+        })?;
 
         let record = workspace_models::load_workspace_record_by_id(&workspace_id)?
             .with_context(|| format!("Workspace not found: {workspace_id}"))?;
@@ -801,6 +847,11 @@ pub async fn open_workspace_in_editor(workspace_id: String, editor: String) -> C
         let workspace_dir =
             crate::data_dir::workspace_dir(&record.repo_name, &record.directory_name)?;
         if !workspace_dir.is_dir() {
+            tracing::warn!(
+                workspace_id,
+                workspace_dir = %workspace_dir.display(),
+                "Workspace directory missing on disk"
+            );
             return Err(anyhow::anyhow!(
                 "Workspace directory not found: {}",
                 workspace_dir.display()
@@ -810,8 +861,24 @@ pub async fn open_workspace_in_editor(workspace_id: String, editor: String) -> C
         // Prefer the absolute app path (bypasses Launch Services name resolution,
         // which trips on renamed bundles and ambiguous names).
         let resolved = resolve_single(spec);
-        launch_with_open(resolved.as_deref(), spec.name, &workspace_dir)
-            .with_context(|| format!("Failed to open {}", spec.name))
+        tracing::debug!(
+            editor = spec.name,
+            resolved = ?resolved,
+            workspace_dir = %workspace_dir.display(),
+            "Resolved editor path"
+        );
+
+        let result = launch_with_open(resolved.as_deref(), spec.name, &workspace_dir)
+            .with_context(|| format!("Failed to open {}", spec.name));
+
+        if let Err(error) = &result {
+            tracing::error!(
+                editor = spec.name,
+                error = %format!("{error:#}"),
+                "Open-in-editor failed"
+            );
+        }
+        result
     })
     .await
 }

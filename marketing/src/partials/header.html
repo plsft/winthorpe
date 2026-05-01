@@ -27,9 +27,9 @@
 			<ul class="flex items-center gap-1 text-sm">
 				<template x-for="link in [
 					{ href: '/features/', label: 'Features' },
-					{ href: '/how-to-use/', label: 'How to use' },
+					{ href: '/walkthroughs/', label: 'Walkthroughs' },
+					{ href: '/docs/', label: 'Docs' },
 					{ href: '/download/', label: 'Download' },
-					{ href: '/contact/', label: 'Contact' },
 				]">
 					<li>
 						<a
@@ -77,6 +77,8 @@
 	<div x-show="open" x-cloak x-transition.opacity class="border-t border-white/5 md:hidden">
 		<nav class="space-y-1 px-6 py-4 text-sm">
 			<a href="/features/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Features</a>
+			<a href="/walkthroughs/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Walkthroughs</a>
+			<a href="/docs/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Docs</a>
 			<a href="/how-to-use/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">How to use</a>
 			<a href="/download/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Download</a>
 			<a href="/contact/" @click="close" class="block rounded-md px-3 py-2 text-ink-200 hover:bg-white/5">Contact</a>

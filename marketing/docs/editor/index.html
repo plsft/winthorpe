@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Built-in editor — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Built-in editor</h1>
+				<p class="mt-3 text-sm text-ink-400">Multi-tab Monaco — same engine that powers VS Code.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">Capabilities</h2>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li>Full syntax highlighting for every language Monaco supports (every language VS Code highlights, it does too).</li>
+				<li>Multi-cursor, find/replace (Ctrl+F), bracket matching, IntelliSense for JSON/CSS/HTML/TS.</li>
+				<li>Multi-tab. Drag tabs to reorder. <kbd>Ctrl+W</kbd> closes the active tab.</li>
+				<li>Tab state persists per workspace — close the workspace, reopen it, the same files are open.</li>
+				<li>The pinned <strong class="text-ink-100">Chat</strong> tab is always leftmost so you can flip between editor and conversation in one click.</li>
+				<li>Click any file in the file tree to open it. Single click — not double.</li>
+			</ul>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Saving</h2>
+			<p><kbd>Ctrl+S</kbd> writes the active tab's contents to disk and shows a <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">Saved &lt;filename&gt;</code> toast. Works from any focus — the chat composer, the inspector, the title bar — because the keybind is at the App level. The <strong>File → Save</strong> menu entry dispatches the same Ctrl+S event.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Theme</h2>
+			<p>Defaults to <strong class="text-ink-100">Tokyo Night</strong> dark (Folke Lemaitre's port). Switch via <strong>Settings → Theme</strong> (system / light / dark). Monaco's theme follows the app theme automatically — no separate editor-theme picker.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">File tree</h2>
+			<p>Left side of the editor view. Right-click any file or folder for: <strong>New File</strong>, <strong>New Folder</strong>, <strong>Rename</strong>, <strong>Delete</strong>. <kbd>F2</kbd> renames, <kbd>Del</kbd> deletes from the keyboard. The tree updates live via the FS watcher — agent edits appear without a refresh.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Performance</h2>
+			<p>Monaco loads lazily on first file open (~150 ms). Language workers (TS, JSON, CSS, HTML) are pre-warmed at idle so the first <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">.ts</code> open doesn't stall. xterm panels stagger their mount across animation frames so a workspace with multiple terminals doesn't block the main thread.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">What it isn't</h2>
+			<p>Not an AI-completion IDE. The editor doesn't do inline ghost-text completion the way Cursor does. Edit the agent's output directly during review — that's the design intent.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Parallel agents — Winthorpe walkthrough</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/walkthroughs/" class="text-xs text-ink-400 hover:text-ink-100">← Walkthroughs</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Run two agents in parallel</h1>
+				<p class="mt-3 text-sm text-ink-400">4 steps · the headline differentiator</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-4xl space-y-12 px-6 py-12">
+
+			<!-- Step 1 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">1</span>
+					<h2 class="text-xl font-semibold text-ink-50">Have one workspace going</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Workspace <em>aldebaran</em> is running Claude Sonnet 4.5 on a feature branch. Reasoning is streaming. Don't wait for it to finish.</p>
+				<div class="mt-5 rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="rounded-md border border-white/10 bg-ink-950 p-3 text-[11px] text-ink-300">
+						<div>
+							<span class="text-ink-400 text-[10px] uppercase tracking-wider">In progress</span>
+							<div class="mt-1 rounded bg-accent-500/10 px-2 py-1 text-ink-50">
+								<div class="font-medium">aldebaran</div>
+								<div class="text-[10px] text-ink-400">claude-sonnet-4-5 · feat/aldebaran</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Step 2 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">2</span>
+					<h2 class="text-xl font-semibold text-ink-50">Click <span class="rounded bg-white/5 px-1.5 py-0.5 text-sm">+ New Workspace</span> again</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">A second workspace, <em>vega</em>, spins up in &lt;1 s. New worktree on disk, new branch, fully isolated from <em>aldebaran</em>'s branch.</p>
+			</section>
+
+			<!-- Step 3 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">3</span>
+					<h2 class="text-xl font-semibold text-ink-50">Pick Codex this time</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Open vega's model picker, switch from default to <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gpt-5</code>. Send a different task — say, "Add bash completions for typey." The two agents now run side by side.</p>
+				<div class="mt-5 rounded-xl border border-white/10 bg-ink-900/40 p-4">
+					<div class="rounded-md border border-white/10 bg-ink-950 p-3">
+						<div class="text-[10px] font-medium uppercase tracking-wider text-ink-400 px-2">In progress</div>
+						<div class="mt-1 space-y-1 text-[11px]">
+							<div class="rounded bg-white/5 px-2 py-1.5 text-ink-300">
+								<div class="flex items-center gap-2">
+									<span class="text-accent-400">▶</span>
+									<span class="font-medium text-ink-50">aldebaran</span>
+									<span class="ml-auto rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] text-emerald-300">Streaming</span>
+								</div>
+								<div class="ml-5 text-[10px] text-ink-500">claude-sonnet-4-5 · feat/aldebaran</div>
+							</div>
+							<div class="rounded bg-accent-500/10 px-2 py-1.5">
+								<div class="flex items-center gap-2">
+									<span class="text-accent-400">▶</span>
+									<span class="font-medium text-ink-50">vega</span>
+									<span class="ml-auto rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] text-emerald-300">Streaming</span>
+								</div>
+								<div class="ml-5 text-[10px] text-ink-500">gpt-5 · feat/vega</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Step 4 -->
+			<section>
+				<div class="flex items-center gap-3">
+					<span class="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500/15 text-sm font-semibold text-accent-400">4</span>
+					<h2 class="text-xl font-semibold text-ink-50">Switch between them with the sidebar</h2>
+				</div>
+				<p class="mt-3 text-sm text-ink-300">Click <em>aldebaran</em> to read its progress. Click <em>vega</em> to check on Codex. Both keep streaming in the background. Neither knows about the other. When either finishes, the workspace status updates.</p>
+				<p class="mt-3 text-xs text-ink-500"><strong class="text-ink-300">Why this works.</strong> Each workspace's session, agent process, and worktree are fully independent. Win32 Job Objects keep the agent CLIs scoped — close the app, both die cleanly. No crossover, no shared state.</p>
+			</section>
+
+			<div class="border-t border-white/5 pt-8 text-center">
+				<a href="/walkthroughs/cost-dashboard/" class="inline-flex items-center gap-2 rounded-md bg-accent-500 px-5 py-3 text-sm font-semibold text-ink-950 shadow-lg shadow-accent-500/30 hover:bg-accent-400">
+					Next: Cost &amp; tokens →
+				</a>
+			</div>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

@@ -543,10 +543,46 @@ CREATE TABLE IF NOT EXISTS session_messages (
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Per-turn token + cost ledger. Schema mirrors worktale's `ai_sessions`
+-- (https://github.com/worktale) so a future export-to-worktale sync is a
+-- straight copy. Every row is one agent turn (one prompt → one final
+-- response). Aggregations for "cost per session" / "cost per workspace"
+-- happen at read time via SUM() — small enough for SQLite.
+CREATE TABLE IF NOT EXISTS ai_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    workspace_id TEXT,
+    session_id TEXT,
+    repo_id TEXT,
+    -- ISO date (YYYY-MM-DD) for date-bucketed reads.
+    date TEXT NOT NULL,
+    provider TEXT,         -- "claude" | "codex" | other
+    model TEXT,            -- specific model id (e.g. "claude-sonnet-4-5")
+    tool TEXT,             -- "winthorpe" | "claude-code" | "codex" | ...
+    cost_usd REAL DEFAULT 0,
+    input_tokens INTEGER DEFAULT 0,
+    output_tokens INTEGER DEFAULT 0,
+    cache_read_tokens INTEGER DEFAULT 0,
+    cache_write_tokens INTEGER DEFAULT 0,
+    tools_used TEXT,       -- JSON array of tool names invoked this turn
+    mcp_servers TEXT,      -- JSON array of MCP servers consulted
+    duration_secs INTEGER DEFAULT 0,
+    -- JSON array of commit SHAs this turn produced (for "cost per PR")
+    commits TEXT,
+    -- True when this turn's purpose was the PR-create flow — used by the
+    -- UI to surface "Create PR cost" separately and so we can later route
+    -- these turns to the cheapest model.
+    is_pr_create INTEGER DEFAULT 0,
+    note TEXT,
+    timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_session_messages_sent_at ON session_messages(session_id, sent_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_workspace_id ON sessions(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_workspaces_repository_id ON workspaces(repository_id);
+CREATE INDEX IF NOT EXISTS idx_ai_sessions_workspace_id ON ai_sessions(workspace_id);
+CREATE INDEX IF NOT EXISTS idx_ai_sessions_session_id ON ai_sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_ai_sessions_date ON ai_sessions(date);
 
 -- Triggers (use CREATE TRIGGER IF NOT EXISTS where supported, otherwise wrapped)
 CREATE TRIGGER IF NOT EXISTS update_repos_updated_at

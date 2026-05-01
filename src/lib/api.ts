@@ -2524,6 +2524,18 @@ export async function getClaudeRateLimits(): Promise<string | null> {
 	return await invoke<string | null>("get_claude_rate_limits");
 }
 
+export type ClaudePlanSummary = {
+	subscriptionType: string;
+	rateLimitTier: string;
+	accessTokenValid: boolean;
+};
+
+/** Plan tier read from the local Claude credentials store — no network
+ *  call. Returns null when the user hasn't signed in to Claude Code yet. */
+export async function getClaudePlanSummary(): Promise<ClaudePlanSummary | null> {
+	return await invoke<ClaudePlanSummary | null>("get_claude_plan_summary");
+}
+
 /** Live Claude-only context-usage fetch for the hover popover. Pure
  *  passthrough to the sidecar — no DB read. `model` is required because
  *  the sidecar stamps it into the returned rich meta (used for the
@@ -2797,6 +2809,157 @@ export async function resizeTerminal(
 }
 
 export { DEFAULT_WORKSPACE_GROUPS };
+
+// ---- Session model persistence -------------------------------------------
+
+/**
+ * Persist the user's model selection to the session record so the choice
+ * survives reloads and workspace switches. Without this, the in-memory
+ * `composerModelSelections` map is the only record and resets on remount,
+ * which is what made Sonnet revert to Opus on next open.
+ */
+export async function setSessionModel(
+	sessionId: string,
+	modelId: string,
+): Promise<void> {
+	return invoke<void>("set_session_model", { sessionId, modelId });
+}
+
+// ---- Activity Log ---------------------------------------------------------
+
+export type LogLevel = "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR";
+
+export type LogEvent = {
+	seq: number;
+	timestampMs: number;
+	level: LogLevel;
+	target: string;
+	message: string;
+	fields: string;
+};
+
+export type LogPage = {
+	events: LogEvent[];
+	nextSince: number;
+	hasMore: boolean;
+};
+
+export async function getLogEvents(
+	since: number,
+	limit: number,
+): Promise<LogPage> {
+	return invoke<LogPage>("get_log_events", { since, limit });
+}
+
+export async function clearLogEvents(): Promise<void> {
+	return invoke<void>("clear_log_events");
+}
+
+// ---- AI sessions (token + cost ledger) -----------------------------------
+// Schema mirrors worktale's `ai_sessions`. Each row is one agent turn.
+
+export type AiSession = {
+	id: number;
+	workspaceId: string | null;
+	sessionId: string | null;
+	repoId: string | null;
+	date: string;
+	provider: string | null;
+	model: string | null;
+	tool: string | null;
+	costUsd: number;
+	inputTokens: number;
+	outputTokens: number;
+	cacheReadTokens: number;
+	cacheWriteTokens: number;
+	toolsUsed: string | null;
+	mcpServers: string | null;
+	durationSecs: number;
+	commits: string | null;
+	isPrCreate: boolean;
+	note: string | null;
+	timestamp: string;
+};
+
+export type AiSessionInsert = {
+	workspaceId?: string | null;
+	sessionId?: string | null;
+	repoId?: string | null;
+	provider?: string | null;
+	model?: string | null;
+	tool?: string | null;
+	costUsd?: number | null;
+	inputTokens?: number | null;
+	outputTokens?: number | null;
+	cacheReadTokens?: number | null;
+	cacheWriteTokens?: number | null;
+	toolsUsed?: string[] | null;
+	mcpServers?: string[] | null;
+	durationSecs?: number | null;
+	commits?: string[] | null;
+	isPrCreate?: boolean | null;
+	note?: string | null;
+};
+
+export type ProviderCost = {
+	provider: string;
+	costUsd: number;
+	turns: number;
+};
+
+export type AiSessionStats = {
+	totalTurns: number;
+	totalCostUsd: number;
+	totalInputTokens: number;
+	totalOutputTokens: number;
+	totalCacheReadTokens: number;
+	totalCacheWriteTokens: number;
+	totalDurationSecs: number;
+	costByProvider: ProviderCost[];
+};
+
+export async function recordAiSession(
+	record: AiSessionInsert,
+): Promise<number> {
+	return invoke<number>("record_ai_session", { record });
+}
+
+export async function listAiSessionsForWorkspace(
+	workspaceId: string,
+	limit?: number,
+): Promise<AiSession[]> {
+	return invoke<AiSession[]>("list_ai_sessions_for_workspace", {
+		workspaceId,
+		limit: limit ?? null,
+	});
+}
+
+export async function listRecentAiSessions(
+	limit?: number,
+): Promise<AiSession[]> {
+	return invoke<AiSession[]>("list_recent_ai_sessions", {
+		limit: limit ?? null,
+	});
+}
+
+export async function getAiSessionStats(): Promise<AiSessionStats> {
+	return invoke<AiSessionStats>("get_ai_session_stats");
+}
+
+export async function getLastPrCostForWorkspace(
+	workspaceId: string,
+): Promise<number> {
+	return invoke<number>("get_last_pr_cost_for_workspace", { workspaceId });
+}
+
+/**
+ * Wipe every row in the ai_sessions ledger AND clear the transcript-
+ * processed state file so the next 60 s scan tick reconsiders everything
+ * still on disk. Returns the number of rows deleted.
+ */
+export async function resetAiSessionLedger(): Promise<number> {
+	return invoke<number>("reset_ai_session_ledger");
+}
 
 function describeInvokeError(error: unknown, fallback: string): string {
 	return extractError(error, fallback).message;

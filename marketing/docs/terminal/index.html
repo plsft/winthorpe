@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Terminal &amp; PTY — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Terminal &amp; PTY</h1>
+				<p class="mt-3 text-sm text-ink-400">Real ConPTY, real Job Objects, no WSL.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">Inspector → Terminal tab</h2>
+			<p>Click the Terminal tab in the Inspector to get an xterm-style terminal panel. Type any command — it runs in a real PTY, not a fake interactive shell. <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">vim</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">htop</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ssh</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">tmux</code>, the bundled <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">claude</code> or <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">codex</code> CLIs — all work because the terminal speaks ConPTY.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Hover-zoom</h2>
+			<p>Hover the terminal panel and it expands to roughly twice its docked size, anchored to the bottom-right of the inspector. Useful for reading long output (test runs, build errors) without losing the rest of the layout. The zoomed panel is clamped to never overlap the title bar.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Process supervision</h2>
+			<p>Every spawned process — sidecar, agent CLI, terminal child shell — is attached to a Win32 Job Object with <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE</code>. Close Winthorpe and every descendant goes with it. No orphaned <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">claude.exe</code> hoarding a CPU thread an hour later.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Scrollback</h2>
+			<p>5,000 lines per terminal. Mod+K (or Ctrl+K) clears the screen and scrollback together. Multiple terminal panels mount with a per-frame stagger queue so a workspace with several terminals doesn't block the main thread.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Onboarding terminals</h2>
+			<p>The same PTY layer powers the embedded terminals during onboarding (<code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh auth login</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">claude /login</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">codex login</code>). Real input, real output, real auth.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

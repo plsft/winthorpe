@@ -1,7 +1,10 @@
+pub mod ai_sessions;
 pub mod db;
+pub mod pricing;
 pub mod repos;
 pub mod sessions;
 pub mod settings;
+pub mod transcripts;
 pub mod workspaces;
 
 // Keep the models namespace focused on persistence-facing code. Workflow and

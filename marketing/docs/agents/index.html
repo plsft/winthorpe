@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Agents &amp; sessions — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Agents &amp; sessions</h1>
+				<p class="mt-3 text-sm text-ink-400">Claude Code and Codex, side by side.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">Bundled agents</h2>
+			<p>Winthorpe ships with both <strong class="text-ink-100">Claude Code</strong> (Anthropic) and <strong class="text-ink-100">Codex</strong> (OpenAI) CLIs included. No separate install. The Bun sidecar hosts both via their respective SDKs.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Sign-in</h2>
+			<p>Onboarding includes a step that runs the appropriate <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">claude /login</code> or <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">codex login</code> command in an embedded PTY. You do the OAuth in your browser, the CLI writes its own credentials to <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.claude/.credentials.json</code> or <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">~/.codex/auth.json</code>. Winthorpe reads these files for plan info but never re-stores or re-issues your tokens.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Model selection</h2>
+			<p>The composer's model picker shows every model the bundled CLIs report as available, grouped by provider. Picking a model writes the selection to the session row in SQLite — so reopening the workspace, restarting the app, or switching workspaces and back, all preserve the choice. (This was a real bug we fixed: in earlier builds the picker was in-memory only and reset to Opus 4.7 on reload.)</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Switching agents per workspace</h2>
+			<p>Each workspace has its own session and its own model. You can run Claude Sonnet in workspace <em>aldebaran</em> and Codex gpt-5 in workspace <em>vega</em> at the same time — each session is fully isolated, both processes are tracked in their own Win32 Job Object so a kill or app close reaps them cleanly.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Skills (Anthropic Agent Skills)</h2>
+			<p>Drop a directory under <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">.claude/skills/&lt;name&gt;/</code> with a <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">SKILL.md</code> at its root and Claude Code picks it up. Scripts can be in any language — TS, Python, bash. The skill's frontmatter description tells Claude when to use it.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Sessions persist forever (until you delete them)</h2>
+			<p>Every chat is stored in SQLite at <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Winthorpe\winthorpe.db</code>. Archiving a workspace doesn't delete its sessions — the transcript is still there if you ever restore the workspace.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

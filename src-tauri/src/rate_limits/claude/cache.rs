@@ -81,6 +81,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: Some(now + 3_600_000),
             scopes: vec!["user:profile".to_string()],
+            ..Default::default()
         }
     }
 
@@ -108,6 +109,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: Some(now + 30_000),
             scopes: vec!["user:profile".to_string()],
+            ..Default::default()
         };
         cache.store(&creds);
         assert!(cache.get(now).is_none(), "should miss inside safety buffer");
@@ -121,6 +123,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: Some(now - 1),
             scopes: vec!["user:profile".to_string()],
+            ..Default::default()
         };
         cache.store(&creds);
         assert!(cache.get(now).is_none());
@@ -134,6 +137,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: Some(now + 3_600_000),
             scopes: Vec::new(),
+            ..Default::default()
         };
         cache.store(&creds);
         assert!(cache.get(now).is_none());
@@ -175,6 +179,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: Some(now + CACHE_EXPIRY_BUFFER_MS),
             scopes: vec!["user:profile".to_string()],
+            ..Default::default()
         };
         cache.store(&creds);
         // is_expired is `<=`, so the boundary value counts as expired.

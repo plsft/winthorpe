@@ -22,7 +22,7 @@ import {
 	stopForgeCliAuthTerminal,
 	writeForgeCliAuthTerminalStdin,
 } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 import { OnboardingTerminalPreview } from "../components/login-terminal-preview";
 import { SetupItem } from "../components/setup-item";
 import type { OnboardingStep } from "../types";
@@ -111,7 +111,7 @@ export function RepositoryCliStep({
 							provider,
 							host,
 							cliName: provider === "gitlab" ? "glab" : "gh",
-							message: error instanceof Error ? error.message : String(error),
+							message: errorMessage(error),
 						},
 						checking: false,
 					});
@@ -242,8 +242,8 @@ export function RepositoryCliStep({
 					Set up repository CLIs
 				</h2>
 				<p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
-					Install and authenticate your GitHub or GitLab CLI so Winthorpe can open
-					pull requests and keep repository actions local.
+					Install and authenticate your GitHub or GitLab CLI so Winthorpe can
+					open pull requests and keep repository actions local.
 				</p>
 
 				<div className="mt-7 grid w-full gap-3">

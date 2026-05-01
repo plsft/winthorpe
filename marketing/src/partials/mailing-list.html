@@ -1,0 +1,81 @@
+<!--
+  Mailing list signup. Drops in anywhere — sized to fit footer or a hero
+  band. POSTs to forms.noundry.com via fetch and stays on-page (no redirect).
+
+  Wrapper attribute `data-style="inline"` on the parent renders the form
+  on a single line; `data-style="block"` stacks. Default = inline.
+-->
+<div
+	x-data="{
+		email: '',
+		state: 'idle',
+		message: '',
+		async submit() {
+			if (this.state === 'submitting') return;
+			const trimmed = this.email.trim();
+			if (!trimmed || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmed)) {
+				this.state = 'error';
+				this.message = 'Enter a valid email address.';
+				return;
+			}
+			this.state = 'submitting';
+			this.message = '';
+			try {
+				const body = new FormData();
+				body.append('email', trimmed);
+				body.append('source', 'winthorpe-marketing');
+				const res = await fetch('https://forms.noundry.com/f/winthorpe', {
+					method: 'POST',
+					body,
+				});
+				if (!res.ok) throw new Error('HTTP ' + res.status);
+				this.state = 'success';
+				this.message = 'You\'re on the list. Watch for the next release notes.';
+				this.email = '';
+			} catch (err) {
+				this.state = 'error';
+				this.message = 'Couldn\'t submit — try again or email hello@pluralsoftware.com.';
+			}
+		},
+	}"
+	class="w-full"
+>
+	<form
+		@submit.prevent="submit"
+		class="flex flex-col gap-2 sm:flex-row sm:items-stretch"
+	>
+		<input
+			type="email"
+			x-model="email"
+			placeholder="you@example.com"
+			required
+			autocomplete="email"
+			:disabled="state === 'submitting' || state === 'success'"
+			class="min-w-0 flex-1 rounded-md border border-white/10 bg-ink-950/60 px-3 py-2 text-sm text-ink-50 placeholder-ink-500 outline-none transition-colors focus:border-accent-400 disabled:opacity-60"
+		/>
+		<button
+			type="submit"
+			:disabled="state === 'submitting' || state === 'success'"
+			class="inline-flex items-center justify-center gap-2 rounded-md bg-accent-500 px-4 py-2 text-sm font-semibold text-ink-950 transition-all hover:bg-accent-400 disabled:opacity-60"
+		>
+			<span x-show="state !== 'submitting' && state !== 'success'">
+				Notify me
+			</span>
+			<span x-show="state === 'submitting'" x-cloak>Subscribing…</span>
+			<span x-show="state === 'success'" x-cloak>✓ Subscribed</span>
+		</button>
+	</form>
+	<p
+		x-show="message"
+		x-cloak
+		x-transition.opacity
+		:class="state === 'success'
+			? 'text-emerald-300'
+			: 'text-rose-300'"
+		class="mt-2 text-xs"
+		x-text="message"
+	></p>
+	<p class="mt-2 text-[11px] text-ink-500">
+		Release notes only. No spam, no marketing. Unsubscribe in one click.
+	</p>
+</div>

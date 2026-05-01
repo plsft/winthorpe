@@ -19,7 +19,7 @@ import {
 	showImageInFinder,
 	type TodoListPart,
 } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 
 export function TodoList({ part }: { part: TodoListPart }) {
 	if (part.items.length === 0) {
@@ -233,7 +233,7 @@ async function copyImage(part: ImagePart) {
 		await copyImageBlobToClipboard(await imageBlob(part));
 		toast.success("Image copied");
 	} catch (error) {
-		toast.error("Copy failed", { description: String(error) });
+		toast.error("Copy failed", { description: errorMessage(error) });
 	}
 }
 
@@ -242,7 +242,7 @@ async function showInFinder(path: string) {
 		await showImageInFinder(path);
 	} catch (error) {
 		toast.error("Unable to show image in Finder", {
-			description: String(error),
+			description: errorMessage(error),
 		});
 	}
 }

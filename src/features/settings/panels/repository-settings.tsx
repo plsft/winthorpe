@@ -45,7 +45,7 @@ import {
 	updateRepositoryRemote,
 } from "@/lib/api";
 import { useSettings } from "@/lib/settings";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 import { SettingsGroup } from "../components/settings-row";
 import { parseRemoteHost } from "./cli-install-gitlab-hosts";
 import { RepositoryPreferencesSection } from "./repository-preferences-section";
@@ -92,7 +92,7 @@ export function RepositorySettingsPanel({
 			void updateRepositoryDefaultBranch(repo.id, branch).then(
 				onRepoSettingsChanged,
 				(err: unknown) => {
-					setError(err instanceof Error ? err.message : String(err));
+					setError(errorMessage(err));
 					onRepoSettingsChanged();
 				},
 			);
@@ -128,7 +128,7 @@ export function RepositorySettingsPanel({
 					onRepoSettingsChanged();
 				},
 				(err: unknown) => {
-					setRemoteError(err instanceof Error ? err.message : String(err));
+					setRemoteError(errorMessage(err));
 					onRepoSettingsChanged();
 				},
 			);
@@ -610,7 +610,7 @@ function DeleteRepoSection({
 			setConfirmOpen(false);
 			onDeleted();
 		} catch (e) {
-			setError(e instanceof Error ? e.message : String(e));
+			setError(errorMessage(e));
 			setDeleting(false);
 		}
 	}, [repo.id, onDeleted]);

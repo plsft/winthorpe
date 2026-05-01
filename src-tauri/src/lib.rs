@@ -9,6 +9,7 @@ pub mod global_hotkey;
 pub mod image_store;
 mod import;
 pub mod logging;
+pub mod logging_buffer;
 pub mod mcp;
 pub mod models;
 pub mod pipeline;
@@ -103,6 +104,37 @@ pub fn run() {
                 data = %db_path.display(),
                 "Winthorpe started"
             );
+
+            // Background scanner — every 60 s scan ~/.claude/projects and
+            // ~/.codex/sessions for stale (5 min+) JSONL transcripts and
+            // record one ai_sessions row per finished session. Direct port
+            // of worktale's hooks. First scan runs after a 30 s delay so
+            // we don't compete with workspace startup for the SQLite
+            // write pool. Plain `std::thread` rather than tokio because
+            // `tokio` isn't a direct dep of this crate (only reachable
+            // transitively via tauri).
+            std::thread::spawn(|| {
+                std::thread::sleep(std::time::Duration::from_secs(30));
+                loop {
+                    match models::transcripts::scan_and_record_all() {
+                        Ok(recorded) if recorded > 0 => {
+                            tracing::info!(
+                                recorded,
+                                "transcripts: recorded {} new sessions",
+                                recorded
+                            );
+                        }
+                        Ok(_) => {}
+                        Err(error) => {
+                            tracing::warn!(
+                                error = %error,
+                                "transcripts scan failed"
+                            );
+                        }
+                    }
+                    std::thread::sleep(std::time::Duration::from_secs(60));
+                }
+            });
 
             // Windows: register URL schemes (winthorpe://, winthorpe-dev://)
             // under HKCU so the OS routes deep links to us. Per-user, no
@@ -211,6 +243,7 @@ pub fn run() {
             commands::repository_commands::get_add_repository_defaults,
             commands::settings_commands::get_app_settings,
             commands::settings_commands::get_claude_rate_limits,
+            commands::settings_commands::get_claude_plan_summary,
             commands::settings_commands::get_codex_rate_limits,
             commands::system_commands::get_cli_status,
             commands::system_commands::get_data_info,
@@ -228,6 +261,14 @@ pub fn run() {
             commands::github_commands::get_github_cli_status,
             commands::github_commands::get_github_cli_user,
             commands::github_commands::get_github_identity_session,
+            commands::log_commands::get_log_events,
+            commands::log_commands::clear_log_events,
+            commands::ai_session_commands::record_ai_session,
+            commands::ai_session_commands::list_ai_sessions_for_workspace,
+            commands::ai_session_commands::list_recent_ai_sessions,
+            commands::ai_session_commands::get_ai_session_stats,
+            commands::ai_session_commands::get_last_pr_cost_for_workspace,
+            commands::ai_session_commands::reset_ai_session_ledger,
             commands::forge_commands::get_workspace_forge,
             commands::forge_commands::get_forge_cli_status,
             commands::forge_commands::open_forge_cli_auth_terminal,
@@ -269,6 +310,7 @@ pub fn run() {
             commands::session_commands::list_workspace_sessions,
             commands::session_commands::create_session,
             commands::session_commands::rename_session,
+            commands::session_commands::set_session_model,
             commands::session_commands::hide_session,
             commands::session_commands::unhide_session,
             commands::session_commands::delete_session,

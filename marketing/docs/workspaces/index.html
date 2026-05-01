@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Workspaces &amp; worktrees — Winthorpe Docs</title>
+		<meta name="description" content="How Winthorpe organizes work into git-worktree workspaces under conductor repos." />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Workspaces &amp; worktrees</h1>
+				<p class="mt-3 text-sm text-ink-400">Conductor / workspace / worktree model.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">The model</h2>
+			<p>A <strong class="text-ink-100">Conductor</strong> is one of your git repos that Winthorpe knows about. A <strong class="text-ink-100">workspace</strong> under a conductor is a real <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">git worktree add</code> — its own working directory, on its own branch, independent of any other workspace under the same conductor.</p>
+			<p>This means you can have three Claude or Codex sessions running simultaneously against the same repo, each in its own branch and folder, and switching between them is a sidebar click. No <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">git stash</code>, no "let me commit my WIP first."</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Workspace names</h2>
+			<p>Names are auto-generated from a curated list of stars, moons, and constellations (achernar, aldebaran, andromeda, betelgeuse, vega, ursamajor…). Each name is unique per conductor and stable for the workspace's lifetime. The branch is <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">&lt;branch-prefix&gt;/&lt;name&gt;</code> by default.</p>
+			<p class="text-sm text-ink-400">Why random celestial names: memorable, collision-free, doesn't leak intent (you can spin up a workspace before you've decided what it's for). The full list lives in <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">src-tauri/src/workspace/helpers.rs::WORKSPACE_NAMES</code>.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Status groups</h2>
+			<p>Sidebar groups workspaces by status:</p>
+			<ul class="space-y-1.5 pl-5 [&>li]:list-disc [&>li]:marker:text-accent-400">
+				<li><strong class="text-ink-100">In progress</strong> — the active default. Newly-created workspaces land here.</li>
+				<li><strong class="text-ink-100">In review</strong> — when a PR is open against it.</li>
+				<li><strong class="text-ink-100">Done</strong> — PR merged.</li>
+				<li><strong class="text-ink-100">Backlog</strong> — paused work.</li>
+				<li><strong class="text-ink-100">Archived</strong> — worktree removed; chat transcript preserved for reference.</li>
+			</ul>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Archive</h2>
+			<p>Archive a workspace and Winthorpe atomically: stops the FS watcher for that workspace, kills any open PTY scripts tagged with it, removes the worktree, deletes the local branch, moves the workspace to <strong>Done</strong>. Chat transcripts and session metadata stay in the local SQLite for reference. The on-disk workspace folder is renamed to <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">.trash-&lt;name&gt;-&lt;pid&gt;</code> first (instant), then deleted in the background — so the UI returns immediately even on huge repos.</p>
+			<p class="text-sm text-ink-400">Windows-specific: <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">fs::rename</code> can fail if any process holds a handle inside the dir (Defender, an open editor, the FS watcher). Winthorpe retries with backoff (50ms → 1.5s) and surfaces the actual OS error if every attempt fails.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Where workspaces live on disk</h2>
+			<p>Worktrees are created under <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">%LOCALAPPDATA%\Winthorpe\workspaces\&lt;repo&gt;\&lt;workspace-name&gt;\</code>. The conductor's main checkout stays wherever you imported it from — Winthorpe doesn't move your existing repo.</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>

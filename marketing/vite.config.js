@@ -23,14 +23,26 @@ function partialsPlugin() {
 		transformIndexHtml: {
 			order: "pre",
 			handler(html) {
-				return html.replace(/<%\s*([\w./-]+)\s*%>/g, (match, name) => {
-					const file = name.endsWith(".html") ? name : `${name}.html`;
-					const full = resolve(partialsDir, file);
-					if (existsSync(full)) {
-						return readFileSync(full, "utf-8");
-					}
-					return match;
-				});
+				// Loop until no substitutions happen, so partials that include
+				// other partials (e.g. `<% footer %>` containing `<% mailing-list %>`)
+				// resolve completely. Hard cap prevents infinite loops on
+				// accidental circular references.
+				const MAX_PASSES = 10;
+				let result = html;
+				for (let pass = 0; pass < MAX_PASSES; pass++) {
+					let substituted = false;
+					result = result.replace(/<%\s*([\w./-]+)\s*%>/g, (match, name) => {
+						const file = name.endsWith(".html") ? name : `${name}.html`;
+						const full = resolve(partialsDir, file);
+						if (existsSync(full)) {
+							substituted = true;
+							return readFileSync(full, "utf-8");
+						}
+						return match;
+					});
+					if (!substituted) break;
+				}
+				return result;
 			},
 		},
 	};

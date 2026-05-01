@@ -11,6 +11,9 @@ use anyhow::{anyhow, Result};
 #[cfg(target_os = "macos")]
 use super::credentials::parse_credentials;
 use super::credentials::{now_ms, sort_credentials, ClaudeOAuthCredentials};
+// Non-macOS path uses `parse_credentials` too, but qualified at the call
+// site to avoid an unused-import warning when this file is included on
+// macOS via cfg-stripping.
 
 pub(super) const CLAUDE_KEYCHAIN_SERVICE: &str = "Claude Code-credentials";
 
@@ -67,19 +70,48 @@ fn load_keychain_credentials() -> Result<Vec<ClaudeOAuthCredentials>> {
 
 #[cfg(not(target_os = "macos"))]
 fn load_keychain_credentials() -> Result<Vec<ClaudeOAuthCredentials>> {
-    // Windows: Claude Code stores OAuth credentials via keytar, which on
-    // Windows backs onto the Windows Credential Manager. Reading them
-    // requires either the `wincred` Win32 API or a credential-name probe.
-    // Once we verify Claude's exact service/account naming against a real
-    // Windows install, plug a `wincred`-based reader here that mirrors
-    // load_keychain_credentials_macos().
-    //
-    // Until then the rate-limit feature gracefully degrades to "no rate
-    // limit info" — the UI still works, it just doesn't show the
-    // "X messages remaining today" indicator.
-    //
-    // Tracking issue: docs/winthorpe-port.md → Phase 4 follow-up.
-    Ok(Vec::new())
+    // Windows / Linux: Claude Code stores OAuth credentials as plain
+    // JSON at `~/.claude/.credentials.json`. Same shape as the macOS
+    // Keychain payload — `parse_credentials` already handles it. No
+    // DPAPI / wincred dance needed; Anthropic's CLI just writes the
+    // file directly. If we ever switch to DPAPI on Windows, swap this
+    // for a `windows::Win32::Security::Cryptography::CryptUnprotectData`
+    // call, but the file is the source of truth Anthropic uses today.
+    let Some(path) = claude_credentials_file_path() else {
+        return Ok(Vec::new());
+    };
+    if !path.exists() {
+        return Ok(Vec::new());
+    }
+    let data =
+        std::fs::read(&path).map_err(|err| anyhow!("Failed to read {}: {err}", path.display()))?;
+    let mut credentials = Vec::new();
+    if let Some(credential) = super::credentials::parse_credentials(&data) {
+        credentials.push(credential);
+    }
+    Ok(credentials)
+}
+
+/// Resolve `~/.claude/.credentials.json` per platform. Honors `CLAUDE_HOME`
+/// for users who relocate the config dir; otherwise falls back to the
+/// platform-default home.
+#[cfg(not(target_os = "macos"))]
+fn claude_credentials_file_path() -> Option<std::path::PathBuf> {
+    if let Ok(home) = std::env::var("CLAUDE_HOME") {
+        let p = std::path::PathBuf::from(home).join(".credentials.json");
+        return Some(p);
+    }
+    let home = {
+        #[cfg(windows)]
+        {
+            std::env::var_os("USERPROFILE").map(std::path::PathBuf::from)
+        }
+        #[cfg(not(any(windows, target_os = "macos")))]
+        {
+            std::env::var_os("HOME").map(std::path::PathBuf::from)
+        }
+    }?;
+    Some(home.join(".claude").join(".credentials.json"))
 }
 
 fn keychain_account_candidates() -> Vec<String> {

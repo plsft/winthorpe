@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Walkthroughs — Winthorpe</title>
+		<meta name="description" content="Step-by-step walkthroughs for the most common Winthorpe flows." />
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-radial-fade py-20">
+			<div class="mx-auto max-w-3xl px-6 text-center">
+				<p class="text-xs font-semibold uppercase tracking-widest text-accent-400">Walkthroughs</p>
+				<h1 class="mt-3 text-balance text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl">
+					See it before you install it.
+				</h1>
+				<p class="mt-5 text-balance text-lg text-ink-300">
+					Visual walkthroughs of the flows you'll use most. Mock screens
+					mirror the real app's layout, colors, and chrome — what you see
+					here is what you'll see after install.
+				</p>
+			</div>
+		</section>
+
+		<section class="py-16">
+			<div class="mx-auto max-w-6xl px-6">
+				<div class="grid gap-4 md:grid-cols-2">
+					<a href="/walkthroughs/clone-and-spin-up/" class="group rounded-xl border border-white/10 bg-ink-900/60 p-6 transition-colors hover:border-white/20">
+						<div class="text-xs uppercase tracking-widest text-accent-400">5 steps</div>
+						<h3 class="mt-2 text-xl font-semibold text-ink-50 group-hover:text-accent-300">
+							Clone a repo &amp; spin up your first workspace
+						</h3>
+						<p class="mt-2 text-sm text-ink-400">Pick a repo from your GitHub list, auto-create the folder, create a worktree-backed workspace, send the first prompt.</p>
+					</a>
+					<a href="/walkthroughs/parallel-agents/" class="group rounded-xl border border-white/10 bg-ink-900/60 p-6 transition-colors hover:border-white/20">
+						<div class="text-xs uppercase tracking-widest text-accent-400">4 steps</div>
+						<h3 class="mt-2 text-xl font-semibold text-ink-50 group-hover:text-accent-300">
+							Run two agents in parallel
+						</h3>
+						<p class="mt-2 text-sm text-ink-400">Two workspaces, two agents (Claude + Codex), two branches — at the same time, on the same repo, no conflict.</p>
+					</a>
+					<a href="/walkthroughs/cost-dashboard/" class="group rounded-xl border border-white/10 bg-ink-900/60 p-6 transition-colors hover:border-white/20">
+						<div class="text-xs uppercase tracking-widest text-accent-400">3 steps</div>
+						<h3 class="mt-2 text-xl font-semibold text-ink-50 group-hover:text-accent-300">
+							See your cost &amp; plan usage
+						</h3>
+						<p class="mt-2 text-sm text-ink-400">Open the Cost dashboard, read your Max plan windows, drill into per-session breakdowns.</p>
+					</a>
+					<a href="/walkthroughs/ship-a-pr/" class="group rounded-xl border border-white/10 bg-ink-900/60 p-6 transition-colors hover:border-white/20">
+						<div class="text-xs uppercase tracking-widest text-accent-400">5 steps</div>
+						<h3 class="mt-2 text-xl font-semibold text-ink-50 group-hover:text-accent-300">
+							Ship a pull request
+						</h3>
+						<p class="mt-2 text-sm text-ink-400">Edit the agent's diff in Monaco, commit, push (with auto-recovered GitHub credentials), create the PR.</p>
+					</a>
+				</div>
+			</div>
+		</section>
+
+		<% footer %>
+	</body>
+</html>

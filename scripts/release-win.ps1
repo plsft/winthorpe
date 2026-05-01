@@ -44,5 +44,12 @@ Set-Location (Join-Path $PSScriptRoot '..')
 # scenarios — group policy, SCCM, etc. — and pulls in WIX (light.exe) which
 # has its own failure modes around long paths and ICE validations.
 $bundles = if ($env:WINTHORPE_RELEASE_BUNDLES) { $env:WINTHORPE_RELEASE_BUNDLES } else { 'nsis' }
-Write-Host "Running 'tauri build' (bundles: $bundles, x86_64-pc-windows-msvc) under hydrated MSVC env..." -ForegroundColor Cyan
-& bun run tauri build --target x86_64-pc-windows-msvc --bundles $bundles
+
+# Tagged releases use the `release-fat` Cargo profile: lto = "fat" instead of
+# "thin". Trades 2-3x build time for ~5-10% smaller / 3-5% faster binary.
+# Override with WINTHORPE_RELEASE_PROFILE=release for an iterating dev-style
+# bundled build that still uses NSIS.
+$rustProfile = if ($env:WINTHORPE_RELEASE_PROFILE) { $env:WINTHORPE_RELEASE_PROFILE } else { 'release-fat' }
+
+Write-Host "Running 'tauri build' (bundles: $bundles, profile: $rustProfile, x86_64-pc-windows-msvc) under hydrated MSVC env..." -ForegroundColor Cyan
+& bun run tauri build --target x86_64-pc-windows-msvc --bundles $bundles -- --profile $rustProfile

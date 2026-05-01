@@ -40,6 +40,34 @@ use user_agent::claude_code_user_agent;
 const CLAUDE_OAUTH_USAGE_URL: &str = "https://api.anthropic.com/api/oauth/usage";
 const CLAUDE_OAUTH_BETA: &str = "oauth-2025-04-20";
 
+/// Plan tier read from the local credentials store — no network call.
+/// Used by the Cost dashboard to show "Max plan" instantly while the
+/// live `fetch_claude_rate_limits` call rounds-trips.
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaudePlanSummary {
+    /// "max" / "pro" / "free" / "raw_api_key" (whichever the local
+    /// credentials advertise). Empty when no credentials are present.
+    pub subscription_type: String,
+    /// Anthropic-side tier name, sometimes filled in addition to
+    /// `subscription_type`. Use whichever is non-empty for display.
+    pub rate_limit_tier: String,
+    /// True when the access token is still within its expiry window —
+    /// lets the UI render "(expired, will refresh on next API call)".
+    pub access_token_valid: bool,
+}
+
+/// Read the plan tier from the local Claude credentials store. Returns
+/// None when no credentials are found (user hasn't signed in yet).
+pub fn read_plan_summary() -> Option<ClaudePlanSummary> {
+    let credentials = keychain::load_best_credentials().ok()?;
+    Some(ClaudePlanSummary {
+        subscription_type: credentials.subscription_type.clone().unwrap_or_default(),
+        rate_limit_tier: credentials.rate_limit_tier.clone().unwrap_or_default(),
+        access_token_valid: !credentials.is_expired(now_ms()),
+    })
+}
+
 /// Pull the raw `oauth/usage` response body straight from Anthropic.
 ///
 /// The body is stored verbatim in `settings.app.claude_rate_limits` and

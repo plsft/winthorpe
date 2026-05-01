@@ -12,13 +12,23 @@ struct ClaudeCredentialsFile {
     claude_ai_oauth: Option<ClaudeOAuthCredentials>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct ClaudeOAuthCredentials {
     pub(super) access_token: String,
     pub(super) expires_at: Option<i64>,
     #[serde(default)]
     pub(super) scopes: Vec<String>,
+    /// Subscription kind from Claude CLI's credential file: "max", "pro",
+    /// "free", "raw_api_key". Surface to the UI so we can show "Max plan"
+    /// without waiting on the live `oauth/usage` round-trip.
+    #[serde(default)]
+    pub(super) subscription_type: Option<String>,
+    /// Anthropic-side tier ("default", "max", etc.) — sometimes differs
+    /// from `subscription_type` for legacy reasons. Render whichever is
+    /// non-empty.
+    #[serde(default)]
+    pub(super) rate_limit_tier: Option<String>,
 }
 
 impl ClaudeOAuthCredentials {
@@ -97,11 +107,13 @@ mod tests {
                 access_token: "valid-no-scope".to_string(),
                 expires_at: Some(now + 10_000),
                 scopes: Vec::new(),
+                ..Default::default()
             },
             ClaudeOAuthCredentials {
                 access_token: "expired-with-scope".to_string(),
                 expires_at: Some(now - 1),
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
         ];
 
@@ -122,16 +134,19 @@ mod tests {
                 access_token: "expired-with-scope".to_string(),
                 expires_at: Some(now - 10),
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
             ClaudeOAuthCredentials {
                 access_token: "valid-with-scope".to_string(),
                 expires_at: Some(now + 10_000),
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
             ClaudeOAuthCredentials {
                 access_token: "valid-no-scope".to_string(),
                 expires_at: Some(now + 999_999),
                 scopes: Vec::new(),
+                ..Default::default()
             },
         ];
 
@@ -151,11 +166,13 @@ mod tests {
                 access_token: "earlier".to_string(),
                 expires_at: Some(now + 5_000_000),
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
             ClaudeOAuthCredentials {
                 access_token: "later".to_string(),
                 expires_at: Some(now + 10_000_000),
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
         ];
 
@@ -174,11 +191,13 @@ mod tests {
                 access_token: "no-expiry".to_string(),
                 expires_at: None,
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
             ClaudeOAuthCredentials {
                 access_token: "with-expiry".to_string(),
                 expires_at: Some(now + 1_000),
                 scopes: vec!["user:profile".to_string()],
+                ..Default::default()
             },
         ];
 
@@ -204,6 +223,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: None,
             scopes: vec!["user:profile".to_string()],
+            ..Default::default()
         };
         assert!(!credentials.is_expired(i64::MAX));
     }
@@ -214,6 +234,7 @@ mod tests {
             access_token: "tok".to_string(),
             expires_at: Some(1_000_000),
             scopes: vec!["user:profile".to_string()],
+            ..Default::default()
         };
         // Boundary is `<=`, so equal counts as expired.
         assert!(credentials.is_expired(1_000_000));
@@ -228,6 +249,7 @@ mod tests {
                 "org:create_api_key".to_string(),
                 "user:inference".to_string(),
             ],
+            ..Default::default()
         };
         assert!(!credentials.has_required_scope());
     }

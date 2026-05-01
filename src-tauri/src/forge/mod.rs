@@ -22,7 +22,7 @@
 
 mod bundled;
 mod cli_status;
-mod command;
+pub(crate) mod command;
 mod detect;
 pub mod github;
 mod gitlab;

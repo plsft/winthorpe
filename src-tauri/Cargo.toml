@@ -138,3 +138,13 @@ panic = "abort"               # smaller + faster; exec spawn paths catch the res
 
 [profile.release.package."*"]
 opt-level = 3
+
+# Tagged-release profile. Inherits from `release` but flips `lto` from "thin"
+# to "fat" — typically 5–10% smaller binary and 3–5% faster steady-state at
+# the cost of 2–3× longer wall-clock build time. Used by
+# `bun run release:win` for shipping NSIS artifacts; everyday
+# `cargo build --release` keeps the faster `release` profile so iteration
+# stays cheap.
+[profile.release-fat]
+inherits = "release"
+lto = "fat"

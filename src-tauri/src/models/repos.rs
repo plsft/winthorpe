@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{bail, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -866,11 +866,13 @@ pub fn clone_repository_from_url(
     }
 
     let parent = Path::new(clone_directory.trim());
+    // Auto-create the parent if it doesn't exist yet — Conductor pattern is
+    // "give me a folder named after the repo's home and let me work."
+    // create_dir_all is a no-op when the dir already exists, so this is
+    // safe whether the user typed an existing path or a fresh one.
     if !parent.exists() {
-        bail!(
-            "Clone location does not exist: {}. Please choose an existing directory.",
-            parent.display()
-        );
+        fs::create_dir_all(parent)
+            .with_context(|| format!("Couldn't create clone location: {}", parent.display()))?;
     }
     if !parent.is_dir() {
         bail!("Clone location is not a directory: {}", parent.display());
@@ -887,24 +889,109 @@ pub fn clone_repository_from_url(
         );
     }
 
+    // Windows: `parent.join(repo_name)` produces mixed slashes when the
+    // parent was typed with `/` (common when the user pastes from a URL or
+    // the Tauri picker hands back forward-slashed paths). git accepts both
+    // but the displayed clone path is ugly. Normalize so logs and error
+    // messages show a clean `\\`-only path.
+    #[cfg(windows)]
+    let target_arg = target_dir.display().to_string().replace('/', "\\");
+    #[cfg(not(windows))]
     let target_arg = target_dir.display().to_string();
-    let clone_result = git_ops::run_git_with_timeout(
-        ["clone", "--", url, target_arg.as_str()],
-        Some(parent),
-        git_ops::GIT_CLONE_TIMEOUT,
-    );
+
+    // For github.com URLs, prefer `gh repo clone` over raw `git clone` so we
+    // pick up the auth set up during onboarding (Device Flow + `gh auth
+    // login`). Raw `git clone` over HTTPS goes through Git Credential
+    // Manager, which may not be authenticated for GitHub on a fresh machine
+    // — and we set `GIT_TERMINAL_PROMPT=0` to prevent hangs, so git can't
+    // fall back to interactive prompts. The gh path also lets us skip the
+    // `extraheader` token-injection dance (gh handles its own credentials).
+    let clone_result = if let Some((owner, repo)) = infer_github_owner_repo(url) {
+        clone_via_gh(&owner, &repo, &target_arg)
+    } else {
+        git_ops::run_git_with_timeout(
+            ["clone", "--", url, target_arg.as_str()],
+            Some(parent),
+            git_ops::GIT_CLONE_TIMEOUT,
+        )
+        .map(|_| ())
+    };
 
     if let Err(error) = clone_result {
-        // git may have partially created the target directory before failing.
-        // Best-effort cleanup so the user can retry without hitting the
-        // "target directory already exists" branch above.
+        // git/gh may have partially created the target before failing —
+        // best-effort cleanup so the user can retry without tripping the
+        // "target already exists" branch above.
         if target_dir.exists() {
             let _ = fs::remove_dir_all(&target_dir);
         }
-        return Err(error.context("Failed to clone repository"));
+        // Surface the actual underlying error in the user-facing message.
+        // `outermost_message()` only returns the outermost chain layer to
+        // the toast, so a bare `.context("Failed to clone")` would hide
+        // the real cause (auth failed, repo not found, network down, etc.).
+        // `{:#}` walks the anyhow chain with `: ` separators.
+        let detail = format!("{error:#}");
+        return Err(anyhow!("Failed to clone {url}\n\n{detail}"));
     }
 
-    add_repository_from_local_path(&target_dir.display().to_string())
+    add_repository_from_local_path(&target_arg)
+}
+
+/// Invoke the bundled `gh repo clone` and surface gh's stderr if it fails.
+/// gh handles its own auth via the user's `gh auth login` state set up
+/// during onboarding — no token plumbing required here.
+fn clone_via_gh(owner: &str, repo: &str, target: &str) -> Result<()> {
+    let spec = format!("{owner}/{repo}");
+    let output = crate::forge::command::run_command_with_timeout(
+        "gh",
+        ["repo", "clone", spec.as_str(), target],
+        git_ops::GIT_CLONE_TIMEOUT,
+    )
+    .map_err(|e| anyhow!("Failed to spawn gh: {e}"))?;
+
+    if output.success {
+        return Ok(());
+    }
+    // gh's stderr is the most useful detail: "could not find repository",
+    // "you must be authenticated", etc. Combine stderr+stdout because some
+    // gh versions write the actual diagnostic to stdout.
+    let stderr = output.stderr.trim();
+    let stdout = output.stdout.trim();
+    let detail = if !stderr.is_empty() {
+        stderr.to_string()
+    } else if !stdout.is_empty() {
+        stdout.to_string()
+    } else {
+        format!("gh exited with status {:?}", output.status)
+    };
+    bail!(
+        "gh repo clone failed.\n\n{detail}\n\n\
+         If gh isn't authenticated yet, run `gh auth login` in a terminal \
+         (or finish the GitHub CLI step in Settings → Onboarding)."
+    )
+}
+
+/// Extract `(owner, repo)` from any github.com URL form. Returns None for
+/// anything that isn't a github.com URL — the caller falls back to plain
+/// `git clone` in that case.
+fn infer_github_owner_repo(url: &str) -> Option<(String, String)> {
+    let trimmed = url.trim();
+    // Strip protocol/host prefixes — handle every form GitHub serves.
+    let path = trimmed
+        .strip_prefix("https://github.com/")
+        .or_else(|| trimmed.strip_prefix("http://github.com/"))
+        .or_else(|| trimmed.strip_prefix("git@github.com:"))
+        .or_else(|| trimmed.strip_prefix("ssh://git@github.com/"))?;
+    let cleaned = path
+        .trim_end_matches('/')
+        .strip_suffix(".git")
+        .unwrap_or(path.trim_end_matches('/'));
+    let mut parts = cleaned.split('/');
+    let owner = parts.next()?.to_string();
+    let repo = parts.next()?.to_string();
+    if owner.is_empty() || repo.is_empty() || parts.next().is_some() {
+        return None;
+    }
+    Some((owner, repo))
 }
 
 fn infer_repo_name_from_url(url: &str) -> Option<String> {

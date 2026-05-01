@@ -510,6 +510,19 @@ export function getComposerContextKey(
 	return "global";
 }
 
+/**
+ * Inverse of `getComposerContextKey` for the session case: extract the
+ * session id when the context is session-scoped. Returns null for
+ * workspace/global contexts (those don't have a backing DB row to
+ * persist a model selection on).
+ */
+export function parseSessionContextKey(contextKey: string): string | null {
+	const prefix = "session:";
+	if (!contextKey.startsWith(prefix)) return null;
+	const id = contextKey.slice(prefix.length);
+	return id.length > 0 ? id : null;
+}
+
 export function inferDefaultModelId(
 	session: Pick<
 		WorkspaceSessionSummary,
@@ -520,15 +533,20 @@ export function inferDefaultModelId(
 ): string | null {
 	const allOptions = modelSections.flatMap((section) => section.options);
 
-	// Existing session with history → respect whatever model it used
-	if (!isNewSession(session)) {
-		const sessionModel = session?.model ?? null;
-		if (sessionModel && findModelOption(modelSections, sessionModel)) {
-			return sessionModel;
-		}
+	// ANY session with a persisted model wins — including new sessions that
+	// haven't been talked to yet. The `set_session_model` Tauri command
+	// writes here as soon as the user picks a model in the composer, so
+	// honoring it on every session (not just ones with history) is what
+	// makes "I picked Sonnet" survive a reload. Previously this branch was
+	// gated on `!isNewSession(session)`, which is what caused the bug:
+	// a fresh session would ignore the user's choice and fall back to the
+	// global default (Opus).
+	const sessionModel = session?.model ?? null;
+	if (sessionModel && findModelOption(modelSections, sessionModel)) {
+		return sessionModel;
 	}
 
-	// New session or no valid session model → user setting is the only source.
+	// No persisted session model → the user setting is the source of truth.
 	// `useEnsureDefaultModel` is responsible for making sure this is non-null
 	// and valid once the catalog is loaded.
 	if (

@@ -67,9 +67,15 @@ pub fn init(logs_dir: &Path) -> Result<()> {
             .with_filter(build_filter(is_dev))
     });
 
+    // In-memory ring for the GUI Activity panel. Filtered with the same
+    // env-filter as the file/stderr layers so what the user sees in
+    // Activity matches what's on disk.
+    let buffer_layer = crate::logging_buffer::BufferLayer.with_filter(build_filter(is_dev));
+
     tracing_subscriber::registry()
         .with(rust_layer)
         .with(stderr_layer)
+        .with(buffer_layer)
         .init();
 
     Ok(())

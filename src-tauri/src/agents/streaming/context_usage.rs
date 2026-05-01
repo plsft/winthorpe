@@ -75,6 +75,15 @@ pub(super) fn persist_context_usage_event(app: &AppHandle, raw: &Value) {
         }
         ContextUsageWriteOutcome::Wrote(id) => id,
     };
+
+    // Cost/token recording for `ai_sessions` happens in
+    // `models::transcripts::scan_and_record_all` on a 60 s timer — that
+    // path reads authoritative JSONL transcripts (worktale's verified
+    // approach) instead of trying to reconstruct usage from in-memory
+    // events. Keeping the streaming path solely for context-usage meta
+    // (the percentage display) means we don't risk double-counting OR
+    // diverging from invoice numbers.
+
     crate::ui_sync::publish(
         app,
         crate::ui_sync::UiMutationEvent::ContextUsageChanged { session_id },

@@ -256,12 +256,69 @@ async function ensureRuntime(): Promise<MonacoRuntime> {
 			installMonacoEnvironment();
 			installEditorTheme(monaco);
 			installThemeObserver(monaco);
+			schedulePrewarmLanguageWorkers();
 
 			return { monaco };
 		})();
 	}
 
 	return runtimePromise;
+}
+
+let prewarmScheduled = false;
+
+/**
+ * Eagerly fetch + parse Monaco's language-worker bundles during browser idle
+ * time, so the first time the user opens a `.ts` / `.json` / `.css` / `.html`
+ * file the worker boots from cached module bytes instead of stalling for
+ * ~150–250 ms while Vite fetches and parses them.
+ *
+ * The instantiated workers are immediately terminated — Monaco creates its
+ * OWN workers on demand via `MonacoEnvironment.getWorker`. We're warming the
+ * module cache, not pooling the worker instances themselves.
+ */
+function schedulePrewarmLanguageWorkers() {
+	if (prewarmScheduled) return;
+	prewarmScheduled = true;
+
+	const run = () => {
+		try {
+			// Spawn one of each, then terminate. The worker source bundle is
+			// cached after the first instantiation.
+			[
+				new tsWorker(),
+				new jsonWorker(),
+				new cssWorker(),
+				new htmlWorker(),
+			].forEach((w) => {
+				try {
+					w.terminate();
+				} catch {
+					// terminate() is best-effort; an exception during teardown
+					// shouldn't surface from a perf-warmup path.
+				}
+			});
+		} catch {
+			// Worker construction failed for some reason (sandbox? CSP?). The
+			// fallback is the original lazy path — no functional regression.
+		}
+	};
+
+	// requestIdleCallback isn't on Safari yet; fall back to a generous timeout
+	// that still lets first paint settle before we touch the worker bundles.
+	const idle = (
+		globalThis as typeof globalThis & {
+			requestIdleCallback?: (
+				cb: () => void,
+				opts?: { timeout: number },
+			) => void;
+		}
+	).requestIdleCallback;
+	if (typeof idle === "function") {
+		idle(run, { timeout: 3000 });
+	} else {
+		setTimeout(run, 1500);
+	}
 }
 
 // Sync Monaco's theme with the app's `dark` class on <html>. Avoids having

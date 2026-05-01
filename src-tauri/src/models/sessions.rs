@@ -438,6 +438,28 @@ pub fn get_session_model(session_id: &str) -> Result<Option<String>> {
     Ok(model.filter(|s| !s.is_empty()))
 }
 
+/// Persist the user's model choice to the session row immediately.
+///
+/// Called when the user picks a model in the composer's model picker. The
+/// next mount/restart of the session reads this column directly via
+/// `inferDefaultModelId`, which means the choice survives reloads and
+/// workspace switches — fixing the bug where Sonnet would revert to Opus
+/// on next open.
+///
+/// Note: a session's effective model is still allowed to change on each
+/// turn (e.g. "Plan" mode override), so this column tracks the user's
+/// most-recent UI selection, not necessarily the model the next message
+/// will be sent with.
+pub fn set_session_model(session_id: &str, model_id: &str) -> Result<()> {
+    let conn = db::write_conn()?;
+    conn.execute(
+        "UPDATE sessions SET model = ?2 WHERE id = ?1",
+        rusqlite::params![session_id, model_id],
+    )
+    .with_context(|| format!("Failed to update model for session {session_id}"))?;
+    Ok(())
+}
+
 /// Read the opaque `context_usage_meta` JSON for the composer's
 /// context-usage ring. Returns `Ok(None)` for missing rows OR empty meta —
 /// the ring renders a placeholder either way and the frontend RPC contract

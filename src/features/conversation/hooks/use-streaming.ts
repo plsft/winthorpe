@@ -33,8 +33,8 @@ import type { ComposerCustomTag } from "@/lib/composer-insert";
 import { extractError, isRecoverableByPurge } from "@/lib/errors";
 import {
 	agentModelSectionsQueryOptions,
-	winthorpeQueryKeys,
 	sessionThreadMessagesQueryOptions,
+	winthorpeQueryKeys,
 } from "@/lib/query-client";
 import { resolveGeneralPreferencePrefix } from "@/lib/repo-preferences-prompts";
 import {
@@ -48,6 +48,7 @@ import {
 } from "@/lib/session-thread-cache";
 import type { FollowUpBehavior } from "@/lib/settings";
 import type { SubmitQueueApi } from "@/lib/use-submit-queue";
+import { errorMessage } from "@/lib/utils";
 import { showWorkspaceBrokenToast } from "@/lib/workspace-broken-toast";
 import {
 	createLiveThreadMessage,
@@ -550,7 +551,10 @@ export function useConversationStreaming({
 			if (sessionId) {
 				invalidations.push(
 					queryClient.invalidateQueries({
-						queryKey: [...winthorpeQueryKeys.sessionMessages(sessionId), "thread"],
+						queryKey: [
+							...winthorpeQueryKeys.sessionMessages(sessionId),
+							"thread",
+						],
 					}),
 				);
 			}
@@ -654,7 +658,7 @@ export function useConversationStreaming({
 				});
 			} catch (error) {
 				console.error("[conversation] elicitation response:", error);
-				const errorMsg = error instanceof Error ? error.message : String(error);
+				const errorMsg = errorMessage(error);
 				setElicitationResponsePendingByContext((current) => ({
 					...current,
 					[contextKey]: false,
@@ -1148,7 +1152,7 @@ export function useConversationStreaming({
 					restoreDraftOnFailure();
 					setSendErrorsByContext((current) => ({
 						...current,
-						[contextKey]: err instanceof Error ? err.message : String(err),
+						[contextKey]: errorMessage(err),
 					}));
 					return;
 				}
@@ -1631,7 +1635,7 @@ export function useConversationStreaming({
 				submitQueue.enqueue(ctx, item.payload);
 				setSendErrorsByContext((current) => ({
 					...current,
-					[ctx.contextKey]: err instanceof Error ? err.message : String(err),
+					[ctx.contextKey]: errorMessage(err),
 				}));
 			}
 		},

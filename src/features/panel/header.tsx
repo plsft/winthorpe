@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { BranchPickerPopover } from "@/components/branch-picker";
-import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import { ClaudeIcon, OpenAIIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +31,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import { clearPersistedDraft } from "@/features/composer/draft-storage";
 import { InlineShortcutDisplay } from "@/features/shortcuts/shortcut-display";
 import {
@@ -50,7 +50,7 @@ import {
 	type WorkspaceSessionSummary,
 } from "@/lib/api";
 import { winthorpeQueryKeys } from "@/lib/query-client";
-import { cn } from "@/lib/utils";
+import { cn, errorMessage } from "@/lib/utils";
 import {
 	getWorkspaceBranchTone,
 	type WorkspaceBranchTone,
@@ -173,11 +173,7 @@ export const WorkspacePanelHeader = memo(function WorkspacePanelHeader({
 				if (previous) {
 					queryClient.setQueryData<WorkspaceDetail | null>(detailKey, previous);
 				}
-				pushToast(
-					error instanceof Error ? error.message : String(error),
-					"Branch rename failed",
-					"destructive",
-				);
+				pushToast(errorMessage(error), "Branch rename failed", "destructive");
 			}
 		}
 		setEditingBranch(null);
@@ -203,7 +199,10 @@ export const WorkspacePanelHeader = memo(function WorkspacePanelHeader({
 			});
 
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.repoScripts(workspace.repoId, workspace.id),
+				queryKey: winthorpeQueryKeys.repoScripts(
+					workspace.repoId,
+					workspace.id,
+				),
 			});
 			onSessionsChanged?.();
 			onSelectSession?.(result.sessionId);

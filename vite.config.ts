@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import path from "node:path";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
@@ -5,6 +6,26 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 const host = process.env.TAURI_DEV_HOST;
+
+/**
+ * Short git SHA injected as `__WINTHORPE_BUILD_COMMIT__` so the About
+ * dialog can show "Build: abc1234". Best-effort: a CI env var wins, then
+ * `git rev-parse`, then unknown. Wrapped in try/catch so a non-git
+ * build environment doesn't fail the whole config load.
+ */
+function buildCommit(): string {
+	if (process.env.WINTHORPE_BUILD_COMMIT)
+		return process.env.WINTHORPE_BUILD_COMMIT;
+	try {
+		return execSync("git rev-parse --short=12 HEAD", {
+			cwd: __dirname,
+			stdio: ["ignore", "pipe", "ignore"],
+			encoding: "utf8",
+		}).trim();
+	} catch {
+		return "unknown";
+	}
+}
 const WATCH_IGNORED = [
 	"**/src-tauri/**",
 	"**/.local/**",
@@ -16,6 +37,9 @@ const WATCH_IGNORED = [
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
+	define: {
+		__WINTHORPE_BUILD_COMMIT__: JSON.stringify(buildCommit()),
+	},
 	plugins: [
 		react(),
 		babel({

@@ -8,6 +8,7 @@ import {
 	type WorkspaceSessionSummary,
 } from "@/lib/api";
 import { winthorpeQueryKeys } from "@/lib/query-client";
+import { errorMessage } from "@/lib/utils";
 import { isNewSession } from "@/lib/workspace-helpers";
 import type { PushWorkspaceToast } from "@/lib/workspace-toast-context";
 import { buildOptimisticSession } from "./session-cache";
@@ -73,7 +74,10 @@ export async function closeWorkspaceSession({
 				now,
 			);
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.repoScripts(workspace.repoId, workspace.id),
+				queryKey: winthorpeQueryKeys.repoScripts(
+					workspace.repoId,
+					workspace.id,
+				),
 			});
 
 			queryClient.setQueryData(
@@ -156,11 +160,7 @@ export async function closeWorkspaceSession({
 	} catch (error) {
 		console.error("Failed to close session:", error);
 		onSessionsChanged?.();
-		pushToast?.(
-			error instanceof Error ? error.message : String(error),
-			"Unable to close session",
-			"destructive",
-		);
+		pushToast?.(errorMessage(error), "Unable to close session", "destructive");
 		return false;
 	}
 }

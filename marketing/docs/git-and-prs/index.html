@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#05080f" />
+		<title>Git &amp; PRs — Winthorpe Docs</title>
+	</head>
+	<body class="bg-ink-950 text-ink-100">
+		<% header %>
+
+		<section class="border-b border-white/5 bg-ink-900/30 py-10">
+			<div class="mx-auto max-w-3xl px-6">
+				<a href="/docs/" class="text-xs text-ink-400 hover:text-ink-100">← Documentation</a>
+				<h1 class="mt-3 text-3xl font-semibold tracking-tight text-ink-50">Git &amp; PRs</h1>
+				<p class="mt-3 text-sm text-ink-400">Inspector commit/push/PR + auth recovery on Windows.</p>
+			</div>
+		</section>
+
+		<article class="mx-auto max-w-3xl space-y-6 px-6 py-12 text-base leading-relaxed text-ink-300">
+			<h2 class="text-xl font-semibold text-ink-50">Inspector → Changes</h2>
+			<p>Live file-by-file diff view for the active workspace. Insertion / deletion counts. Click any file to see its diff in a Monaco diff editor. Backed by a real-time FS watcher (<code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">notify</code> / <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ReadDirectoryChangesW</code>) so agent edits appear without a refresh. 250 ms debounce.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Inspector → Actions</h2>
+			<p>One-click <strong>Commit</strong>, <strong>Push</strong>, <strong>Create PR</strong> from the workspace's branch. The agent drafts the commit message and PR title/body from the diff; you eyeball, then confirm. PR creation routes through the bundled <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh pr create</code> for GitHub or <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">glab mr create</code> for GitLab.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Cloning from your GitHub</h2>
+			<p>The clone dialog defaults to a <strong>From your GitHub</strong> tab that lists every repo you have access to via <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh repo list</code>. Search, click, choose clone location, done. The folder is auto-created if it doesn't exist (and the path is normalized to native separators on Windows). For non-GitHub URLs (GitLab, BitBucket, self-hosted), the <strong>From URL</strong> tab takes a raw git URL.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">GitHub credential auto-recovery</h2>
+			<p>On Windows, raw <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">git push</code> over HTTPS to GitHub fails when Git Credential Manager has no cached credentials and Winthorpe (correctly) sets <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">GIT_TERMINAL_PROMPT=0</code> to prevent hangs. When this happens, Winthorpe automatically runs <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh auth setup-git</code> (which configures gh as the credential helper using your already-authenticated OAuth token), then retries the push once. From then on, every push / fetch / clone over HTTPS to github.com just works.</p>
+			<p class="text-sm text-ink-400">If the retry still fails, the toast tells you whether to run <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">gh auth status</code> or check your SSH key.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Network-touching commands have hard timeouts</h2>
+			<p>Every git command that may contact a remote (<code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">fetch</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">pull</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">push</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">clone</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ls-remote</code>) has a wall-clock timeout. Without it, a hung remote or unexpected credential prompt would park a thread forever. The whole git process group is killed (Unix: process_group + SIGKILL; Windows: <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">taskkill /T /F</code>) on timeout.</p>
+			<p>SSH commands inherit <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">BatchMode=yes</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">ConnectTimeout=10</code>, and <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">StrictHostKeyChecking=yes</code> so a dead host or missing key fails fast.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">No console-window flashes</h2>
+			<p>Every git, gh, glab, claude, codex, npx, and taskkill spawn on Windows is launched with the <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">CREATE_NO_WINDOW</code> flag. No black boxes flashing on screen during agent runs.</p>
+
+			<h2 class="text-xl font-semibold text-ink-50 pt-4">Read-side performance</h2>
+			<p>Read-only git invocations (<code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">status</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">log</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">for-each-ref</code>, <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">rev-parse</code>) pass <code class="rounded bg-white/5 px-1.5 py-0.5 text-sm">--no-optional-locks</code> to skip lock contention with whatever else is reading the repo (the FS watcher, your terminal, the activity log polling).</p>
+		</article>
+
+		<% footer %>
+	</body>
+</html>
