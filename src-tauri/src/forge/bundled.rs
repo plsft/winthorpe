@@ -72,19 +72,44 @@ fn resolve_from_running_exe() -> BundledForgeCliPaths {
 
 fn resolve_for_exe(exe: &Path) -> Option<BundledForgeCliPaths> {
     let exe_dir = exe.parent()?;
-    let contents_dir = exe_dir.parent()?;
-    let resources_dir = contents_dir.join("Resources");
 
     let gh_name = if cfg!(windows) { "gh.exe" } else { "gh" };
     let glab_name = if cfg!(windows) { "glab.exe" } else { "glab" };
 
-    let gh = resources_dir.join(format!("vendor/gh/{gh_name}"));
-    let glab = resources_dir.join(format!("vendor/glab/{glab_name}"));
+    // Resource roots vary by installer:
+    //   - macOS .app:    Contents/MacOS/<exe>           → ../Resources
+    //   - Windows NSIS:  <install>\Winthorpe.exe        → ./resources
+    //   - Linux AppImage AppDir layout puts resources beside the binary.
+    // Try every plausible location; the first hit wins. Any missing root
+    // is silently skipped (parent() may return None on the filesystem root).
+    let mut candidate_roots: Vec<PathBuf> = Vec::new();
+    if let Some(contents_dir) = exe_dir.parent() {
+        candidate_roots.push(contents_dir.join("Resources"));
+    }
+    candidate_roots.push(exe_dir.join("resources"));
+    candidate_roots.push(exe_dir.to_path_buf());
 
-    Some(BundledForgeCliPaths {
-        gh: gh.is_file().then_some(gh),
-        glab: glab.is_file().then_some(glab),
-    })
+    let mut gh: Option<PathBuf> = None;
+    let mut glab: Option<PathBuf> = None;
+    for root in &candidate_roots {
+        if gh.is_none() {
+            let candidate = root.join(format!("vendor/gh/{gh_name}"));
+            if candidate.is_file() {
+                gh = Some(candidate);
+            }
+        }
+        if glab.is_none() {
+            let candidate = root.join(format!("vendor/glab/{glab_name}"));
+            if candidate.is_file() {
+                glab = Some(candidate);
+            }
+        }
+        if gh.is_some() && glab.is_some() {
+            break;
+        }
+    }
+
+    Some(BundledForgeCliPaths { gh, glab })
 }
 
 #[cfg(debug_assertions)]
@@ -145,6 +170,29 @@ mod tests {
             paths.glab.unwrap(),
             root.path()
                 .join("Winthorpe.app/Contents/Resources/vendor/glab/glab")
+        );
+    }
+
+    #[test]
+    fn resolve_finds_binaries_under_windows_install_resources() {
+        let root = tempfile::tempdir().unwrap();
+        let install_dir = root.path().join("Programs/Winthorpe");
+        let vendor = install_dir.join("resources/vendor");
+        std::fs::create_dir_all(vendor.join("gh")).unwrap();
+        std::fs::create_dir_all(vendor.join("glab")).unwrap();
+        let gh_name = if cfg!(windows) { "gh.exe" } else { "gh" };
+        let glab_name = if cfg!(windows) { "glab.exe" } else { "glab" };
+        std::fs::write(vendor.join(format!("gh/{gh_name}")), "").unwrap();
+        std::fs::write(vendor.join(format!("glab/{glab_name}")), "").unwrap();
+
+        let exe = install_dir.join("Winthorpe.exe");
+        std::fs::write(&exe, "").unwrap();
+
+        let paths = resolve_for_exe(&exe).unwrap();
+        assert_eq!(paths.gh.unwrap(), vendor.join(format!("gh/{gh_name}")));
+        assert_eq!(
+            paths.glab.unwrap(),
+            vendor.join(format!("glab/{glab_name}"))
         );
     }
 
