@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Winthorpe — The local-first IDE for coding agent orchestration",
+	title: "Winthorpe — The local-first Windows IDE for AI coding agents",
 	description:
 		"Run Claude Code and Codex side-by-side across worktrees, on your machine. Plan. Run. Review — without handing your source tree to a vendor.",
 	icons: {

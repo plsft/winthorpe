@@ -33,8 +33,8 @@ export function IntroPreview({
 					Hi, Winthorpe!
 				</h1>
 				<p className="mt-6 max-w-md text-base font-medium leading-7 text-muted-foreground">
-					AI generates the code. Winthorpe is where you orchestrate, review, and
-					ship it.
+					AI generates the code. Winthorpe is where you run, review, and ship it
+					— across parallel sessions, in one window.
 				</p>
 
 				<Button

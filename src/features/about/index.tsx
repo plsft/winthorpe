@@ -100,7 +100,7 @@ export function AboutDialog({
 							Winthorpe
 						</div>
 						<div className="text-[11px] text-muted-foreground">
-							The local-first IDE for orchestrating coding agents.
+							The local-first Windows IDE for AI coding sessions.
 						</div>
 					</div>
 				</div>

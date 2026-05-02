@@ -14,7 +14,7 @@
 >
 > Not just generating more code.
 >
-> Orchestrating, reviewing, testing, merging, and actually shipping software.
+> Reviewing, testing, merging, and actually shipping software — across multiple parallel sessions, in one window, on Windows.
 
 ## Install
 

@@ -45,7 +45,7 @@ Treat Winthorpe skills install/update as a beta app-managed flow.
 
 ### Manage Repositories And Workspaces
 
-Use these command groups for local-first project setup and workspace orchestration:
+Use these command groups for local-first project setup and workspace management:
 
 ```bash
 winthorpe repo --help

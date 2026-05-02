@@ -1,6 +1,6 @@
 {
 	"name": "@winthorpe/sidecar",
-	"description": "Winthorpe's agent-orchestration sidecar process (Claude Agent SDK + Codex SDK).",
+	"description": "Winthorpe's agent-session sidecar process (Claude Agent SDK + Codex SDK).",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",

@@ -631,8 +631,8 @@ export function MarketingShell({ data }: { data: RepoData }) {
 
 					<p className="sub">
 						An open-source local workbench for multi-agent software development.
-						Built for orchestration, review, testing, merge, and everything
-						around the code.
+						Built for the workflow around the prompt — review, testing, merge,
+						and shipping.
 					</p>
 
 					<div className="cta">
