@@ -69,6 +69,12 @@ pub fn run() -> ExitCode {
         unsafe { std::env::set_var("WINTHORPE_DATA_DIR", dir) };
     }
 
+    // Same init the desktop app's Tauri setup hook runs. Without this the
+    // bundled-binary cache stays empty, so `gh` / `glab` invocations fall
+    // through to whatever's on PATH — and an old PATH gh can mean
+    // `unknown flag: --json` on subcommands like `auth status`.
+    crate::forge::init_bundled_cli_paths();
+
     match dispatch(&cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
