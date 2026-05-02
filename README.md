@@ -1,11 +1,16 @@
 <p align="center">
-  <img src="src/assets/readme-banner.png" alt="Winthorpe" width="100%" />
+  <img src="src/assets/winthorpe-logo-1024.png" alt="Winthorpe" width="160" />
 </p>
 
 <h1 align="center">Winthorpe</h1>
 
 <p align="center">
-  Winthorpe is a local-first Windows workbench for multi-agent software development.
+  The local-first Windows IDE for AI coding agents.
+</p>
+
+<p align="center">
+  Run Claude Code and Codex side by side across parallel git-worktree workspaces.<br>
+  Edit the diff in a built-in Monaco editor, ship the PR — all in one window.
 </p>
 
 > AI made coding faster.
@@ -18,11 +23,9 @@
 
 ## Install
 
-<p align="center">
-  <img src="src/assets/winthorpe-screenshot-mix.png" alt="Winthorpe screenshot" width="100%" />
-</p>
+[**Download for Windows** →](https://github.com/plsft/winthorpe/releases/latest)
 
-[**Download for Windows** →](https://github.com/plsft/winthorpe/releases)
+Walkthroughs and reference docs at **[winthorpe.org](https://winthorpe.org)**.
 
 ## Contributing
 
