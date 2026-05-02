@@ -1,6 +1,6 @@
 [package]
 name = "winthorpe"
-version = "0.5.1"
+version = "0.5.2"
 description = "The local-first Windows IDE for AI coding sessions."
 authors = ["Caspian Zhao", "Nathan Lian"]
 edition = "2021"
