@@ -1,5 +1,11 @@
 # winthorpe
 
+## 0.6.2
+
+### Patch Changes
+
+- Disable updater-JSON publishing in the Windows release workflow until a Tauri signing keypair is set up — tauri-action's signing step was failing with `Missing comment in secret key` and blocking the release from publishing. NSIS installer ships normally; in-app auto-update will start working again once the signing secrets are populated.
+
 ## 0.6.1
 
 ### Patch Changes

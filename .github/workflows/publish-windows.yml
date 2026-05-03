@@ -92,10 +92,6 @@ jobs:
         env:
           TAURI_TARGET_TRIPLE: x86_64-pc-windows-msvc
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          WINTHORPE_UPDATER_PUBKEY: ${{ secrets.WINTHORPE_UPDATER_PUBKEY }}
-          WINTHORPE_UPDATER_ENDPOINTS: ${{ secrets.WINTHORPE_UPDATER_ENDPOINTS }}
           # Bootstrap mode for vendor staging until SHA256s for Windows gh+glab
           # zips are filled in. Remove once stage-vendor.ts has real SHAs.
           WINTHORPE_VENDOR_SKIP_SHA_CHECK: "1"
@@ -106,7 +102,13 @@ jobs:
           releaseName: Winthorpe v__VERSION__
           releaseDraft: ${{ github.event.inputs.draft != 'false' }}
           prerelease: false
-          includeUpdaterJson: true
+          # Updater JSON disabled — requires a Tauri signing keypair which
+          # isn't set up yet. Without it tauri-action's signing step
+          # explodes with "Missing comment in secret key" and the release
+          # never publishes. First-time downloads still work fine; in-app
+          # auto-update will start working once a key is generated and the
+          # signing secrets are populated. Flip this back to `true` then.
+          includeUpdaterJson: false
           # NSIS only. MSI/WIX `light.exe` has been failing the bundle step
           # (v0.5.1, v0.5.2 both blew up here); enterprise SCCM/GPO consumers
           # who need MSI can still produce one locally via release-win.ps1
