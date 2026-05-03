@@ -1,5 +1,7 @@
 //! `gh` / `glab` status probing + Connect terminal flow.
 
+#[cfg(target_os = "macos")]
+use anyhow::Context;
 use anyhow::{bail, Result};
 use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
