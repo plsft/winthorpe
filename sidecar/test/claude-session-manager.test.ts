@@ -14,7 +14,10 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { createSidecarEmitter, type SidecarEmitter } from "../src/emitter.js";
 
-process.env.WINTHORPE_LOG_DIR = resolve(tmpdir(), "winthorpe-sidecar-test-logs");
+process.env.WINTHORPE_LOG_DIR = resolve(
+	tmpdir(),
+	"winthorpe-sidecar-test-logs",
+);
 
 // ---------------------------------------------------------------------------
 // Mock the Claude Agent SDK BEFORE importing anything that uses it.
