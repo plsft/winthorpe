@@ -1,5 +1,11 @@
 # winthorpe
 
+## 0.6.3
+
+### Patch Changes
+
+- Drop the orphan updater public key from `tauri.conf.json`. The pubkey was registered but the matching private key was never created, so `tauri build` kept failing with `A public key has been found, but no private key`. Without the pubkey in config, the build completes and the NSIS installer publishes. Auto-update remains off until a fresh keypair is generated.
+
 ## 0.6.2
 
 ### Patch Changes
