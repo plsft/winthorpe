@@ -106,6 +106,11 @@ vi.mock("@tauri-apps/api/window", () => ({
 	getCurrentWindow: vi.fn(() => ({
 		onCloseRequested: vi.fn(async () => () => {}),
 		setBadgeCount: vi.fn(async () => {}),
+		// window-title-bar polls these on every mount; without stubs the
+		// frontend test suite cascades into 38 failures from a single
+		// `win.isMaximized is not a function`.
+		isMaximized: vi.fn(async () => false),
+		onResized: vi.fn(async () => () => {}),
 	})),
 }));
 

@@ -17,7 +17,8 @@
 			"!!**/coverage",
 			"!**/.local-data",
 			"!src-tauri/gen",
-			"!src-tauri/target"
+			"!src-tauri/target",
+			"!marketing/**/*.html"
 		]
 	},
 	"formatter": {
