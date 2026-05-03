@@ -8,6 +8,8 @@ use std::time::Duration;
 use crate::github_cli;
 
 use super::bundled;
+#[cfg(target_os = "macos")]
+use super::command::run_command_with_timeout;
 use super::command::{command_detail, run_command};
 use super::status_cache::{self, CacheableStatus, CachedEntry};
 use super::types::{ForgeCliStatus, ForgeLabels, ForgeProvider};

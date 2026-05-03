@@ -87,7 +87,7 @@ jobs:
             src-tauri/target
           key: ${{ runner.os }}-cargo-publish-${{ hashFiles('src-tauri/Cargo.lock') }}
 
-      - name: Tauri build (NSIS + MSI)
+      - name: Tauri build (NSIS)
         uses: tauri-apps/tauri-action@v0.6
         env:
           TAURI_TARGET_TRIPLE: x86_64-pc-windows-msvc
@@ -107,5 +107,9 @@ jobs:
           releaseDraft: ${{ github.event.inputs.draft != 'false' }}
           prerelease: false
           includeUpdaterJson: true
-          args: --target x86_64-pc-windows-msvc --bundles nsis,msi
+          # NSIS only. MSI/WIX `light.exe` has been failing the bundle step
+          # (v0.5.1, v0.5.2 both blew up here); enterprise SCCM/GPO consumers
+          # who need MSI can still produce one locally via release-win.ps1
+          # with -IncludeMsi. Re-add `,msi` once WIX is stable.
+          args: --target x86_64-pc-windows-msvc --bundles nsis
           tauriScript: bun run tauri

@@ -30,6 +30,14 @@ export const test = base.extend<WinthorpeFixtures>({
 		});
 
 		await page.goto("/");
+		// Wait for the React shell to render its top-level chrome before
+		// handing control to the spec. Without this, webkit's cold start on
+		// a Linux CI runner can lose the race against a spec's first
+		// `toBeVisible` assertion. Anchoring on the workspace sidebar is
+		// safe because every onboarding-completed boot lands there.
+		await page
+			.getByRole("complementary", { name: "Workspace sidebar" })
+			.waitFor({ state: "visible" });
 		await use(page);
 	},
 });

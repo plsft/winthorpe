@@ -1,5 +1,14 @@
 # winthorpe
 
+## 0.6.1
+
+### Patch Changes
+
+- Fix release pipeline so v0.6.x actually ships:
+  - Drop MSI from the Windows publish workflow — WIX `light.exe` has been failing the bundle step on every recent release. NSIS still ships as the canonical installer; enterprise SCCM/GPO consumers can still produce an MSI locally via `release-win.ps1 -IncludeMsi` once WIX is stable.
+  - Fix a macOS-only compile error in `forge/cli_status.rs` — the Connect-terminal flow's call to `run_command_with_timeout` was missing its import after the Helmor → Winthorpe rename, blocking every `Quality` workflow run.
+  - Stabilize the WebKit Playwright suite by raising expect/action/navigation timeouts on CI (5 s default was tripping cold starts) and waiting for the React shell to render before specs poke at it.
+
 ## 0.6.0
 
 ### Minor Changes
