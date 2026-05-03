@@ -269,6 +269,8 @@ pub fn run() {
             commands::ai_session_commands::get_ai_session_stats,
             commands::ai_session_commands::get_last_pr_cost_for_workspace,
             commands::ai_session_commands::reset_ai_session_ledger,
+            commands::ai_session_commands::list_recent_ai_prompts,
+            commands::ai_session_commands::list_ai_prompts_for_workspace,
             commands::forge_commands::get_workspace_forge,
             commands::forge_commands::get_forge_cli_status,
             commands::forge_commands::open_forge_cli_auth_terminal,

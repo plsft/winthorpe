@@ -1,3 +1,4 @@
+pub mod ai_prompts;
 pub mod ai_sessions;
 pub mod db;
 pub mod pricing;

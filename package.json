@@ -2,7 +2,7 @@
 	"name": "winthorpe",
 	"description": "The local-first Windows IDE for AI coding sessions — run Claude Code and Codex side by side in parallel git-worktree workspaces.",
 	"private": true,
-	"version": "0.5.2",
+	"version": "0.6.0",
 	"packageManager": "bun@1.3.2",
 	"type": "module",
 	"workspaces": [

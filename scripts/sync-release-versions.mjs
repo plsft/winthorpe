@@ -31,7 +31,10 @@ if (cargoToml === nextCargoToml) {
 // version field. CI never runs cargo, so without this step the lockfile
 // drifts and everyone regenerates it locally via rust-analyzer.
 const cargoLock = fs.readFileSync(cargoLockPath, "utf8");
-const cargoLockPattern = /(^name = "winthorpe"\nversion = )"[^"]*"/m;
+// CRLF-aware: Cargo.lock is committed with the developer's line endings,
+// which on Windows (where this repo's primary contributor works) means
+// "\r\n". Match either to keep this script portable across platforms.
+const cargoLockPattern = /(^name = "winthorpe"\r?\nversion = )"[^"]*"/m;
 if (!cargoLockPattern.test(cargoLock)) {
 	throw new Error(
 		'src-tauri/Cargo.lock is missing the `name = "winthorpe"` package entry',

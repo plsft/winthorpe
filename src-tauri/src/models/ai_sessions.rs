@@ -8,6 +8,12 @@
 //! Reads aggregate via SUM at query time (cost-per-session,
 //! cost-per-workspace). The volumes are small enough — even a heavy user
 //! generates < 1k turns/week — that we don't need a materialized rollup.
+//!
+//! Beyond cost, the row also carries everything the disk transcript
+//! exposed about the session: gitBranch, client version, permission mode,
+//! Codex sandbox posture, hook execution stats, etc. The hot fields get
+//! their own columns; anything we don't promote lives in the `extras`
+//! JSON blob so future fields don't require a migration.
 
 use anyhow::{Context, Result};
 use rusqlite::params;
@@ -40,6 +46,47 @@ pub struct AiSession {
     pub is_pr_create: bool,
     pub note: Option<String>,
     pub timestamp: String,
+
+    // Provenance pulled from the JSONL envelope.
+    pub git_branch: Option<String>,
+    pub ai_title: Option<String>,
+    pub client_version: Option<String>,
+    pub entrypoint: Option<String>,
+    pub user_type: Option<String>,
+    pub slug: Option<String>,
+    pub inference_geo: Option<String>,
+
+    // Pricing inputs.
+    pub cache_5m_tokens: i64,
+    pub cache_1h_tokens: i64,
+    pub web_search_requests: i64,
+    pub web_fetch_requests: i64,
+    pub service_tier: Option<String>,
+    pub speed: Option<String>,
+
+    // Behavior counters.
+    pub turn_count: i64,
+    pub tool_call_count: i64,
+    pub sidechain_turn_count: i64,
+    pub subagent_count: i64,
+    pub iteration_count: i64,
+    pub error_count: i64,
+    pub interrupted_tool_count: i64,
+    pub permission_mode: Option<String>,
+    pub stop_reasons: Option<String>,
+    pub hook_executions: Option<String>,
+    pub skills_used: Option<String>,
+    pub plan_mode_used: bool,
+
+    // Codex sandbox posture.
+    pub approval_policy: Option<String>,
+    pub sandbox_mode: Option<String>,
+    pub network_access: Option<String>,
+    pub instructions_present: bool,
+    pub reasoning_count: i64,
+    pub escalated_permission_count: i64,
+
+    pub extras: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -62,6 +109,43 @@ pub struct AiSessionInsert {
     pub commits: Option<Vec<String>>,
     pub is_pr_create: Option<bool>,
     pub note: Option<String>,
+
+    pub git_branch: Option<String>,
+    pub ai_title: Option<String>,
+    pub client_version: Option<String>,
+    pub entrypoint: Option<String>,
+    pub user_type: Option<String>,
+    pub slug: Option<String>,
+    pub inference_geo: Option<String>,
+
+    pub cache_5m_tokens: Option<i64>,
+    pub cache_1h_tokens: Option<i64>,
+    pub web_search_requests: Option<i64>,
+    pub web_fetch_requests: Option<i64>,
+    pub service_tier: Option<String>,
+    pub speed: Option<String>,
+
+    pub turn_count: Option<i64>,
+    pub tool_call_count: Option<i64>,
+    pub sidechain_turn_count: Option<i64>,
+    pub subagent_count: Option<i64>,
+    pub iteration_count: Option<i64>,
+    pub error_count: Option<i64>,
+    pub interrupted_tool_count: Option<i64>,
+    pub permission_mode: Option<String>,
+    pub stop_reasons: Option<Vec<String>>,
+    pub hook_executions: Option<serde_json::Value>,
+    pub skills_used: Option<Vec<String>>,
+    pub plan_mode_used: Option<bool>,
+
+    pub approval_policy: Option<String>,
+    pub sandbox_mode: Option<String>,
+    pub network_access: Option<String>,
+    pub instructions_present: Option<bool>,
+    pub reasoning_count: Option<i64>,
+    pub escalated_permission_count: Option<i64>,
+
+    pub extras: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -108,102 +192,147 @@ pub fn insert_with_timestamp(record: AiSessionInsert, timestamp_ms: Option<u64>)
         }
         None => (chrono::Local::now().format("%Y-%m-%d").to_string(), None),
     };
-    let tools_json = record
-        .tools_used
-        .as_ref()
-        .map(|v| serde_json::to_string(v).unwrap_or_else(|_| "[]".into()));
-    let mcp_json = record
-        .mcp_servers
-        .as_ref()
-        .map(|v| serde_json::to_string(v).unwrap_or_else(|_| "[]".into()));
-    let commits_json = record
-        .commits
-        .as_ref()
-        .map(|v| serde_json::to_string(v).unwrap_or_else(|_| "[]".into()));
-    if let Some(ts) = override_ts {
-        conn.execute(
-            "INSERT INTO ai_sessions (
-                workspace_id, session_id, repo_id, date,
-                provider, model, tool,
-                cost_usd, input_tokens, output_tokens,
-                cache_read_tokens, cache_write_tokens,
-                tools_used, mcp_servers,
-                duration_secs, commits, is_pr_create, note, timestamp
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            params![
-                record.workspace_id,
-                record.session_id,
-                record.repo_id,
-                date,
-                record.provider,
-                record.model,
-                record.tool,
-                record.cost_usd.unwrap_or(0.0),
-                record.input_tokens.unwrap_or(0),
-                record.output_tokens.unwrap_or(0),
-                record.cache_read_tokens.unwrap_or(0),
-                record.cache_write_tokens.unwrap_or(0),
-                tools_json,
-                mcp_json,
-                record.duration_secs.unwrap_or(0),
-                commits_json,
-                i64::from(record.is_pr_create.unwrap_or(false)),
-                record.note,
-                ts,
-            ],
-        )
-        .context("Failed to insert ai_session row (with timestamp)")?;
-    } else {
-        conn.execute(
-            "INSERT INTO ai_sessions (
-                workspace_id, session_id, repo_id, date,
-                provider, model, tool,
-                cost_usd, input_tokens, output_tokens,
-                cache_read_tokens, cache_write_tokens,
-                tools_used, mcp_servers,
-                duration_secs, commits, is_pr_create, note
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            params![
-                record.workspace_id,
-                record.session_id,
-                record.repo_id,
-                date,
-                record.provider,
-                record.model,
-                record.tool,
-                record.cost_usd.unwrap_or(0.0),
-                record.input_tokens.unwrap_or(0),
-                record.output_tokens.unwrap_or(0),
-                record.cache_read_tokens.unwrap_or(0),
-                record.cache_write_tokens.unwrap_or(0),
-                tools_json,
-                mcp_json,
-                record.duration_secs.unwrap_or(0),
-                commits_json,
-                i64::from(record.is_pr_create.unwrap_or(false)),
-                record.note,
-            ],
-        )
-        .context("Failed to insert ai_session row")?;
+
+    fn json_array(v: &Option<Vec<String>>) -> Option<String> {
+        v.as_ref()
+            .map(|arr| serde_json::to_string(arr).unwrap_or_else(|_| "[]".into()))
     }
+    fn json_value(v: &Option<serde_json::Value>) -> Option<String> {
+        v.as_ref()
+            .map(|val| serde_json::to_string(val).unwrap_or_else(|_| "{}".into()))
+    }
+
+    let tools_json = json_array(&record.tools_used);
+    let mcp_json = json_array(&record.mcp_servers);
+    let commits_json = json_array(&record.commits);
+    let stop_reasons_json = json_array(&record.stop_reasons);
+    let skills_json = json_array(&record.skills_used);
+    let hooks_json = json_value(&record.hook_executions);
+    let extras_json = json_value(&record.extras);
+
+    // The column list is long but explicit — easier to audit than a
+    // dynamic builder, and rusqlite will catch arity mismatches at runtime.
+    let sql = "INSERT INTO ai_sessions (
+        workspace_id, session_id, repo_id, date,
+        provider, model, tool,
+        cost_usd, input_tokens, output_tokens,
+        cache_read_tokens, cache_write_tokens,
+        tools_used, mcp_servers,
+        duration_secs, commits, is_pr_create, note,
+        git_branch, ai_title, client_version, entrypoint, user_type, slug, inference_geo,
+        cache_5m_tokens, cache_1h_tokens,
+        web_search_requests, web_fetch_requests,
+        service_tier, speed,
+        turn_count, tool_call_count, sidechain_turn_count, subagent_count,
+        iteration_count, error_count, interrupted_tool_count,
+        permission_mode, stop_reasons, hook_executions, skills_used, plan_mode_used,
+        approval_policy, sandbox_mode, network_access,
+        instructions_present, reasoning_count, escalated_permission_count,
+        extras,
+        timestamp
+    ) VALUES (
+        ?,?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,?,
+        ?,?,
+        ?,?,?,?,
+        ?,?,?,?,?,?,?,
+        ?,?,
+        ?,?,
+        ?,?,
+        ?,?,?,?,
+        ?,?,?,
+        ?,?,?,?,?,
+        ?,?,?,
+        ?,?,?,
+        ?,
+        COALESCE(?, datetime('now'))
+    )";
+
+    conn.execute(
+        sql,
+        params![
+            record.workspace_id,
+            record.session_id,
+            record.repo_id,
+            date,
+            record.provider,
+            record.model,
+            record.tool,
+            record.cost_usd.unwrap_or(0.0),
+            record.input_tokens.unwrap_or(0),
+            record.output_tokens.unwrap_or(0),
+            record.cache_read_tokens.unwrap_or(0),
+            record.cache_write_tokens.unwrap_or(0),
+            tools_json,
+            mcp_json,
+            record.duration_secs.unwrap_or(0),
+            commits_json,
+            i64::from(record.is_pr_create.unwrap_or(false)),
+            record.note,
+            record.git_branch,
+            record.ai_title,
+            record.client_version,
+            record.entrypoint,
+            record.user_type,
+            record.slug,
+            record.inference_geo,
+            record.cache_5m_tokens.unwrap_or(0),
+            record.cache_1h_tokens.unwrap_or(0),
+            record.web_search_requests.unwrap_or(0),
+            record.web_fetch_requests.unwrap_or(0),
+            record.service_tier,
+            record.speed,
+            record.turn_count.unwrap_or(0),
+            record.tool_call_count.unwrap_or(0),
+            record.sidechain_turn_count.unwrap_or(0),
+            record.subagent_count.unwrap_or(0),
+            record.iteration_count.unwrap_or(0),
+            record.error_count.unwrap_or(0),
+            record.interrupted_tool_count.unwrap_or(0),
+            record.permission_mode,
+            stop_reasons_json,
+            hooks_json,
+            skills_json,
+            i64::from(record.plan_mode_used.unwrap_or(false)),
+            record.approval_policy,
+            record.sandbox_mode,
+            record.network_access,
+            i64::from(record.instructions_present.unwrap_or(false)),
+            record.reasoning_count.unwrap_or(0),
+            record.escalated_permission_count.unwrap_or(0),
+            extras_json,
+            override_ts,
+        ],
+    )
+    .context("Failed to insert ai_session row")?;
     Ok(conn.last_insert_rowid())
 }
+
+const SELECT_COLS: &str = "id, workspace_id, session_id, repo_id, date,
+    provider, model, tool,
+    cost_usd, input_tokens, output_tokens,
+    cache_read_tokens, cache_write_tokens,
+    tools_used, mcp_servers,
+    duration_secs, commits, is_pr_create, note, timestamp,
+    git_branch, ai_title, client_version, entrypoint, user_type, slug, inference_geo,
+    cache_5m_tokens, cache_1h_tokens,
+    web_search_requests, web_fetch_requests,
+    service_tier, speed,
+    turn_count, tool_call_count, sidechain_turn_count, subagent_count,
+    iteration_count, error_count, interrupted_tool_count,
+    permission_mode, stop_reasons, hook_executions, skills_used, plan_mode_used,
+    approval_policy, sandbox_mode, network_access,
+    instructions_present, reasoning_count, escalated_permission_count,
+    extras";
 
 pub fn list_for_workspace(workspace_id: &str, limit: i64) -> Result<Vec<AiSession>> {
     let conn = db::read_conn()?;
     let mut stmt = conn
-        .prepare(
-            "SELECT id, workspace_id, session_id, repo_id, date,
-                    provider, model, tool,
-                    cost_usd, input_tokens, output_tokens,
-                    cache_read_tokens, cache_write_tokens,
-                    tools_used, mcp_servers,
-                    duration_secs, commits, is_pr_create, note, timestamp
-             FROM ai_sessions
-             WHERE workspace_id = ?1
-             ORDER BY id DESC
-             LIMIT ?2",
-        )
+        .prepare(&format!(
+            "SELECT {SELECT_COLS} FROM ai_sessions WHERE workspace_id = ?1 ORDER BY id DESC LIMIT ?2"
+        ))
         .context("Failed to prepare ai_sessions list query")?;
     let rows = stmt
         .query_map(params![workspace_id, limit], row_to_session)?
@@ -214,17 +343,9 @@ pub fn list_for_workspace(workspace_id: &str, limit: i64) -> Result<Vec<AiSessio
 pub fn list_recent(limit: i64) -> Result<Vec<AiSession>> {
     let conn = db::read_conn()?;
     let mut stmt = conn
-        .prepare(
-            "SELECT id, workspace_id, session_id, repo_id, date,
-                    provider, model, tool,
-                    cost_usd, input_tokens, output_tokens,
-                    cache_read_tokens, cache_write_tokens,
-                    tools_used, mcp_servers,
-                    duration_secs, commits, is_pr_create, note, timestamp
-             FROM ai_sessions
-             ORDER BY id DESC
-             LIMIT ?1",
-        )
+        .prepare(&format!(
+            "SELECT {SELECT_COLS} FROM ai_sessions ORDER BY id DESC LIMIT ?1"
+        ))
         .context("Failed to prepare ai_sessions recent query")?;
     let rows = stmt
         .query_map(params![limit], row_to_session)?
@@ -341,5 +462,37 @@ fn row_to_session(row: &rusqlite::Row<'_>) -> rusqlite::Result<AiSession> {
         is_pr_create: row.get::<_, i64>(17)? != 0,
         note: row.get(18)?,
         timestamp: row.get(19)?,
+        git_branch: row.get(20)?,
+        ai_title: row.get(21)?,
+        client_version: row.get(22)?,
+        entrypoint: row.get(23)?,
+        user_type: row.get(24)?,
+        slug: row.get(25)?,
+        inference_geo: row.get(26)?,
+        cache_5m_tokens: row.get(27)?,
+        cache_1h_tokens: row.get(28)?,
+        web_search_requests: row.get(29)?,
+        web_fetch_requests: row.get(30)?,
+        service_tier: row.get(31)?,
+        speed: row.get(32)?,
+        turn_count: row.get(33)?,
+        tool_call_count: row.get(34)?,
+        sidechain_turn_count: row.get(35)?,
+        subagent_count: row.get(36)?,
+        iteration_count: row.get(37)?,
+        error_count: row.get(38)?,
+        interrupted_tool_count: row.get(39)?,
+        permission_mode: row.get(40)?,
+        stop_reasons: row.get(41)?,
+        hook_executions: row.get(42)?,
+        skills_used: row.get(43)?,
+        plan_mode_used: row.get::<_, i64>(44)? != 0,
+        approval_policy: row.get(45)?,
+        sandbox_mode: row.get(46)?,
+        network_access: row.get(47)?,
+        instructions_present: row.get::<_, i64>(48)? != 0,
+        reasoning_count: row.get(49)?,
+        escalated_permission_count: row.get(50)?,
+        extras: row.get(51)?,
     })
 }

@@ -4,6 +4,7 @@
 //! sync is a straight column copy.
 
 use super::common::{run_blocking, CmdResult};
+use crate::models::ai_prompts::{self, AiPrompt};
 use crate::models::ai_sessions::{self, AiSession, AiSessionInsert, AiSessionStats};
 
 /// Insert one turn's tokens + cost. Called from the streaming pipeline
@@ -45,6 +46,7 @@ pub async fn get_last_pr_cost_for_workspace(workspace_id: String) -> CmdResult<f
 pub async fn reset_ai_session_ledger() -> CmdResult<i64> {
     run_blocking(|| {
         let deleted = ai_sessions::delete_all()?;
+        let prompts = ai_prompts::delete_all().unwrap_or(0);
         // Best-effort: even if state-file deletion fails, the row delete
         // already happened. Surface a warning via tracing instead of
         // blocking the user on a non-critical cleanup step.
@@ -55,7 +57,20 @@ pub async fn reset_ai_session_ledger() -> CmdResult<i64> {
                  Next scan may re-record older sessions."
             );
         }
-        Ok(deleted)
+        Ok(deleted + prompts)
     })
     .await
+}
+
+#[tauri::command]
+pub async fn list_recent_ai_prompts(limit: Option<i64>) -> CmdResult<Vec<AiPrompt>> {
+    run_blocking(move || ai_prompts::list_recent(limit.unwrap_or(500))).await
+}
+
+#[tauri::command]
+pub async fn list_ai_prompts_for_workspace(
+    workspace_id: String,
+    limit: Option<i64>,
+) -> CmdResult<Vec<AiPrompt>> {
+    run_blocking(move || ai_prompts::list_for_workspace(&workspace_id, limit.unwrap_or(500))).await
 }

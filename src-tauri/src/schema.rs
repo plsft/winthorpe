@@ -448,8 +448,86 @@ fn run_migrations(connection: &Connection) -> Result<()> {
         .execute_batch("UPDATE sessions SET model = 'default' WHERE model = 'opus-1m'")
         .ok();
 
+    // Migration: enrich ai_sessions with everything the disk transcripts
+    // actually expose. Each block adds one column; ALTER TABLE in SQLite
+    // can only add a single column per statement, so they're listed one
+    // by one. New columns nullable / default-zeroed to keep existing rows
+    // valid. See `models::transcripts` for what populates each field.
+    if has_table(connection, "ai_sessions") {
+        for (column, ddl) in AI_SESSIONS_NEW_COLUMNS {
+            if !has_column(connection, "ai_sessions", column) {
+                connection
+                    .execute_batch(&format!("ALTER TABLE ai_sessions ADD COLUMN {ddl}"))
+                    .with_context(|| format!("Failed to add ai_sessions.{column}"))?;
+            }
+        }
+    }
+
     Ok(())
 }
+
+/// New columns added to `ai_sessions` post-1.0. Each entry is
+/// `(column-name, full-DDL-fragment)`. The DDL fragment is what follows
+/// `ALTER TABLE ai_sessions ADD COLUMN`. Order doesn't matter for SQLite
+/// but follows the conceptual grouping (provenance → cost → behavior →
+/// codex-specific → copilot-specific → JSON catch-all).
+const AI_SESSIONS_NEW_COLUMNS: &[(&str, &str)] = &[
+    // Provenance — where the session came from.
+    ("git_branch", "git_branch TEXT"),
+    ("ai_title", "ai_title TEXT"),
+    ("client_version", "client_version TEXT"),
+    ("entrypoint", "entrypoint TEXT"),
+    ("user_type", "user_type TEXT"),
+    ("slug", "slug TEXT"),
+    ("inference_geo", "inference_geo TEXT"),
+    // Pricing inputs not previously captured. cache_5m / cache_1h are the
+    // two halves of `cache_write_tokens`; we keep the legacy column for
+    // compatibility with code that already SUMs over it.
+    ("cache_5m_tokens", "cache_5m_tokens INTEGER DEFAULT 0"),
+    ("cache_1h_tokens", "cache_1h_tokens INTEGER DEFAULT 0"),
+    (
+        "web_search_requests",
+        "web_search_requests INTEGER DEFAULT 0",
+    ),
+    ("web_fetch_requests", "web_fetch_requests INTEGER DEFAULT 0"),
+    ("service_tier", "service_tier TEXT"),
+    ("speed", "speed TEXT"),
+    // Behavior counters — how the turn went.
+    ("turn_count", "turn_count INTEGER DEFAULT 0"),
+    ("tool_call_count", "tool_call_count INTEGER DEFAULT 0"),
+    (
+        "sidechain_turn_count",
+        "sidechain_turn_count INTEGER DEFAULT 0",
+    ),
+    ("subagent_count", "subagent_count INTEGER DEFAULT 0"),
+    ("iteration_count", "iteration_count INTEGER DEFAULT 0"),
+    ("error_count", "error_count INTEGER DEFAULT 0"),
+    (
+        "interrupted_tool_count",
+        "interrupted_tool_count INTEGER DEFAULT 0",
+    ),
+    ("permission_mode", "permission_mode TEXT"),
+    ("stop_reasons", "stop_reasons TEXT"), // JSON array of distinct stop_reason values
+    ("hook_executions", "hook_executions TEXT"), // JSON map "PreToolUse:Bash" -> {count, total_ms, error_count}
+    ("skills_used", "skills_used TEXT"),         // JSON array of skill names invoked
+    ("plan_mode_used", "plan_mode_used INTEGER DEFAULT 0"),
+    // Codex-specific — sandbox posture for the session.
+    ("approval_policy", "approval_policy TEXT"),
+    ("sandbox_mode", "sandbox_mode TEXT"),
+    ("network_access", "network_access TEXT"),
+    (
+        "instructions_present",
+        "instructions_present INTEGER DEFAULT 0",
+    ),
+    ("reasoning_count", "reasoning_count INTEGER DEFAULT 0"),
+    (
+        "escalated_permission_count",
+        "escalated_permission_count INTEGER DEFAULT 0",
+    ),
+    // Catch-all for anything we don't promote to a column. Lets us add
+    // new fields without a migration.
+    ("extras", "extras TEXT"),
+];
 
 const SCHEMA_SQL: &str = r#"
 CREATE TABLE IF NOT EXISTS repos (
@@ -555,9 +633,9 @@ CREATE TABLE IF NOT EXISTS ai_sessions (
     repo_id TEXT,
     -- ISO date (YYYY-MM-DD) for date-bucketed reads.
     date TEXT NOT NULL,
-    provider TEXT,         -- "claude" | "codex" | other
+    provider TEXT,         -- "claude" | "codex" | "copilot" | other
     model TEXT,            -- specific model id (e.g. "claude-sonnet-4-5")
-    tool TEXT,             -- "winthorpe" | "claude-code" | "codex" | ...
+    tool TEXT,             -- "winthorpe" | "claude-code" | "codex" | "copilot-cli" | ...
     cost_usd REAL DEFAULT 0,
     input_tokens INTEGER DEFAULT 0,
     output_tokens INTEGER DEFAULT 0,
@@ -573,7 +651,72 @@ CREATE TABLE IF NOT EXISTS ai_sessions (
     -- these turns to the cheapest model.
     is_pr_create INTEGER DEFAULT 0,
     note TEXT,
+    -- Provenance fields backfilled from the JSONL transcript envelope.
+    git_branch TEXT,
+    ai_title TEXT,
+    client_version TEXT,
+    entrypoint TEXT,
+    user_type TEXT,
+    slug TEXT,
+    inference_geo TEXT,
+    -- Pricing inputs (Anthropic 5m/1h cache split + server tools).
+    cache_5m_tokens INTEGER DEFAULT 0,
+    cache_1h_tokens INTEGER DEFAULT 0,
+    web_search_requests INTEGER DEFAULT 0,
+    web_fetch_requests INTEGER DEFAULT 0,
+    service_tier TEXT,
+    speed TEXT,
+    -- Behavior counters.
+    turn_count INTEGER DEFAULT 0,
+    tool_call_count INTEGER DEFAULT 0,
+    sidechain_turn_count INTEGER DEFAULT 0,
+    subagent_count INTEGER DEFAULT 0,
+    iteration_count INTEGER DEFAULT 0,
+    error_count INTEGER DEFAULT 0,
+    interrupted_tool_count INTEGER DEFAULT 0,
+    permission_mode TEXT,
+    stop_reasons TEXT,         -- JSON array of distinct stop_reason values
+    hook_executions TEXT,      -- JSON map: "PreToolUse:Bash" -> {count,total_ms,error_count}
+    skills_used TEXT,          -- JSON array of skill names actually invoked
+    plan_mode_used INTEGER DEFAULT 0,
+    -- Codex sandbox posture (parsed from environment_context).
+    approval_policy TEXT,
+    sandbox_mode TEXT,
+    network_access TEXT,
+    instructions_present INTEGER DEFAULT 0,
+    reasoning_count INTEGER DEFAULT 0,
+    escalated_permission_count INTEGER DEFAULT 0,
+    -- Catch-all JSON for anything we don't promote to a column.
+    extras TEXT,
     timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Per-prompt history stream. One row per user prompt typed into a CLI
+-- (Claude Code, Codex, GitHub Copilot CLI). Sources:
+--   - ~/.claude/history.jsonl  (display, pastedContents, timestamp ms, project)
+--   - ~/.codex/history.jsonl   (session_id, ts seconds, text)
+--   - ~/.copilot/command-history-state.json  (commandHistory[] strings)
+-- Plus the inline user-message records in each provider's per-session
+-- transcripts, so we have prompts even for sessions whose history file
+-- was rotated. Backfilled by the same scanner that populates
+-- ai_sessions; idempotent via (provider, source_file, sequence).
+CREATE TABLE IF NOT EXISTS ai_prompts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    provider TEXT NOT NULL,        -- "claude" | "codex" | "copilot"
+    source TEXT NOT NULL,          -- "history" | "transcript"
+    source_file TEXT,              -- absolute path of the file we read this from
+    sequence INTEGER DEFAULT 0,    -- index within source_file (line/array offset)
+    session_id TEXT,
+    workspace_id TEXT,
+    repo_id TEXT,
+    project_path TEXT,             -- cwd / project at time of prompt
+    git_branch TEXT,
+    prompt TEXT NOT NULL,
+    prompt_length INTEGER DEFAULT 0,
+    has_paste INTEGER DEFAULT 0,
+    timestamp_ms INTEGER,          -- Unix millis. NULL when source has no timestamp.
+    date TEXT,                     -- YYYY-MM-DD (local), for cheap date-bucketed reads
+    recorded_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- Indexes
@@ -583,6 +726,14 @@ CREATE INDEX IF NOT EXISTS idx_workspaces_repository_id ON workspaces(repository
 CREATE INDEX IF NOT EXISTS idx_ai_sessions_workspace_id ON ai_sessions(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_ai_sessions_session_id ON ai_sessions(session_id);
 CREATE INDEX IF NOT EXISTS idx_ai_sessions_date ON ai_sessions(date);
+CREATE INDEX IF NOT EXISTS idx_ai_prompts_workspace_id ON ai_prompts(workspace_id);
+CREATE INDEX IF NOT EXISTS idx_ai_prompts_session_id ON ai_prompts(session_id);
+CREATE INDEX IF NOT EXISTS idx_ai_prompts_date ON ai_prompts(date);
+CREATE INDEX IF NOT EXISTS idx_ai_prompts_provider_ts ON ai_prompts(provider, timestamp_ms);
+-- Idempotency: re-scanning the same source file should not duplicate rows.
+-- (provider, source_file, sequence) is unique per (history-line | transcript-msg).
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_prompts_dedupe
+    ON ai_prompts(provider, source_file, sequence);
 
 -- Triggers (use CREATE TRIGGER IF NOT EXISTS where supported, otherwise wrapped)
 CREATE TRIGGER IF NOT EXISTS update_repos_updated_at
@@ -1148,6 +1299,140 @@ mod tests {
         let (connection, _dir) = open_test_db();
         ensure_schema(&connection).unwrap();
         assert!(column_exists(&connection, "repos", "forge_provider"));
+    }
+
+    #[test]
+    fn ai_sessions_new_columns_present_on_fresh_install() {
+        let (connection, _dir) = open_test_db();
+        ensure_schema(&connection).unwrap();
+        // Spot-check columns that the transcripts scanner now writes.
+        for col in [
+            "git_branch",
+            "ai_title",
+            "client_version",
+            "cache_5m_tokens",
+            "cache_1h_tokens",
+            "web_search_requests",
+            "web_fetch_requests",
+            "service_tier",
+            "speed",
+            "turn_count",
+            "tool_call_count",
+            "sidechain_turn_count",
+            "permission_mode",
+            "stop_reasons",
+            "hook_executions",
+            "approval_policy",
+            "sandbox_mode",
+            "network_access",
+            "extras",
+        ] {
+            assert!(
+                column_exists(&connection, "ai_sessions", col),
+                "ai_sessions.{col} should exist on fresh install"
+            );
+        }
+    }
+
+    #[test]
+    fn ai_sessions_new_columns_added_to_legacy() {
+        // Simulate the pre-migration ai_sessions shape.
+        let (connection, _dir) = open_test_db();
+        connection
+            .execute_batch(
+                r#"
+                CREATE TABLE ai_sessions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    workspace_id TEXT,
+                    session_id TEXT,
+                    repo_id TEXT,
+                    date TEXT NOT NULL,
+                    provider TEXT,
+                    model TEXT,
+                    tool TEXT,
+                    cost_usd REAL DEFAULT 0,
+                    input_tokens INTEGER DEFAULT 0,
+                    output_tokens INTEGER DEFAULT 0,
+                    cache_read_tokens INTEGER DEFAULT 0,
+                    cache_write_tokens INTEGER DEFAULT 0,
+                    tools_used TEXT,
+                    mcp_servers TEXT,
+                    duration_secs INTEGER DEFAULT 0,
+                    commits TEXT,
+                    is_pr_create INTEGER DEFAULT 0,
+                    note TEXT,
+                    timestamp TEXT NOT NULL DEFAULT (datetime('now'))
+                );
+                INSERT INTO ai_sessions (date, provider, cost_usd) VALUES ('2025-01-01', 'claude', 0.5);
+                "#,
+            )
+            .unwrap();
+
+        run_migrations(&connection).unwrap();
+
+        for col in ["git_branch", "ai_title", "cache_5m_tokens", "extras"] {
+            assert!(
+                column_exists(&connection, "ai_sessions", col),
+                "ai_sessions.{col} should be added to legacy schema"
+            );
+        }
+
+        // Existing row preserved.
+        let row: (String, f64) = connection
+            .query_row(
+                "SELECT provider, cost_usd FROM ai_sessions LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(row.0, "claude");
+        assert_eq!(row.1, 0.5);
+
+        // Idempotent.
+        run_migrations(&connection).unwrap();
+    }
+
+    #[test]
+    fn ai_prompts_table_present_on_fresh_install() {
+        let (connection, _dir) = open_test_db();
+        ensure_schema(&connection).unwrap();
+        assert!(table_exists(&connection, "ai_prompts"));
+        assert!(index_exists(&connection, "idx_ai_prompts_dedupe"));
+    }
+
+    #[test]
+    fn ai_prompts_unique_index_blocks_duplicate_inserts() {
+        let (connection, _dir) = open_test_db();
+        ensure_schema(&connection).unwrap();
+        connection
+            .execute(
+                "INSERT INTO ai_prompts (provider, source, source_file, sequence, prompt)
+                 VALUES ('claude', 'history', '/h.jsonl', 0, 'hello')",
+                [],
+            )
+            .unwrap();
+        // Same (provider, source_file, sequence) — should be ignored.
+        let affected = connection
+            .execute(
+                "INSERT OR IGNORE INTO ai_prompts (provider, source, source_file, sequence, prompt)
+                 VALUES ('claude', 'history', '/h.jsonl', 0, 'duplicate')",
+                [],
+            )
+            .unwrap();
+        assert_eq!(affected, 0);
+        let count: i64 = connection
+            .query_row("SELECT count(*) FROM ai_prompts", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(count, 1);
+        // Different sequence — accepted.
+        let affected = connection
+            .execute(
+                "INSERT OR IGNORE INTO ai_prompts (provider, source, source_file, sequence, prompt)
+                 VALUES ('claude', 'history', '/h.jsonl', 1, 'second')",
+                [],
+            )
+            .unwrap();
+        assert_eq!(affected, 1);
     }
 
     #[test]
