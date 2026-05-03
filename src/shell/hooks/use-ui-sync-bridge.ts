@@ -45,7 +45,9 @@ function handleUiMutation(
 				queryKey: winthorpeQueryKeys.workspaceDetail(event.workspaceId),
 			});
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.workspaceLinkedDirectories(event.workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceLinkedDirectories(
+					event.workspaceId,
+				),
 			});
 			return;
 		case "sessionListChanged":
@@ -71,7 +73,9 @@ function handleUiMutation(
 			return;
 		case "workspaceFilesChanged":
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.workspaceGitActionStatus(event.workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceGitActionStatus(
+					event.workspaceId,
+				),
 			});
 			invalidateAllWorkspaceChanges(queryClient);
 			return;
@@ -83,10 +87,14 @@ function handleUiMutation(
 				queryKey: winthorpeQueryKeys.workspaceDetail(event.workspaceId),
 			});
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.workspaceGitActionStatus(event.workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceGitActionStatus(
+					event.workspaceId,
+				),
 			});
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(event.workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(
+					event.workspaceId,
+				),
 			});
 			invalidateAllWorkspaceChanges(queryClient);
 			return;
@@ -113,7 +121,9 @@ function handleUiMutation(
 				queryKey: winthorpeQueryKeys.workspaceChangeRequest(event.workspaceId),
 			});
 			void queryClient.invalidateQueries({
-				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(event.workspaceId),
+				queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(
+					event.workspaceId,
+				),
 			});
 			return;
 		case "repositoryListChanged":

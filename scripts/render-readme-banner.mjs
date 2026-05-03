@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 /**
  * Render src/assets/render-banner.html to src/assets/readme-banner.png
  * via headless Chromium. The HTML draws the W-tile pattern + animated
@@ -9,8 +11,6 @@
  *   bun scripts/render-readme-banner.mjs
  */
 import { chromium } from "playwright";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -22,7 +22,7 @@ const outPath = resolve(repoRoot, "src/assets/readme-banner.png");
 const VIEWPORT = { width: 1320, height: 500 };
 
 async function main() {
-	const browser = await chromium.launch({ channel: 'chromium' });
+	const browser = await chromium.launch({ channel: "chromium" });
 	try {
 		const context = await browser.newContext({
 			viewport: VIEWPORT,

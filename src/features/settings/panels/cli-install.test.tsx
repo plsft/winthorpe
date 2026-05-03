@@ -43,7 +43,9 @@ describe("CliInstallPanel", () => {
 			expect(screen.getByText(/Installed at/)).toBeInTheDocument();
 		});
 		expect(screen.getByText("winthorpe-dev")).toBeInTheDocument();
-		expect(screen.getByText("/usr/local/bin/winthorpe-dev")).toBeInTheDocument();
+		expect(
+			screen.getByText("/usr/local/bin/winthorpe-dev"),
+		).toBeInTheDocument();
 		expect(
 			screen.getByRole("button", { name: "Reinstall" }),
 		).toBeInTheDocument();

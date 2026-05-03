@@ -39,7 +39,10 @@ describe("parseLocalFileLink", () => {
 
 	it("ignores external urls", () => {
 		expect(
-			parseLocalFileLink("https://example.com/src/App.tsx#L10", "/tmp/winthorpe"),
+			parseLocalFileLink(
+				"https://example.com/src/App.tsx#L10",
+				"/tmp/winthorpe",
+			),
 		).toBeNull();
 	});
 

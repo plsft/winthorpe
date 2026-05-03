@@ -76,8 +76,8 @@ export function AgentLoginStep({
 						Log in to your agents
 					</h2>
 					<p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-						Winthorpe uses your local Claude Code and Codex login sessions. You can
-						log in now, or continue and log in later.
+						Winthorpe uses your local Claude Code and Codex login sessions. You
+						can log in now, or continue and log in later.
 					</p>
 
 					<div className="mt-7 flex w-full flex-col gap-3">

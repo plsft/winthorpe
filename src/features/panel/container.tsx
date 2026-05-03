@@ -12,8 +12,8 @@ import type {
 } from "@/lib/api";
 import { createSession, loadRepoScripts } from "@/lib/api";
 import {
-	winthorpeQueryKeys,
 	sessionThreadMessagesQueryOptions,
+	winthorpeQueryKeys,
 	workspaceDetailQueryOptions,
 	workspaceSessionsQueryOptions,
 } from "@/lib/query-client";
@@ -206,7 +206,8 @@ export const WorkspacePanelContainer = memo(function WorkspacePanelContainer({
 						queryKey: winthorpeQueryKeys.workspaceDetail(displayedWorkspaceId),
 					}),
 					queryClient.invalidateQueries({
-						queryKey: winthorpeQueryKeys.workspaceSessions(displayedWorkspaceId),
+						queryKey:
+							winthorpeQueryKeys.workspaceSessions(displayedWorkspaceId),
 					}),
 				]);
 			})

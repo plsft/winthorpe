@@ -2,7 +2,10 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { createWinthorpeQueryClient, winthorpeQueryKeys } from "@/lib/query-client";
+import {
+	createWinthorpeQueryClient,
+	winthorpeQueryKeys,
+} from "@/lib/query-client";
 import { DEFAULT_SETTINGS, SettingsContext } from "@/lib/settings";
 
 const apiMockState = vi.hoisted(() => ({
@@ -391,27 +394,30 @@ describe("WorkspaceComposerContainer", () => {
 			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			WORKSPACE_DETAIL,
 		);
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
-			...WORKSPACE_SESSIONS,
-			{
-				id: "session-new",
-				workspaceId: "workspace-1",
-				title: "Untitled",
-				agentType: null,
-				status: "idle",
-				model: null,
-				permissionMode: "default",
-				providerSessionId: null,
-				unreadCount: 0,
-				codexThinkingLevel: null,
-				fastMode: false,
-				createdAt: "2026-04-05T00:00:00Z",
-				updatedAt: "2026-04-05T00:00:00Z",
-				lastUserMessageAt: null,
-				isHidden: false,
-				active: false,
-			},
-		]);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceSessions("workspace-1"),
+			[
+				...WORKSPACE_SESSIONS,
+				{
+					id: "session-new",
+					workspaceId: "workspace-1",
+					title: "Untitled",
+					agentType: null,
+					status: "idle",
+					model: null,
+					permissionMode: "default",
+					providerSessionId: null,
+					unreadCount: 0,
+					codexThinkingLevel: null,
+					fastMode: false,
+					createdAt: "2026-04-05T00:00:00Z",
+					updatedAt: "2026-04-05T00:00:00Z",
+					lastUserMessageAt: null,
+					isHidden: false,
+					active: false,
+				},
+			],
+		);
 
 		render(
 			<SettingsContext.Provider
@@ -467,10 +473,13 @@ describe("WorkspaceComposerContainer", () => {
 			winthorpeQueryKeys.agentModelSections,
 			MODEL_SECTIONS,
 		);
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceDetail("workspace-1"), {
-			...WORKSPACE_DETAIL,
-			state: workspaceState,
-		});
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceDetail("workspace-1"),
+			{
+				...WORKSPACE_DETAIL,
+				state: workspaceState,
+			},
+		);
 		queryClient.setQueryData(
 			winthorpeQueryKeys.workspaceSessions("workspace-1"),
 			WORKSPACE_SESSIONS,

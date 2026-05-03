@@ -919,14 +919,16 @@ mod tests {
                 spec.id
             );
             assert!(!spec.name.is_empty(), "empty name for id `{}`", spec.id);
+            // Every entry must be discoverable on at least one platform.
+            // macOS entries register via `bundle_ids` + `known_paths`;
+            // Windows-only entries (e.g. Visual Studio) provide
+            // `windows_paths` instead and have empty bundle_ids.
+            let mac_complete = !spec.bundle_ids.is_empty() && !spec.known_paths.is_empty();
+            let mac_empty = spec.bundle_ids.is_empty() && spec.known_paths.is_empty();
+            let has_windows = !spec.windows_paths.is_empty();
             assert!(
-                !spec.bundle_ids.is_empty(),
-                "no bundle ids for `{}`",
-                spec.id
-            );
-            assert!(
-                !spec.known_paths.is_empty(),
-                "no known paths for `{}`",
+                mac_complete || (mac_empty && has_windows),
+                "editor `{}` must have either (bundle_ids + known_paths) for macOS or windows_paths for Windows",
                 spec.id
             );
             assert!(seen.insert(spec.id), "duplicate id `{}`", spec.id);

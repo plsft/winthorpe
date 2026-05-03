@@ -47,8 +47,8 @@ import {
 } from "@/lib/api";
 import {
 	agentModelSectionsQueryOptions,
-	winthorpeQueryKeys,
 	repositoriesQueryOptions,
+	winthorpeQueryKeys,
 } from "@/lib/query-client";
 import type { ThemeMode } from "@/lib/settings";
 import { useSettings } from "@/lib/settings";

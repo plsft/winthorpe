@@ -83,7 +83,10 @@ function applyOptimisticWorkspaceStatus(
 	);
 
 	return () => {
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, previousGroups);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceGroups,
+			previousGroups,
+		);
 		queryClient.setQueryData(
 			winthorpeQueryKeys.workspaceDetail(workspaceId),
 			previousDetail,
@@ -252,7 +255,8 @@ export function useWorkspaceCommitLifecycle({
 						);
 						// Trigger a refresh so the status resolves sooner
 						void queryClient.invalidateQueries({
-							queryKey: winthorpeQueryKeys.workspaceForgeActionStatus(workspaceId),
+							queryKey:
+								winthorpeQueryKeys.workspaceForgeActionStatus(workspaceId),
 						});
 						return;
 					}

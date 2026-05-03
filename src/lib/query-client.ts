@@ -353,7 +353,8 @@ export function workspaceCandidateDirectoriesQueryOptions(
 	excludeWorkspaceId: string | null,
 ) {
 	return queryOptions({
-		queryKey: winthorpeQueryKeys.workspaceCandidateDirectories(excludeWorkspaceId),
+		queryKey:
+			winthorpeQueryKeys.workspaceCandidateDirectories(excludeWorkspaceId),
 		queryFn: () => listWorkspaceCandidateDirectories({ excludeWorkspaceId }),
 		staleTime: 0,
 	});

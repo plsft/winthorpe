@@ -750,7 +750,10 @@ describe("useWorkspacesSidebarController archive flow", () => {
 		apiMocks.loadWorkspaceGroups.mockResolvedValue(upgradedGroups);
 
 		act(() => {
-			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, upgradedGroups);
+			queryClient.setQueryData(
+				winthorpeQueryKeys.workspaceGroups,
+				upgradedGroups,
+			);
 		});
 
 		await act(async () => {

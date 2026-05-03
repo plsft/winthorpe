@@ -11,7 +11,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import { memo, useEffect, useState } from "react";
-import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import { Button } from "@/components/ui/button";
 import {
 	ContextMenu,
@@ -29,6 +28,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import {
 	getScriptState,
 	subscribeStatus,

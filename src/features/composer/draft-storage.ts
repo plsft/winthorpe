@@ -52,6 +52,9 @@ export function clearPersistedDraft(contextKey: string): void {
 	try {
 		window.localStorage.removeItem(key);
 	} catch (error) {
-		console.error(`[winthorpe] composer draft clear failed for "${key}"`, error);
+		console.error(
+			`[winthorpe] composer draft clear failed for "${key}"`,
+			error,
+		);
 	}
 }

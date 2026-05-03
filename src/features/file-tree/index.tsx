@@ -450,29 +450,28 @@ function TreeNodeRow(props: TreeNodeRowProps) {
 				</ContextMenuContent>
 			</ContextMenu>
 
-			{isDir && isOpen && children.length > 0 && (
-				<>
-					{children.map((child) => (
-						<TreeNodeRow
-							key={child.entry.path}
-							node={child}
-							depth={depth + 1}
-							expanded={expanded}
-							onToggle={onToggle}
-							onOpenFile={onOpenFile}
-							activeFilePath={activeFilePath}
-							renamingPath={renamingPath}
-							workspaceRootPath={workspaceRootPath}
-							onStartRename={onStartRename}
-							onConfirmRename={onConfirmRename}
-							onCancelRename={onCancelRename}
-							onDelete={onDelete}
-							onNewFileInParent={onNewFileInParent}
-							onNewFolderInParent={onNewFolderInParent}
-						/>
-					))}
-				</>
-			)}
+			{isDir &&
+				isOpen &&
+				children.length > 0 &&
+				children.map((child) => (
+					<TreeNodeRow
+						key={child.entry.path}
+						node={child}
+						depth={depth + 1}
+						expanded={expanded}
+						onToggle={onToggle}
+						onOpenFile={onOpenFile}
+						activeFilePath={activeFilePath}
+						renamingPath={renamingPath}
+						workspaceRootPath={workspaceRootPath}
+						onStartRename={onStartRename}
+						onConfirmRename={onConfirmRename}
+						onCancelRename={onCancelRename}
+						onDelete={onDelete}
+						onNewFileInParent={onNewFileInParent}
+						onNewFolderInParent={onNewFolderInParent}
+					/>
+				))}
 		</>
 	);
 }

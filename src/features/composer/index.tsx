@@ -255,7 +255,10 @@ export const WorkspaceComposer = memo(function WorkspaceComposer({
 
 		window.addEventListener("winthorpe:focus-composer", handleFocusComposer);
 		return () =>
-			window.removeEventListener("winthorpe:focus-composer", handleFocusComposer);
+			window.removeEventListener(
+				"winthorpe:focus-composer",
+				handleFocusComposer,
+			);
 	}, [disabled]);
 	const selectedModel = useMemo(() => {
 		for (const section of modelSections) {
@@ -311,7 +314,10 @@ export const WorkspaceComposer = memo(function WorkspaceComposer({
 			if (toolbarDisabled) return;
 			setModelPickerOpen(true);
 		};
-		window.addEventListener("winthorpe:open-model-picker", handleOpenModelPicker);
+		window.addEventListener(
+			"winthorpe:open-model-picker",
+			handleOpenModelPicker,
+		);
 		return () =>
 			window.removeEventListener(
 				"winthorpe:open-model-picker",

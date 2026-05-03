@@ -12,8 +12,8 @@ import {
 	useState,
 } from "react";
 import { useStickToBottom } from "use-stick-to-bottom";
-import { WinthorpeLogoAnimated } from "@/components/winthorpe-logo-animated";
 import { Button } from "@/components/ui/button";
+import { WinthorpeLogoAnimated } from "@/components/winthorpe-logo-animated";
 import type { ThreadMessageLike } from "@/lib/api";
 import { WinthorpeProfiler } from "@/lib/dev-react-profiler";
 import { estimateThreadRowHeights } from "@/lib/message-layout-estimator";

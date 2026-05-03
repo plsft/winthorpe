@@ -43,7 +43,6 @@ describe("App", () => {
 		const sidebar = screen.getByLabelText("Workspace sidebar");
 		const inspector = screen.getByLabelText("Inspector sidebar");
 		const panel = screen.getByLabelText("Workspace panel");
-		const dragRegion = screen.getByLabelText("Workspace panel drag region");
 		const viewport = screen.getByLabelText("Workspace viewport");
 		const composer = screen.getByLabelText("Workspace composer");
 		const input = screen.getByLabelText("Workspace input");
@@ -95,7 +94,8 @@ describe("App", () => {
 		expect(screen.getByRole("tab", { name: "Terminal" })).toBeInTheDocument();
 		expect(panel).toHaveClass("relative");
 		expect(panel).toHaveClass("bg-background");
-		expect(dragRegion).toHaveAttribute("data-tauri-drag-region");
+		// The workspace-panel drag region was removed when WindowTitleBar
+		// took over dragging at the app root; assertion stays gone with it.
 		expect(viewport).toHaveClass("bg-background");
 		expect(composer).toBeInTheDocument();
 		expect(input).toHaveAttribute("aria-multiline", "true");

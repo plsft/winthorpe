@@ -30,9 +30,9 @@ import {
 import { extractError, isRecoverableByPurge } from "@/lib/errors";
 import {
 	archivedWorkspacesQueryOptions,
-	winthorpeQueryKeys,
 	repositoriesQueryOptions,
 	sessionThreadMessagesQueryOptions,
+	winthorpeQueryKeys,
 	workspaceDetailQueryOptions,
 	workspaceGitActionStatusQueryOptions,
 	workspaceGroupsQueryOptions,
@@ -534,14 +534,16 @@ export function useWorkspacesSidebarController({
 						}))
 					: current,
 			);
-			queryClient.setQueryData(winthorpeQueryKeys.archivedWorkspaces, (current) =>
-				Array.isArray(current)
-					? (current as typeof archivedSummaries).map((summary) =>
-							summary.id === workspaceId
-								? { ...summary, hasUnread: true, workspaceUnread: 1 }
-								: summary,
-						)
-					: current,
+			queryClient.setQueryData(
+				winthorpeQueryKeys.archivedWorkspaces,
+				(current) =>
+					Array.isArray(current)
+						? (current as typeof archivedSummaries).map((summary) =>
+								summary.id === workspaceId
+									? { ...summary, hasUnread: true, workspaceUnread: 1 }
+									: summary,
+							)
+						: current,
 			);
 			queryClient.setQueryData(
 				winthorpeQueryKeys.workspaceDetail(workspaceId),
@@ -584,49 +586,52 @@ export function useWorkspacesSidebarController({
 
 	const handleTogglePin = useCallback(
 		async (workspaceId: string, currentlyPinned: boolean) => {
-			queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, (current) => {
-				if (!Array.isArray(current)) {
-					return current;
-				}
-				const groupsCopy = current as typeof groups;
-
-				type Row = (typeof groups)[number]["rows"][number];
-				let foundRow: Row | null = null;
-				const withoutRow = groupsCopy.map((group) => {
-					const index = group.rows.findIndex((row) => row.id === workspaceId);
-					if (index === -1) {
-						return group;
+			queryClient.setQueryData(
+				winthorpeQueryKeys.workspaceGroups,
+				(current) => {
+					if (!Array.isArray(current)) {
+						return current;
 					}
-					foundRow = group.rows[index];
-					return {
-						...group,
-						rows: [
-							...group.rows.slice(0, index),
-							...group.rows.slice(index + 1),
-						],
+					const groupsCopy = current as typeof groups;
+
+					type Row = (typeof groups)[number]["rows"][number];
+					let foundRow: Row | null = null;
+					const withoutRow = groupsCopy.map((group) => {
+						const index = group.rows.findIndex((row) => row.id === workspaceId);
+						if (index === -1) {
+							return group;
+						}
+						foundRow = group.rows[index];
+						return {
+							...group,
+							rows: [
+								...group.rows.slice(0, index),
+								...group.rows.slice(index + 1),
+							],
+						};
+					});
+
+					if (!foundRow) {
+						return current;
+					}
+					const row = foundRow as Row;
+					const updatedRow: Row = {
+						...row,
+						pinnedAt: currentlyPinned ? null : new Date().toISOString(),
 					};
-				});
 
-				if (!foundRow) {
-					return current;
-				}
-				const row = foundRow as Row;
-				const updatedRow: Row = {
-					...row,
-					pinnedAt: currentlyPinned ? null : new Date().toISOString(),
-				};
+					const targetGroupId = workspaceGroupIdFromStatus(
+						updatedRow.status,
+						updatedRow.pinnedAt,
+					);
 
-				const targetGroupId = workspaceGroupIdFromStatus(
-					updatedRow.status,
-					updatedRow.pinnedAt,
-				);
-
-				return withoutRow.map((group) =>
-					group.id === targetGroupId
-						? { ...group, rows: [updatedRow, ...group.rows] }
-						: group,
-				);
-			});
+					return withoutRow.map((group) =>
+						group.id === targetGroupId
+							? { ...group, rows: [updatedRow, ...group.rows] }
+							: group,
+					);
+				},
+			);
 
 			try {
 				if (currentlyPinned) {
@@ -755,7 +760,9 @@ export function useWorkspacesSidebarController({
 			// the cold placeholder.
 			queryClient.setQueryData(
 				[
-					...winthorpeQueryKeys.sessionMessages(prepareResponse.initialSessionId),
+					...winthorpeQueryKeys.sessionMessages(
+						prepareResponse.initialSessionId,
+					),
 					"thread",
 				],
 				[],
@@ -776,7 +783,9 @@ export function useWorkspacesSidebarController({
 			// `get_workspace_git_action_status` and
 			// `get_workspace_forge_action_status` — keep them in sync.
 			queryClient.setQueryData(
-				winthorpeQueryKeys.workspaceGitActionStatus(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceGitActionStatus(
+					prepareResponse.workspaceId,
+				),
 				{
 					uncommittedCount: 0,
 					conflictCount: 0,
@@ -793,7 +802,9 @@ export function useWorkspacesSidebarController({
 				null,
 			);
 			queryClient.setQueryData(
-				winthorpeQueryKeys.workspaceForgeActionStatus(prepareResponse.workspaceId),
+				winthorpeQueryKeys.workspaceForgeActionStatus(
+					prepareResponse.workspaceId,
+				),
 				{
 					changeRequest: null,
 					reviewDecision: null,
@@ -1065,12 +1076,14 @@ export function useWorkspacesSidebarController({
 						}))
 					: current,
 			);
-			queryClient.setQueryData(winthorpeQueryKeys.archivedWorkspaces, (current) =>
-				Array.isArray(current)
-					? (current as typeof archivedSummaries).filter(
-							(summary) => summary.id !== workspaceId,
-						)
-					: current,
+			queryClient.setQueryData(
+				winthorpeQueryKeys.archivedWorkspaces,
+				(current) =>
+					Array.isArray(current)
+						? (current as typeof archivedSummaries).filter(
+								(summary) => summary.id !== workspaceId,
+							)
+						: current,
 			);
 
 			if (selectedWorkspaceId === workspaceId) {
@@ -1203,7 +1216,8 @@ export function useWorkspacesSidebarController({
 				}
 
 				const previousGroups =
-					queryClient.getQueryData(winthorpeQueryKeys.workspaceGroups) ?? groups;
+					queryClient.getQueryData(winthorpeQueryKeys.workspaceGroups) ??
+					groups;
 
 				const moved = {
 					row: null as WorkspaceRow | null,
@@ -1367,12 +1381,14 @@ export function useWorkspacesSidebarController({
 				return;
 			}
 
-			queryClient.setQueryData(winthorpeQueryKeys.archivedWorkspaces, (current) =>
-				Array.isArray(current)
-					? (current as typeof archivedSummaries).filter(
-							(summary) => summary.id !== workspaceId,
-						)
-					: current,
+			queryClient.setQueryData(
+				winthorpeQueryKeys.archivedWorkspaces,
+				(current) =>
+					Array.isArray(current)
+						? (current as typeof archivedSummaries).filter(
+								(summary) => summary.id !== workspaceId,
+							)
+						: current,
 			);
 
 			const placeholderRow = summaryToArchivedRow({

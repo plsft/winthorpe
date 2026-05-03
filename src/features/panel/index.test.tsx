@@ -4,7 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { WorkspaceDetail, WorkspaceSessionSummary } from "@/lib/api";
-import { createWinthorpeQueryClient, winthorpeQueryKeys } from "@/lib/query-client";
+import {
+	createWinthorpeQueryClient,
+	winthorpeQueryKeys,
+} from "@/lib/query-client";
 
 const apiMocks = vi.hoisted(() => ({
 	createSession: vi.fn(),
@@ -408,7 +411,8 @@ describe("WorkspacePanel", () => {
 		expect(
 			activeSessions.some(
 				(tab) =>
-					tab.querySelector('[data-slot="winthorpe-thinking-indicator"]') !== null,
+					tab.querySelector('[data-slot="winthorpe-thinking-indicator"]') !==
+					null,
 			),
 		).toBe(true);
 	});

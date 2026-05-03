@@ -31,8 +31,8 @@ import type {
 import {
 	agentModelSectionsQueryOptions,
 	autoCloseActionKindsQueryOptions,
-	winthorpeQueryKeys,
 	slashCommandsQueryOptions,
+	winthorpeQueryKeys,
 	workspaceCandidateDirectoriesQueryOptions,
 	workspaceDetailQueryOptions,
 	workspaceLinkedDirectoriesQueryOptions,

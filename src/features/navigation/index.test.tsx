@@ -130,7 +130,9 @@ describe("WorkspacesSidebar", () => {
 
 		expect(screen.queryByPlaceholderText("Search repositories")).toBeNull();
 		expect(screen.queryByText("Repositories")).toBeNull();
-		expect(screen.getByRole("option", { name: /winthorpe/i })).toBeInTheDocument();
+		expect(
+			screen.getByRole("option", { name: /winthorpe/i }),
+		).toBeInTheDocument();
 
 		const [firstRepositoryOption] = screen.getAllByRole("option");
 		await user.click(firstRepositoryOption);

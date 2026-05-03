@@ -6,7 +6,6 @@ import {
 	MessageSquareText,
 	Play,
 } from "lucide-react";
-import { WinthorpeLogoAnimated } from "@/components/winthorpe-logo-animated";
 import {
 	Empty,
 	EmptyContent,
@@ -15,6 +14,7 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
+import { WinthorpeLogoAnimated } from "@/components/winthorpe-logo-animated";
 import type { WorkspaceScriptType } from "@/lib/workspace-script-actions";
 
 const SCRIPT_ACTION_COPY: Record<

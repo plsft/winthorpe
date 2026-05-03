@@ -1,7 +1,10 @@
 import { waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createWinthorpeQueryClient, winthorpeQueryKeys } from "@/lib/query-client";
+import {
+	createWinthorpeQueryClient,
+	winthorpeQueryKeys,
+} from "@/lib/query-client";
 import { DEFAULT_SETTINGS, SettingsContext } from "@/lib/settings";
 import { renderWithProviders } from "@/test/render-with-providers";
 
@@ -383,25 +386,28 @@ describe("WorkspacePanelContainer loading semantics", () => {
 			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			createWorkspaceDetail("workspace-1", "session-new"),
 		);
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
-			{
-				id: "session-new",
-				workspaceId: "workspace-1",
-				title: "Untitled",
-				agentType: null,
-				status: "idle",
-				model: null,
-				permissionMode: "default",
-				providerSessionId: null,
-				unreadCount: 0,
-				fastMode: false,
-				createdAt: "2026-04-05T00:00:00Z",
-				updatedAt: "2026-04-05T00:00:00Z",
-				lastUserMessageAt: null,
-				isHidden: false,
-				active: true,
-			},
-		]);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceSessions("workspace-1"),
+			[
+				{
+					id: "session-new",
+					workspaceId: "workspace-1",
+					title: "Untitled",
+					agentType: null,
+					status: "idle",
+					model: null,
+					permissionMode: "default",
+					providerSessionId: null,
+					unreadCount: 0,
+					fastMode: false,
+					createdAt: "2026-04-05T00:00:00Z",
+					updatedAt: "2026-04-05T00:00:00Z",
+					lastUserMessageAt: null,
+					isHidden: false,
+					active: true,
+				},
+			],
+		);
 		apiMocks.loadWorkspaceSessions.mockResolvedValue([
 			{
 				id: "session-new",
@@ -682,23 +688,26 @@ describe("WorkspacePanelContainer loading semantics", () => {
 			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			createWorkspaceDetail("workspace-1", "idle"),
 		);
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
-			createWorkspaceSessionSummary("action-idle", {
-				actionKind: "create-pr",
-				updatedAt: "2026-04-05T00:00:00Z",
-			}),
-			createWorkspaceSessionSummary("idle", {
-				active: true,
-				updatedAt: "2026-04-06T00:00:00Z",
-			}),
-			createWorkspaceSessionSummary("running", {
-				updatedAt: "2026-04-07T00:00:00Z",
-			}),
-			createWorkspaceSessionSummary("unread", {
-				unreadCount: 2,
-				updatedAt: "2026-04-04T00:00:00Z",
-			}),
-		]);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceSessions("workspace-1"),
+			[
+				createWorkspaceSessionSummary("action-idle", {
+					actionKind: "create-pr",
+					updatedAt: "2026-04-05T00:00:00Z",
+				}),
+				createWorkspaceSessionSummary("idle", {
+					active: true,
+					updatedAt: "2026-04-06T00:00:00Z",
+				}),
+				createWorkspaceSessionSummary("running", {
+					updatedAt: "2026-04-07T00:00:00Z",
+				}),
+				createWorkspaceSessionSummary("unread", {
+					unreadCount: 2,
+					updatedAt: "2026-04-04T00:00:00Z",
+				}),
+			],
+		);
 		queryClient.setQueryData(
 			[...winthorpeQueryKeys.sessionMessages("idle"), "thread"],
 			createMessages("idle"),
@@ -982,12 +991,15 @@ describe("WorkspacePanelContainer loading semantics", () => {
 			...createWorkspaceDetail(workspaceId, sessionId),
 			state: "initializing",
 		});
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions(workspaceId), [
-			createWorkspaceSessionSummary(sessionId, {
-				workspaceId,
-				active: true,
-			}),
-		]);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceSessions(workspaceId),
+			[
+				createWorkspaceSessionSummary(sessionId, {
+					workspaceId,
+					active: true,
+				}),
+			],
+		);
 		queryClient.setQueryData(
 			[...winthorpeQueryKeys.sessionMessages(sessionId), "thread"],
 			[],

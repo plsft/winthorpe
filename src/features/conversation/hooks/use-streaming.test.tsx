@@ -519,12 +519,15 @@ describe("useConversationStreaming", () => {
 		apiMocks.startAgentMessageStream.mockImplementation(async () => {});
 
 		const { Wrapper, queryClient } = createWrapper();
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
-			{
-				id: "session-1",
-				title: "Untitled",
-			},
-		]);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceSessions("workspace-1"),
+			[
+				{
+					id: "session-1",
+					title: "Untitled",
+				},
+			],
+		);
 		queryClient.setQueryData(sessionThreadCacheKey("session-1"), []);
 
 		const { result } = renderHook(
@@ -642,57 +645,63 @@ describe("useConversationStreaming", () => {
 		apiMocks.startAgentMessageStream.mockImplementation(async () => {});
 
 		const { Wrapper, queryClient } = createWrapper();
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceSessions("workspace-1"), [
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceSessions("workspace-1"),
+			[
+				{
+					id: "session-1",
+					workspaceId: "workspace-1",
+					title: "Untitled",
+					agentType: "codex",
+					status: "idle",
+					model: "gpt-5.4",
+					permissionMode: "default",
+					providerSessionId: null,
+					effortLevel: null,
+					unreadCount: 0,
+					fastMode: false,
+					createdAt: "2026-04-17T00:00:00Z",
+					updatedAt: "2026-04-17T00:00:00Z",
+					lastUserMessageAt: null,
+					isHidden: false,
+					actionKind: null,
+					active: true,
+				},
+			],
+		);
+		queryClient.setQueryData(
+			winthorpeQueryKeys.workspaceDetail("workspace-1"),
 			{
-				id: "session-1",
-				workspaceId: "workspace-1",
-				title: "Untitled",
-				agentType: "codex",
-				status: "idle",
-				model: "gpt-5.4",
-				permissionMode: "default",
-				providerSessionId: null,
-				effortLevel: null,
-				unreadCount: 0,
-				fastMode: false,
-				createdAt: "2026-04-17T00:00:00Z",
-				updatedAt: "2026-04-17T00:00:00Z",
-				lastUserMessageAt: null,
-				isHidden: false,
-				actionKind: null,
-				active: true,
+				id: "workspace-1",
+				title: "Workspace 1",
+				repoId: "repo-1",
+				repoName: "winthorpe",
+				repoIconSrc: null,
+				repoInitials: "HE",
+				remote: "origin",
+				remoteUrl: null,
+				defaultBranch: "main",
+				rootPath: "/tmp/winthorpe",
+				directoryName: "winthorpe",
+				state: "ready",
+				hasUnread: false,
+				workspaceUnread: 0,
+				unreadSessionCount: 0,
+				status: "in-progress",
+				activeSessionId: "session-1",
+				activeSessionTitle: "Untitled",
+				activeSessionAgentType: "codex",
+				activeSessionStatus: "idle",
+				branch: "main",
+				initializationParentBranch: "main",
+				intendedTargetBranch: "main",
+				pinnedAt: null,
+				prTitle: null,
+				archiveCommit: null,
+				sessionCount: 1,
+				messageCount: 0,
 			},
-		]);
-		queryClient.setQueryData(winthorpeQueryKeys.workspaceDetail("workspace-1"), {
-			id: "workspace-1",
-			title: "Workspace 1",
-			repoId: "repo-1",
-			repoName: "winthorpe",
-			repoIconSrc: null,
-			repoInitials: "HE",
-			remote: "origin",
-			remoteUrl: null,
-			defaultBranch: "main",
-			rootPath: "/tmp/winthorpe",
-			directoryName: "winthorpe",
-			state: "ready",
-			hasUnread: false,
-			workspaceUnread: 0,
-			unreadSessionCount: 0,
-			status: "in-progress",
-			activeSessionId: "session-1",
-			activeSessionTitle: "Untitled",
-			activeSessionAgentType: "codex",
-			activeSessionStatus: "idle",
-			branch: "main",
-			initializationParentBranch: "main",
-			intendedTargetBranch: "main",
-			pinnedAt: null,
-			prTitle: null,
-			archiveCommit: null,
-			sessionCount: 1,
-			messageCount: 0,
-		});
+		);
 		queryClient.setQueryData(winthorpeQueryKeys.workspaceGroups, [
 			{
 				id: "progress",

@@ -744,7 +744,7 @@ function formatTokens(value: number): string {
 }
 
 function formatTime(iso: string): string {
-	const d = new Date(iso.replace(" ", "T") + "Z");
+	const d = new Date(`${iso.replace(" ", "T")}Z`);
 	if (Number.isNaN(d.getTime())) return iso;
 	return d.toLocaleString([], {
 		month: "short",

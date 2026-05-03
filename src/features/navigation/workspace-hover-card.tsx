@@ -9,7 +9,6 @@ import {
 	type LucideIcon,
 } from "lucide-react";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import {
 	LazyStreamdown,
 	preloadStreamdown,
@@ -19,6 +18,7 @@ import {
 	HoverCard as HoverCardRoot,
 	HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import type {
 	ExtendedMessagePart,
 	ThreadMessageLike,
@@ -599,7 +599,10 @@ export function WorkspaceHoverCard({
 					{/* Title row + Winthorpe logo + elapsed timer (when streaming). */}
 					<div className="flex items-start gap-2">
 						{isSending ? (
-							<WinthorpeThinkingIndicator size={14} className="mt-0.5 shrink-0" />
+							<WinthorpeThinkingIndicator
+								size={14}
+								className="mt-0.5 shrink-0"
+							/>
 						) : null}
 						<div className="min-w-0 flex-1 text-sm font-semibold leading-snug text-foreground line-clamp-2">
 							{title}

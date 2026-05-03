@@ -7,7 +7,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import { Button } from "@/components/ui/button";
 import { HyperText } from "@/components/ui/hyper-text";
 import {
@@ -15,6 +14,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { WinthorpeThinkingIndicator } from "@/components/winthorpe-thinking-indicator";
 import { cn } from "@/lib/utils";
 import {
 	branchToneClasses,
