@@ -61,6 +61,8 @@ vi.mock("./lib/platform", () => ({
 vi.mock("@tauri-apps/api/window", () => ({
 	getCurrentWindow: () => ({
 		setBadgeCount: vi.fn(async () => {}),
+		isMaximized: vi.fn(async () => false),
+		onResized: vi.fn(async () => () => {}),
 	}),
 }));
 vi.mock("@tauri-apps/api/event", () => ({
