@@ -1,5 +1,11 @@
 # winthorpe
 
+## 0.6.4
+
+### Patch Changes
+
+- [`6e854df`](https://github.com/plsft/winthorpe/commit/6e854df35dd3070d0177efa799e04a741ccb575c) - Fix v0.6.3 failing to launch by restoring the auto-update plugin configuration that the release tidy inadvertently removed.
+
 ## 0.6.3
 
 ### Patch Changes
