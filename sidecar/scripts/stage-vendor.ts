@@ -2,7 +2,7 @@
 // for Tauri to ship as bundle resources. Cross-platform: macOS arm64/x64,
 // Windows x64. Linux can be added later by extending detectTarget().
 
-import { execFileSync, execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import {
 	chmodSync,
 	cpSync,
@@ -394,30 +394,21 @@ function maybeSignMacBinary(path: string, withEntitlements: boolean): void {
 // ---------------------------------------------------------------------------
 
 function locateHostBun(): string {
-	try {
-		if (isWin) {
-			// `where` returns one or more paths; take the first.
-			const raw = execSync("where bun", { encoding: "utf8" })
-				.trim()
-				.split(/\r?\n/)[0];
-			if (!raw) throw new Error("empty output");
-			// Windows symlinks are rare for Bun installs (winget/scoop/manual all
-			// drop the real exe); skip realpathSync to avoid touching symlink
-			// edge cases that the Node API doesn't always traverse.
-			return raw;
-		}
-		const raw =
-			execSync("which bun", { encoding: "utf8" }).trim().split("\n")[0] ?? "";
-		if (!raw) throw new Error("empty output");
-		// Homebrew ships bun as a symlink; resolve to the real Mach-O.
-		return realpathSync(raw);
-	} catch {
+	// Bun is executing this script, so process.execPath already points at the
+	// host bun binary. Avoids shelling out to `where`/`which`, which fails when
+	// PATH is missing System32 (e.g. under hydrated MSVC envs on Windows).
+	const exe = process.execPath;
+	if (!exe) {
 		throw new Error(
-			"[stage-vendor] bun not found on PATH — install Bun (https://bun.sh) on the build host. " +
-				"The Claude Agent SDK needs a JS runtime to execute cli.js, and bundle artifacts cannot rely " +
-				"on the user's PATH. Winthorpe ships the host's bun binary inside the Resources/vendor/bun/ folder.",
+			"[stage-vendor] could not determine the running bun executable (process.execPath empty). " +
+				"Run this script with `bun run` so process.execPath resolves to the host bun binary — " +
+				"Winthorpe ships that binary inside the Resources/vendor/bun/ folder.",
 		);
 	}
+	// Homebrew ships bun as a symlink; resolve to the real Mach-O. On Windows
+	// Bun ships as a real .exe and Node's symlink APIs don't always traverse
+	// cleanly, so skip the realpath dance there.
+	return isWin ? exe : realpathSync(exe);
 }
 
 // ---------------------------------------------------------------------------
