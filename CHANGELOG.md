@@ -1,5 +1,11 @@
 # winthorpe
 
+## 0.6.5
+
+### Patch Changes
+
+- [`7ea5a8f`](https://github.com/plsft/winthorpe/commit/7ea5a8f36593ca8247bb56c04f72f6dd706adbb5) - Fix the in-app "Connect GitHub" button failing on the released installer with `GitHub account connection is not configured`. The release pipeline now bakes the GitHub OAuth client ID into the binary correctly, and the build refuses to produce a release binary if it isn't configured.
+
 ## 0.6.4
 
 ### Patch Changes
