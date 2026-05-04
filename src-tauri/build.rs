@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -6,6 +6,11 @@ use std::path::{Path, PathBuf};
 const GITHUB_CLIENT_ID_KEY: &str = "WINTHORPE_GITHUB_CLIENT_ID";
 const UPDATER_ENDPOINTS_KEY: &str = "WINTHORPE_UPDATER_ENDPOINTS";
 const UPDATER_PUBKEY_KEY: &str = "WINTHORPE_UPDATER_PUBKEY";
+
+// Must match auth.rs::PLACEHOLDER_CLIENT_ID. The committed .env.example uses
+// this value so contributors get a clear error instead of silently
+// authenticating against someone else's OAuth app.
+const GITHUB_CLIENT_ID_PLACEHOLDER: &str = "REPLACE_WITH_YOUR_GITHUB_OAUTH_CLIENT_ID";
 
 fn main() {
     ensure_external_bin_placeholders();
@@ -24,7 +29,7 @@ fn main() {
     // committed `.env.example` placeholder would clobber the real value from
     // `.env.local`, since `cargo:rustc-env=` lines emitted later override
     // earlier ones for the compiled binary.
-    let mut emitted: HashSet<&'static str> = HashSet::new();
+    let mut resolved: HashMap<&'static str, String> = HashMap::new();
     for env_path in candidate_env_paths() {
         if env_path.exists() {
             println!("cargo:rerun-if-changed={}", env_path.display());
@@ -34,16 +39,48 @@ fn main() {
             UPDATER_ENDPOINTS_KEY,
             UPDATER_PUBKEY_KEY,
         ] {
-            if emitted.contains(key) {
+            if resolved.contains_key(key) {
                 continue;
             }
-            if load_env_var(&env_path, key) {
-                emitted.insert(key);
+            if let Some(value) = load_env_var(&env_path, key) {
+                resolved.insert(key, value);
             }
         }
     }
 
+    enforce_github_client_id(resolved.get(GITHUB_CLIENT_ID_KEY).map(String::as_str));
+
     tauri_build::build();
+}
+
+/// Production builds MUST bake in a real GitHub OAuth client ID. v0.6.4
+/// shipped without one and the in-app "Connect GitHub" button surfaced a
+/// runtime error. Hard-fail release builds so an unconfigured CI run never
+/// produces a binary again. Debug builds emit a warning instead so
+/// contributors without `.env.local` can still run `cargo check`/`cargo test`.
+fn enforce_github_client_id(value: Option<&str>) {
+    let problem = match value {
+        None => Some("WINTHORPE_GITHUB_CLIENT_ID is not set".to_string()),
+        Some(v) if v.trim().is_empty() => Some("WINTHORPE_GITHUB_CLIENT_ID is empty".to_string()),
+        Some(v) if v == GITHUB_CLIENT_ID_PLACEHOLDER => Some(format!(
+            "WINTHORPE_GITHUB_CLIENT_ID is still the placeholder ({GITHUB_CLIENT_ID_PLACEHOLDER})"
+        )),
+        Some(_) => None,
+    };
+
+    let Some(reason) = problem else { return };
+
+    let message = format!(
+        "{reason}. Set it in .env.local (see .env.local.example) or as an \
+         environment variable; CI must inject it via the \
+         WINTHORPE_GITHUB_CLIENT_ID repo secret. See docs/github-oauth-setup.md."
+    );
+
+    let is_release = env::var("PROFILE").as_deref() == Ok("release");
+    if is_release {
+        panic!("{message}");
+    }
+    println!("cargo:warning={message}");
 }
 
 fn ensure_external_bin_placeholders() {
@@ -125,27 +162,24 @@ fn candidate_env_paths() -> Vec<PathBuf> {
     paths
 }
 
-/// Returns true when a value for `key` was emitted from `path`.
-fn load_env_var(path: &Path, key: &str) -> bool {
-    if env::var_os(key).is_some() {
-        // The build process itself already has the var; option_env! will pick
-        // it up directly. Treat as "already emitted" so lower-priority files
-        // can't overwrite it.
-        return true;
+/// Returns the resolved value for `key`, in priority order: process env first
+/// (rustc inherits it directly, no `cargo:rustc-env=` needed), then the .env
+/// file at `path`. Returns None if the key isn't found at this layer so the
+/// caller can try the next candidate path.
+fn load_env_var(path: &Path, key: &str) -> Option<String> {
+    if let Ok(value) = env::var(key) {
+        return Some(value);
     }
     if !path.exists() {
-        return false;
+        return None;
     }
 
-    let Ok(iter) = dotenvy::from_path_iter(path) else {
-        return false;
-    };
-
+    let iter = dotenvy::from_path_iter(path).ok()?;
     for item in iter.flatten() {
         if item.0 == key {
             println!("cargo:rustc-env={}={}", item.0, item.1);
-            return true;
+            return Some(item.1);
         }
     }
-    false
+    None
 }

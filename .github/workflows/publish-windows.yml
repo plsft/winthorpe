@@ -92,6 +92,12 @@ jobs:
         env:
           TAURI_TARGET_TRIPLE: x86_64-pc-windows-msvc
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # OAuth Device Flow client ID baked in at compile time via build.rs.
+          # build.rs hard-fails the release build if this is missing or set to
+          # the placeholder, so a missing secret here aborts CI before any
+          # broken installer is produced. v0.6.4 shipped without it and the
+          # in-app "Connect GitHub" button surfaced a runtime error.
+          WINTHORPE_GITHUB_CLIENT_ID: ${{ secrets.WINTHORPE_GITHUB_CLIENT_ID }}
           # Bootstrap mode for vendor staging until SHA256s for Windows gh+glab
           # zips are filled in. Remove once stage-vendor.ts has real SHAs.
           WINTHORPE_VENDOR_SKIP_SHA_CHECK: "1"
